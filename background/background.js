@@ -1,100 +1,55 @@
 // BACKGROUND SERVICE WORKER
 // This file runs in the background and handles:
 // - Opening the side panel when extension icon is clicked
-// - Processing scraped page data
+// - Fetching real markets from Polymarket Gamma API
 // - Sending market data to the side panel UI
 // - Message passing between content script and side panel
 
-// EXAMPLE MARKETS DATA
-// Currently returns hardcoded example markets
-// TODO: Replace with real Polymarket API calls when ready
-function getExampleMarkets() {
-  return [
-    {
-      id: '1',
-      question: 'Will Bitcoin reach $100,000 by end of 2025?',
-      outcomes: [
-        { price: '0.65' },
-        { price: '0.35' }
-      ],
-      volume: '1250000',
-      url: '/event/will-bitcoin-reach-100k-2025'
-    },
-    {
-      id: '2',
-      question: 'Will the S&P 500 close above 5,500 on Dec 31, 2025?',
-      outcomes: [
-        { price: '0.72' },
-        { price: '0.28' }
-      ],
-      volume: '890000',
-      url: '/event/sp500-5500-dec-2025'
-    },
-    {
-      id: '3',
-      question: 'Will there be a recession in the US in 2025?',
-      outcomes: [
-        { price: '0.38' },
-        { price: '0.62' }
-      ],
-      volume: '2100000',
-      url: '/event/us-recession-2025'
-    },
-    {
-      id: '4',
-      question: 'Will AI replace 50% of software jobs by 2026?',
-      outcomes: [
-        { price: '0.45' },
-        { price: '0.55' }
-      ],
-      volume: '1560000',
-      url: '/event/ai-replace-software-jobs-2026'
-    },
-    {
-      id: '5',
-      question: 'Will Ethereum ETF be approved by SEC in 2025?',
-      outcomes: [
-        { price: '0.58' },
-        { price: '0.42' }
-      ],
-      volume: '980000',
-      url: '/event/ethereum-etf-sec-2025'
-    },
-    {
-      id: '6',
-      question: 'Will there be a major cyber attack on US infrastructure in 2025?',
-      outcomes: [
-        { price: '0.32' },
-        { price: '0.68' }
-      ],
-      volume: '750000',
-      url: '/event/cyber-attack-us-infrastructure-2025'
-    },
-    {
-      id: '7',
-      question: 'Will Apple release AR glasses in 2025?',
-      outcomes: [
-        { price: '0.55' },
-        { price: '0.45' }
-      ],
-      volume: '640000',
-      url: '/event/apple-ar-glasses-2025'
-    },
-    {
-      id: '8',
-      question: 'Will the Fed cut rates by more than 1% in 2025?',
-      outcomes: [
-        { price: '0.48' },
-        { price: '0.52' }
-      ],
-      volume: '1120000',
-      url: '/event/fed-rate-cuts-2025'
+const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
+
+// Fetch 3 real markets from Polymarket Gamma API
+async function fetchRealMarkets() {
+  try {
+    const url = `${GAMMA_API_URL}?limit=3&offset=0&closed=false&active=true`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
     }
-  ];
+
+    return data.slice(0, 3).map(market => {
+      let outcomePrices = [0, 0];
+      
+      if (market.outcomePrices) {
+        try {
+          const prices = JSON.parse(market.outcomePrices);
+          if (Array.isArray(prices) && prices.length >= 2) {
+            outcomePrices = prices.map(p => parseFloat(p) || 0);
+          }
+        } catch (e) {
+          console.error('Error parsing outcomePrices:', e);
+        }
+      }
+
+      return {
+        id: market.id || market.slug,
+        question: market.question || 'Unknown Market',
+        outcomes: [
+          { price: outcomePrices[0].toString() },
+          { price: outcomePrices[1].toString() }
+        ],
+        volume: market.volumeNum || market.volume || 0,
+        url: market.slug ? `/event/${market.slug}` : '#'
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching markets:', error);
+    return [];
+  }
 }
 
 // Calculate statistics from markets array
-// Returns: totalMarkets, avgYesOdds, avgNoOdds, totalVolume
 function calculateStats(markets) {
   if (!markets || markets.length === 0) {
     return {
@@ -125,37 +80,28 @@ function calculateStats(markets) {
   };
 }
 
-// Process scraped page data and send markets to side panel
-// Called when: page loads, user clicks refresh, or manually triggered
+// Process page and fetch real markets from Polymarket API
 async function processPage(payload) {
-  const { text, title } = payload;
+  const { title } = payload;
   
-  // TODO: Replace with real keyword extraction (GPT API, etc.)
-  const keywords = ['crypto', 'markets', 'finance', 'technology'];
-  
-  // TODO: Replace with real Polymarket API call
-  const markets = getExampleMarkets();
+  const keywords = [];
+  const markets = await fetchRealMarkets();
   const stats = calculateStats(markets);
 
-  // Simulate API delay, then send data to side panel
-  setTimeout(() => {
-    chrome.runtime.sendMessage({
-      action: 'MARKETS_READY',
-      payload: {
-        markets,
-        keywords,
-        stats,
-        pageTitle: title || 'Current Page'
-      }
-    });
-  }, 500);
+  chrome.runtime.sendMessage({
+    action: 'MARKETS_READY',
+    payload: {
+      markets,
+      keywords,
+      stats,
+      pageTitle: title || 'Current Page'
+    }
+  });
 }
 
 // SETUP: Runs when extension is first installed
 chrome.runtime.onInstalled.addListener(() => {
   console.log('PolyFinder Extension installed');
-  
-  // Enable side panel to open when extension icon is clicked
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
 
@@ -166,21 +112,17 @@ chrome.action.onClicked.addListener((tab) => {
 
 // MESSAGE HANDLER: Receives messages from content script and side panel
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
-  // Process page data (from content script or side panel)
   if (msg.action === 'PROCESS_PAGE') {
     processPage(msg.payload);
   }
 
-  // Auto-process when page loads (from content script)
   if (msg.action === 'PAGE_LOADED') {
     processPage(msg.payload);
   }
 
-  // Side panel requests to scrape current page
   if (msg.action === 'SCRAPE_CURRENT_PAGE') {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      // Ask content script to scrape the page
       chrome.tabs.sendMessage(tab.id, { action: 'SCRAPE_PAGE' }, (scraped) => {
         if (scraped) {
           processPage(scraped);

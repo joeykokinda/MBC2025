@@ -32,15 +32,25 @@ async function fetchRealMarkets() {
         }
       }
 
+      const marketId = market.id || '';
+      const marketSlug = market.slug || '';
+      const eventSlug = market.events?.[0]?.slug || '';
+      
+      const marketUrl = eventSlug && marketSlug && marketId
+        ? `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`
+        : marketSlug && marketId
+        ? `https://polymarket.com/event/${marketSlug}?tid=${marketId}`
+        : '#';
+
       return {
-        id: market.id || market.slug,
+        id: marketId,
         question: market.question || 'Unknown Market',
         outcomes: [
           { price: outcomePrices[0].toString() },
           { price: outcomePrices[1].toString() }
         ],
         volume: market.volumeNum || market.volume || 0,
-        url: market.slug ? `/event/${market.slug}` : '#'
+        url: marketUrl
       };
     });
   } catch (error) {
@@ -80,10 +90,8 @@ function calculateStats(markets) {
   };
 }
 
-// Process page and fetch real markets from Polymarket API
-async function processPage(payload) {
-  const { title } = payload;
-  
+// Fetch markets and send to side panel
+async function fetchAndSendMarkets() {
   const keywords = [];
   const markets = await fetchRealMarkets();
   const stats = calculateStats(markets);
@@ -94,7 +102,7 @@ async function processPage(payload) {
       markets,
       keywords,
       stats,
-      pageTitle: title || 'Current Page'
+      pageTitle: ''
     }
   });
 }
@@ -110,25 +118,10 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ windowId: tab.windowId });
 });
 
-// MESSAGE HANDLER: Receives messages from content script and side panel
+// MESSAGE HANDLER: Receives messages from side panel
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
-  if (msg.action === 'PROCESS_PAGE') {
-    processPage(msg.payload);
-  }
-
-  if (msg.action === 'PAGE_LOADED') {
-    processPage(msg.payload);
-  }
-
-  if (msg.action === 'SCRAPE_CURRENT_PAGE') {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { action: 'SCRAPE_PAGE' }, (scraped) => {
-        if (scraped) {
-          processPage(scraped);
-        }
-      });
-    }
+  if (msg.action === 'FETCH_MARKETS') {
+    fetchAndSendMarkets();
   }
 
   return true;

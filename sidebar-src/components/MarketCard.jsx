@@ -37,7 +37,7 @@ export default function MarketCard({ market }) {
       )}
 
       <a 
-        href={`https://polymarket.com${url}`} 
+        href={url.startsWith('http') ? url : `https://polymarket.com${url}`}
         target="_blank" 
         rel="noopener noreferrer"
         className="market-link"

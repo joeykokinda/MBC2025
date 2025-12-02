@@ -30,14 +30,14 @@ export default function App() {
       }
     });
 
-    // Request to scrape current page and get markets
-    chrome.runtime.sendMessage({ action: 'SCRAPE_CURRENT_PAGE' });
+    // Request markets immediately
+    chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   }, []);
 
-  // Refresh button handler - re-scrape and update markets
+  // Refresh button handler - fetch markets again
   const handleRefresh = () => {
     setLoading(true);
-    chrome.runtime.sendMessage({ action: 'SCRAPE_CURRENT_PAGE' });
+    chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   };
 
   // RENDER: Display UI based on state

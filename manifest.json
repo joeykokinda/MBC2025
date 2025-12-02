@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "PolyFinder",
+  "version": "1.0.0",
+  "description": "Find relevant Polymarket markets for any webpage",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Open PolyFinder"
+  },
+  "side_panel": {
+    "default_path": "sidebar/index.html"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/scrape.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}
+

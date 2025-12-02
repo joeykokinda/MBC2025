@@ -1,3 +1,10 @@
+// STATISTICS PANEL COMPONENT
+// Displays aggregate statistics about the markets:
+// - Total number of markets
+// - Average Yes odds
+// - Average No odds
+// - Total trading volume
+
 export default function StatsPanel({ stats }) {
   if (!stats) return null;
 
@@ -25,4 +32,3 @@ export default function StatsPanel({ stats }) {
     </div>
   );
 }
-

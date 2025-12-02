@@ -1,3 +1,13 @@
+// ICON GENERATOR SCRIPT
+// Generates extension icons (16x16, 48x48, 128x128 PNG files)
+// 
+// TO USE:
+// Run: npm run generate-icons
+// This creates icon files in assets/ folder
+// 
+// Icons are blue squares with white "P" letter
+// You can customize colors and design in this file
+
 import sharp from 'sharp';
 import { writeFileSync, mkdirSync } from 'fs';
 import { resolve } from 'path';

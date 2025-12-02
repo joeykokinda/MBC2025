@@ -1,3 +1,10 @@
+// MARKET CARD COMPONENT
+// Displays a single Polymarket market with:
+// - Question/title
+// - Yes/No odds (as percentages)
+// - Trading volume
+// - Link to view on Polymarket
+
 export default function MarketCard({ market }) {
   const question = market.question || market.title || 'Unknown Market';
   const yesPrice = market.outcomes?.[0]?.price || 0;
@@ -40,4 +47,3 @@ export default function MarketCard({ market }) {
     </div>
   );
 }
-

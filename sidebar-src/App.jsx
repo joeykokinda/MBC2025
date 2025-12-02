@@ -1,9 +1,14 @@
+// MAIN REACT APP - Side Panel UI
+// This is the main component that displays in Chrome's side panel
+// Shows: markets, statistics, page info, keywords
+
 import { useState, useEffect } from 'react';
 import MarketCard from './components/MarketCard';
 import StatsPanel from './components/StatsPanel';
 import Spinner from './components/Spinner';
 
 export default function App() {
+  // STATE: Store markets, keywords, stats, loading state, etc.
   const [markets, setMarkets] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [stats, setStats] = useState(null);
@@ -11,7 +16,9 @@ export default function App() {
   const [pageTitle, setPageTitle] = useState('');
   const [error, setError] = useState(null);
 
+  // SETUP: When side panel opens, request data from background script
   useEffect(() => {
+    // Listen for market data from background script
     chrome.runtime.onMessage.addListener((msg) => {
       if (msg.action === 'MARKETS_READY') {
         setMarkets(msg.payload.markets || []);
@@ -23,14 +30,17 @@ export default function App() {
       }
     });
 
+    // Request to scrape current page and get markets
     chrome.runtime.sendMessage({ action: 'SCRAPE_CURRENT_PAGE' });
   }, []);
 
+  // Refresh button handler - re-scrape and update markets
   const handleRefresh = () => {
     setLoading(true);
     chrome.runtime.sendMessage({ action: 'SCRAPE_CURRENT_PAGE' });
   };
 
+  // RENDER: Display UI based on state
   return (
     <div className="sidebar-container">
       <header className="sidebar-header">
@@ -40,6 +50,7 @@ export default function App() {
         </button>
       </header>
 
+      {/* Show page title and keywords if available */}
       {pageTitle && (
         <div className="page-info">
           <p className="page-title">{pageTitle}</p>
@@ -53,14 +64,17 @@ export default function App() {
         </div>
       )}
 
+      {/* Show loading spinner, error, or markets */}
       {loading ? (
         <Spinner />
       ) : error ? (
         <div className="error-message">{error}</div>
       ) : (
         <>
+          {/* Statistics panel */}
           {stats && <StatsPanel stats={stats} />}
           
+          {/* List of markets */}
           <div className="markets-list">
             {markets.length === 0 ? (
               <div className="no-markets">No relevant markets found</div>
@@ -75,4 +89,3 @@ export default function App() {
     </div>
   );
 }
-

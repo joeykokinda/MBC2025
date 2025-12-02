@@ -1,3 +1,13 @@
+// BACKGROUND SERVICE WORKER
+// This file runs in the background and handles:
+// - Opening the side panel when extension icon is clicked
+// - Processing scraped page data
+// - Sending market data to the side panel UI
+// - Message passing between content script and side panel
+
+// EXAMPLE MARKETS DATA
+// Currently returns hardcoded example markets
+// TODO: Replace with real Polymarket API calls when ready
 function getExampleMarkets() {
   return [
     {
@@ -83,6 +93,8 @@ function getExampleMarkets() {
   ];
 }
 
+// Calculate statistics from markets array
+// Returns: totalMarkets, avgYesOdds, avgNoOdds, totalVolume
 function calculateStats(markets) {
   if (!markets || markets.length === 0) {
     return {
@@ -113,13 +125,19 @@ function calculateStats(markets) {
   };
 }
 
+// Process scraped page data and send markets to side panel
+// Called when: page loads, user clicks refresh, or manually triggered
 async function processPage(payload) {
   const { text, title } = payload;
   
+  // TODO: Replace with real keyword extraction (GPT API, etc.)
   const keywords = ['crypto', 'markets', 'finance', 'technology'];
+  
+  // TODO: Replace with real Polymarket API call
   const markets = getExampleMarkets();
   const stats = calculateStats(markets);
 
+  // Simulate API delay, then send data to side panel
   setTimeout(() => {
     chrome.runtime.sendMessage({
       action: 'MARKETS_READY',
@@ -133,28 +151,36 @@ async function processPage(payload) {
   }, 500);
 }
 
+// SETUP: Runs when extension is first installed
 chrome.runtime.onInstalled.addListener(() => {
   console.log('PolyFinder Extension installed');
   
+  // Enable side panel to open when extension icon is clicked
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
 
+// Open side panel when user clicks extension icon in toolbar
 chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ windowId: tab.windowId });
 });
 
+// MESSAGE HANDLER: Receives messages from content script and side panel
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+  // Process page data (from content script or side panel)
   if (msg.action === 'PROCESS_PAGE') {
     processPage(msg.payload);
   }
 
+  // Auto-process when page loads (from content script)
   if (msg.action === 'PAGE_LOADED') {
     processPage(msg.payload);
   }
 
+  // Side panel requests to scrape current page
   if (msg.action === 'SCRAPE_CURRENT_PAGE') {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
+      // Ask content script to scrape the page
       chrome.tabs.sendMessage(tab.id, { action: 'SCRAPE_PAGE' }, (scraped) => {
         if (scraped) {
           processPage(scraped);
@@ -165,4 +191,3 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
 
   return true;
 });
-

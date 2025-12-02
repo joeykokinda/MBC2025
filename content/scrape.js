@@ -1,3 +1,14 @@
+// CONTENT SCRIPT - Runs on every webpage
+// This file is injected into every page you visit
+// Purpose: Extract text content from the page for analysis
+
+// Scrape the current page and extract:
+// - Page title
+// - Meta description
+// - Headings (h1, h2, h3)
+// - Paragraphs
+// - Main content
+// Returns object with: { title, text, url, timestamp }
 function scrapePage() {
   const title = document.title;
   
@@ -29,6 +40,8 @@ function scrapePage() {
   };
 }
 
+// Listen for messages from background script
+// When background asks to scrape, send back the scraped data
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'SCRAPE_PAGE') {
     const scraped = scrapePage();
@@ -37,10 +50,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true;
 });
 
+// Auto-scrape page 2 seconds after it loads
+// Sends data to background script automatically
 setTimeout(() => {
   chrome.runtime.sendMessage({
     action: 'PAGE_LOADED',
     payload: scrapePage()
   });
 }, 2000);
-

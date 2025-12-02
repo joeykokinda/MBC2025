@@ -1,3 +1,15 @@
+// VITE BUILD CONFIGURATION
+// This configures how the React app gets built
+// 
+// SETUP:
+// - Source files are in: sidebar-src/
+// - Built output goes to: sidebar/
+// - Chrome extension loads from: sidebar/
+//
+// TO BUILD:
+// Run: npm run build
+// This compiles React JSX → JavaScript and outputs to sidebar/ folder
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
@@ -24,4 +36,3 @@ export default defineConfig({
     },
   },
 });
-

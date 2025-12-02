@@ -7,10 +7,10 @@
 
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
 
-// Fetch 3 real markets from Polymarket Gamma API
+// Fetch top 3 markets by volume from Polymarket Gamma API
 async function fetchRealMarkets() {
   try {
-    const url = `${GAMMA_API_URL}?limit=3&offset=0&closed=false&active=true`;
+    const url = `${GAMMA_API_URL}?limit=3&offset=0&closed=false&active=true&order=volumeNum&ascending=false`;
     const response = await fetch(url);
     const data = await response.json();
     

@@ -3,7 +3,7 @@
 // Purpose: Extract text and sender from tweets currently visible on screen
 
 // IMMEDIATE TEST - This should appear in console immediately if script loads
-console.log('🔵 PolyFinder content script file loaded!');
+console.log('PolyFinder content script file loaded!');
 
 // Check if an element is visible in the viewport
 function isElementVisible(element) {
@@ -174,6 +174,46 @@ function outputScrapedTweets() {
   console.log('==========================================');
 }
 
+// Send scraped tweets to background script
+function sendScrapedTweetsToBackground() {
+  const tweets = scrapeVisibleTweets();
+  
+  if (tweets.length > 0) {
+    // Store tweets in a variable for verification
+    const tweetData = {
+      tweets: tweets,
+      url: window.location.href,
+      timestamp: Date.now()
+    };
+    
+    console.log(`[PolyFinder Scraper] Preparing to send ${tweets.length} tweets to background script`);
+    console.log('[PolyFinder Scraper] Data structure being sent:');
+    console.log(`  - Tweet count: ${tweetData.tweets.length}`);
+    console.log(`  - URL: ${tweetData.url}`);
+    console.log(`  - Timestamp: ${new Date(tweetData.timestamp).toISOString()}`);
+    console.log('  - Sample tweets (first 2):');
+    console.log(JSON.stringify(tweetData.tweets.slice(0, 2), null, 4));
+    
+    chrome.runtime.sendMessage({
+      action: 'TWEETS_SCRAPED',
+      payload: tweetData
+    }, (response) => {
+      // Handle response from background script
+      if (chrome.runtime.lastError) {
+        console.error('[PolyFinder Scraper] ❌ Error sending tweets:', chrome.runtime.lastError.message);
+      } else if (response && response.success) {
+        console.log(`[PolyFinder Scraper] Successfully sent ${response.processed} tweets to background script`);
+        console.log('[PolyFinder Scraper] Note: Background script logs appear in Extension Service Worker console');
+        console.log('[PolyFinder Scraper] To view: chrome://extensions → Find PolyFinder → Click "service worker"');
+      } else {
+        console.log('[PolyFinder Scraper] ⚠️ Message sent, but no response received from background script');
+      }
+    });
+  } else {
+    console.log('[PolyFinder Scraper] No tweets found to send');
+  }
+}
+
 // Setup scroll listener to scrape on scroll
 function setupScrollListener() {
   let scrollTimeout;
@@ -183,6 +223,7 @@ function setupScrollListener() {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
       outputScrapedTweets();
+      sendScrapedTweetsToBackground();
     }, 300);
   });
 }
@@ -198,6 +239,7 @@ function initializeScraper() {
       console.log('[PolyFinder Scraper] DOM loaded, waiting for tweets...');
       setTimeout(() => {
         outputScrapedTweets();
+        sendScrapedTweetsToBackground();
         setupScrollListener();
       }, 2000);
     });
@@ -205,6 +247,7 @@ function initializeScraper() {
     console.log('[PolyFinder Scraper] DOM already loaded, waiting for tweets...');
     setTimeout(() => {
       outputScrapedTweets();
+      sendScrapedTweetsToBackground();
       setupScrollListener();
     }, 2000);
   }

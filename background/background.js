@@ -4,6 +4,8 @@
 // - Fetching real markets from Polymarket Gamma API
 // - Sending market data to the side panel UI
 // - Message passing between content script and side panel
+// - Receiving scraped tweets from content script
+// - Processing tweets for external API integration (ready for next stage)
 
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
 
@@ -118,11 +120,61 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ windowId: tab.windowId });
 });
 
-// MESSAGE HANDLER: Receives messages from side panel
-chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+// Process scraped tweets (ready for external API integration)
+async function processScrapedTweets(tweets, url, timestamp) {
+  console.log('========================================');
+  console.log(`[PolyFinder Background] ✅ RECEIVED ${tweets.length} TWEETS`);
+  console.log(`[PolyFinder Background] From URL: ${url}`);
+  console.log('========================================');
+  
+  // Extract tweet text contents for future API processing
+  const tweetTexts = tweets.map(tweet => ({
+    text: tweet.text,
+    sender: tweet.sender,
+    url: url,
+    timestamp: timestamp
+  }));
+  
+  // TODO: Next stage - Send tweetTexts to external API service
+  // Example structure ready:
+  // await sendToExternalAPI(tweetTexts);
+  
+  // Log the structure that will be sent to API
+  console.log('[PolyFinder Background] 📦 Tweet data structure ready for API:');
+  console.log(`  - Total tweets: ${tweetTexts.length}`);
+  console.log('  - Sample data (first 2 tweets):');
+  console.log(JSON.stringify(tweetTexts.slice(0, 2), null, 4));
+  console.log('========================================');
+  
+  return tweetTexts;
+}
+
+// MESSAGE HANDLER: Receives messages from side panel and content script
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'FETCH_MARKETS') {
     fetchAndSendMarkets();
+    return true;
+  }
+  
+  if (msg.action === 'TWEETS_SCRAPED') {
+    // Handle scraped tweets from content script
+    console.log('[PolyFinder Background] Message received: TWEETS_SCRAPED');
+    
+    const { tweets, url, timestamp } = msg.payload;
+    
+    // Process tweets asynchronously
+    processScrapedTweets(tweets, url, timestamp)
+      .then(() => {
+        sendResponse({ success: true, processed: tweets.length });
+      })
+      .catch((error) => {
+        console.error('[PolyFinder Background] Error processing tweets:', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    
+    // Return true to indicate we will send a response asynchronously
+    return true;
   }
 
-  return true;
+  return false;
 });

@@ -53,3 +53,6 @@ npm run build
 - Run `npm run build` after changes
 - Reload extension in Chrome
 - Or use `npm run dev` for watch mode
+
+
+eli test msg

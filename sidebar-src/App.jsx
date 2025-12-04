@@ -9,6 +9,7 @@ import {
   ConnectWallet,
   WalletDropdown,
   WalletDropdownDisconnect,
+  AppWithWalletModal,
 } from '@coinbase/onchainkit/wallet';
 import {
   Address,
@@ -154,19 +155,25 @@ export default function App() {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <OnchainKitProvider
+          apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY || undefined}
           chain={base}
           config={{
             appearance: {
               name: 'PolyFinder',
+              logo: chrome.runtime.getURL('assets/icon48.png'),
               mode: 'dark',
               theme: 'default',
             },
             wallet: {
               display: 'modal',
+              termsUrl: 'https://polymarket.com/terms',
+              privacyUrl: 'https://polymarket.com/privacy',
             },
           }}
         >
-          <PolyFinderContent />
+          <AppWithWalletModal>
+            <PolyFinderContent />
+          </AppWithWalletModal>
         </OnchainKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

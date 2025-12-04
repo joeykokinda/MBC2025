@@ -1,246 +1,43 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: #0f0f0f;
-  color: #ffffff;
-  overflow-x: hidden;
-}
-
-.sidebar-container {
-  width: 100%;
-  height: 100vh;
-  background: #0f0f0f;
+/* Wallet Integration Styles */
+.header-actions {
   display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.sidebar-header {
-  padding: 20px;
-  background: #1a1a1a;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.sidebar-header h1 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.refresh-btn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.2s;
-}
-
-.refresh-btn:hover {
-  background: #1d4ed8;
-}
-
-.page-info {
-  padding: 16px 20px;
-  border-bottom: 1px solid #222;
-  background: #111;
-}
-
-.page-title {
-  font-size: 14px;
-  color: #aaa;
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-
-.keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.keyword-tag {
-  background: #2563eb;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.stats-panel {
-  margin: 20px;
-  padding: 16px;
-  background: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
-
-.stats-panel h3 {
-  font-size: 16px;
-  margin-bottom: 12px;
-  color: #fff;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #888;
-}
-
-.stat-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.markets-list {
-  flex: 1;
-  padding: 0 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.market-card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 16px;
-  transition: all 0.2s;
-}
-
-.market-card:hover {
-  background: #222;
-  border-color: #444;
-}
-
-.market-question {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-
-.market-odds {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.odds-row {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.odds-label {
-  font-size: 14px;
-  color: #888;
+.connect-wallet-btn {
+  background: #0052ff !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: background 0.2s !important;
 }
 
-.odds-value {
-  font-size: 16px;
-  font-weight: 600;
+.connect-wallet-btn:hover {
+  background: #0045d8 !important;
 }
 
-.odds-value.yes {
-  color: #10b981;
+.wallet-name {
+  color: white !important;
 }
 
-.odds-value.no {
-  color: #ef4444;
+.wallet-identity {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #333 !important;
 }
 
-.market-volume {
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 12px;
+/* OnchainKit theme overrides for dark mode */
+:root {
+  --ock-bg-default: #1a1a1a;
+  --ock-bg-alternate: #0f0f0f;
+  --ock-text-foreground: #ffffff;
+  --ock-text-foreground-muted: #888888;
+  --ock-border: #333333;
 }
-
-.market-link {
-  display: inline-block;
-  color: #2563eb;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.market-link:hover {
-  color: #3b82f6;
-}
-
-.spinner-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  gap: 16px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #333;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.spinner-container p {
-  color: #888;
-  font-size: 14px;
-}
-
-.error-message {
-  padding: 20px;
-  color: #ef4444;
-  text-align: center;
-}
-
-.no-markets {
-  padding: 40px 20px;
-  text-align: center;
-  color: #888;
-  font-size: 14px;
-}
-

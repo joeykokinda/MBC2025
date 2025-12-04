@@ -79,7 +79,7 @@ function PolyFinderContent() {
         <h1>PolyFinder</h1>
         {isConnected && (
           <div className="header-actions">
-            <button onClick={handleRefresh} className="refresh-btn" aria-label="Refresh markets">
+            <button onClick={handleRefresh} className="refresh-btn">
               ↻
             </button>
             <Wallet>
@@ -130,7 +130,7 @@ function PolyFinderContent() {
         <>
           {/* Show page title and keywords if available */}
           {pageTitle && (
-            <div className="page-info data-panel">
+            <div className="page-info">
               <p className="page-title">{pageTitle}</p>
               {keywords.length > 0 && (
                 <div className="keywords">
@@ -182,7 +182,7 @@ export default function App() {
             appearance: {
               name: 'PolyFinder',
               logo: chrome.runtime.getURL('assets/icon48.png'),
-              mode: 'dark',
+              mode: 'light',
               theme: 'default',
             },
             wallet: {

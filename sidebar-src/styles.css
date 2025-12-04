@@ -1,42 +1,45 @@
 /* ============================================
-   POLYFINDER - GOOGLE MATERIAL DARK THEME
-   Complete UI/UX Redesign
+   POLYFINDER - CHROME + CRYPTO WALLET HYBRID
+   Chrome design principles + Dark crypto aesthetic
    ============================================ */
 
-/* Design System - Dark Theme Variables */
+/* Hybrid Design Tokens */
 :root {
-  /* Google Dark Mode Colors */
-  --color-surface-0: #171717;  /* Primary Background (Body) */
-  --color-surface-1: #202124;  /* Card/Panel BG (Lighter than body) */
-  --color-surface-2: #292A2D;  /* Accent/Hover BG */
-  --color-border: #3C4043;     /* Dividers/Borders */
-
-  /* Text */
-  --color-text-primary: #E8EAED;
-  --color-text-secondary: #9AA0A6; /* Muted text */
-
-  /* Brand/Action Colors (Google Blue) */
-  --color-brand-primary: #4285F4;
-  --color-brand-hover: #3C77E0;
-
-  /* Odds Colors */
-  --color-odds-yes: #34A853;  /* Green */
-  --color-odds-no: #EA4335;   /* Red */
-
-  /* Spacing and Radius */
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --border-radius-lg: 12px;
-  --border-radius-sm: 8px;
-
-  /* OnchainKit Overrides (Crucial for Modal/Wallet Styling) */
-  --ock-bg-default: var(--color-surface-0);
-  --ock-bg-alternate: var(--color-surface-1);
-  --ock-text-foreground: var(--color-text-primary);
-  --ock-text-foreground-muted: var(--color-text-secondary);
-  --ock-border: var(--color-border);
-  --ock-accent: var(--color-brand-primary);
+  /* Dark Crypto Backgrounds (from reference) */
+  --c-bg: #1a1a1a;
+  --c-bg-light: #202020;
+  --c-surface: #2d2d2d;
+  --c-surface-alt: #383838;
+  
+  /* Borders & Dividers */
+  --c-border: #404040;
+  
+  /* Text - High contrast for dark theme */
+  --c-text: #ffffff;
+  --c-text-secondary: #b3b3b3;
+  --c-text-muted: #808080;
+  
+  /* Brand - Google Blue (Chrome) */
+  --c-primary: #4285f4;
+  --c-primary-hover: #5294ff;
+  
+  /* Semantic Colors */
+  --c-success: #34a853;
+  --c-error: #ea4335;
+  --c-warning: #fbbc04;
+  
+  /* Chrome Design Elements */
+  --c-radius: 8px;
+  --c-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --c-shadow-elevated: 0 2px 6px rgba(0, 0, 0, 0.5);
+  
+  /* OnchainKit Dark Theme */
+  --ock-bg-default: var(--c-bg);
+  --ock-bg-alternate: var(--c-surface);
+  --ock-text-foreground: var(--c-text);
+  --ock-text-foreground-muted: var(--c-text-secondary);
+  --ock-border: var(--c-border);
+  --ock-accent: var(--c-primary);
 }
 
 /* ============================================
@@ -49,153 +52,198 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--color-text-primary);
-  background: var(--color-surface-0);
+  color: var(--c-text);
+  background: var(--c-bg);
 }
 
 /* ============================================
-   REUSABLE PANEL COMPONENT
-   ============================================ */
-.data-panel {
-  background: var(--color-surface-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-lg);
-  transition: border-color 0.2s ease;
-}
-
-.data-panel:hover {
-  border-color: var(--color-brand-primary);
-}
-
-.panel-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: var(--space-md);
-}
-
-/* ============================================
-   MAIN CONTAINER
+   CONTAINER
    ============================================ */
 .sidebar-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--color-surface-0);
+  background: var(--c-bg);
   overflow: hidden;
 }
 
 /* ============================================
-   HEADER
+   HEADER - Chrome Toolbar (Dark)
    ============================================ */
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-md) var(--space-lg);
-  background: var(--color-surface-1);
-  border-bottom: 1px solid var(--color-border);
+  padding: 12px 16px;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
   flex-shrink: 0;
-  min-height: 60px;
+  height: 56px;
 }
 
 .sidebar-header h1 {
   font-size: 18px;
   font-weight: 500;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
+  color: var(--c-text);
+  letter-spacing: -0.01em;
 }
 
 .header-actions {
   display: flex;
-  gap: var(--space-sm);
+  gap: 8px;
   align-items: center;
 }
 
-/* Circular Refresh Button */
+/* Chrome Icon Button (Dark) */
 .refresh-btn {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
+  border: none;
+  color: var(--c-text-secondary);
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: background-color 150ms ease-in-out;
 }
 
 .refresh-btn:hover {
-  background: var(--color-surface-2);
-  border-color: var(--color-brand-primary);
-  color: var(--color-brand-primary);
-  transform: rotate(180deg);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--c-text);
 }
 
 .refresh-btn:active {
-  transform: rotate(180deg) scale(0.95);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* ============================================
-   WALLET BUTTON
+   WALLET BUTTON - Chrome Primary (Dark)
    ============================================ */
 .connect-wallet-btn {
-  background: var(--color-brand-primary) !important;
-  color: #FFFFFF !important;
+  background: var(--c-primary) !important;
+  color: #fff !important;
   border: none !important;
-  padding: var(--space-sm) var(--space-md) !important;
-  border-radius: var(--border-radius-lg) !important;
+  padding: 8px 16px !important;
+  border-radius: var(--c-radius) !important;
   cursor: pointer !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   display: flex !important;
   align-items: center !important;
-  gap: var(--space-sm) !important;
-  transition: all 0.2s ease !important;
-  min-height: 40px !important;
+  gap: 6px !important;
+  transition: background 150ms ease-in-out !important;
+  min-height: 36px !important;
 }
 
 .connect-wallet-btn:hover {
-  background: var(--color-brand-hover) !important;
-  transform: translateY(-1px) !important;
+  background: var(--c-primary-hover) !important;
+}
+
+.connect-wallet-btn:active {
+  background: #3367d6 !important;
 }
 
 .wallet-name {
-  color: #FFFFFF !important;
+  color: #fff !important;
   font-weight: 500 !important;
-  max-width: 120px !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-/* Avatar sizing in button */
-.connect-wallet-btn [class*="Avatar"] {
-  width: 24px !important;
-  height: 24px !important;
-  border-radius: 50% !important;
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 /* ============================================
-   SIGN IN SCREEN
+   WALLET DROPDOWN - Chrome Menu (Dark)
+   ============================================ */
+[class*="ockWalletDropdown"],
+div[role="menu"],
+div[class*="Dropdown"][class*="ock"] {
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--c-radius) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  overflow: hidden !important;
+  min-width: 280px !important;
+  padding: 0 !important;
+}
+
+/* Identity Section - Clean Card */
+[class*="ockIdentity"],
+.wallet-identity {
+  padding: 16px !important;
+  background: var(--c-surface) !important;
+  border-bottom: 1px solid var(--c-border) !important;
+}
+
+[class*="ockIdentity"] [class*="Avatar"],
+.wallet-identity [class*="Avatar"] {
+  width: 40px !important;
+  height: 40px !important;
+  margin-bottom: 8px !important;
+}
+
+[class*="ockIdentity"] [class*="Name"],
+.wallet-identity [class*="Name"] {
+  color: var(--c-text) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+}
+
+[class*="ockIdentity"] [class*="Address"],
+.wallet-identity [class*="Address"] {
+  color: var(--c-text-secondary) !important;
+  font-size: 13px !important;
+  font-family: 'Roboto Mono', monospace !important;
+  margin-bottom: 8px !important;
+  opacity: 0.9 !important;
+}
+
+[class*="ockIdentity"] [class*="EthBalance"],
+.wallet-identity [class*="EthBalance"] {
+  color: var(--c-text) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Disconnect Button - Chrome Style (Dark) */
+[class*="ockWalletDropdownDisconnect"],
+button[class*="Disconnect"] {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  background: var(--c-surface) !important;
+  color: var(--c-text) !important;
+  border: none !important;
+  border-top: 1px solid var(--c-border) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  cursor: pointer !important;
+  transition: background-color 150ms ease-in-out !important;
+  text-align: left !important;
+}
+
+[class*="ockWalletDropdownDisconnect"]:hover,
+button[class*="Disconnect"]:hover {
+  background: var(--c-surface-alt) !important;
+}
+
+[class*="ockWalletDropdownDisconnect"]:active,
+button[class*="Disconnect"]:active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ============================================
+   SIGN IN SCREEN - Chrome Style (Dark)
    ============================================ */
 .simple-login-screen {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
-  padding: var(--space-lg);
-  background: var(--color-surface-0);
+  padding: 24px;
+  background: var(--c-bg);
 }
 
 .login-content {
@@ -205,116 +253,129 @@ body {
 }
 
 .login-icon {
-  margin: 0 auto 32px;
-  width: 80px;
-  height: 80px;
+  margin: 0 auto 24px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-brand-primary);
-  border-radius: var(--border-radius-lg);
-  box-shadow: 0 8px 24px rgba(66, 133, 244, 0.4);
+  background: var(--c-primary);
+  border-radius: var(--c-radius);
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.3);
 }
 
 .login-content h2 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-sm);
-  letter-spacing: -0.02em;
+  color: var(--c-text);
+  margin-bottom: 8px;
 }
 
 .login-content p {
   font-size: 14px;
-  color: var(--color-text-secondary);
-  margin-bottom: 32px;
-  line-height: 1.6;
+  color: var(--c-text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
 
 .login-buttons {
   width: 100%;
 }
 
-/* Primary Sign In Button */
+/* Sign In Button */
 .primary-signin-btn,
 button.primary-signin-btn,
 .primary-signin-btn[class*="ock"] {
-  background: var(--color-brand-primary) !important;
-  background-color: var(--color-brand-primary) !important;
-  color: #FFFFFF !important;
+  background: var(--c-primary) !important;
+  color: #fff !important;
   border: none !important;
-  padding: 14px var(--space-lg) !important;
-  border-radius: var(--border-radius-lg) !important;
+  padding: 10px 24px !important;
+  border-radius: var(--c-radius) !important;
   cursor: pointer !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  transition: all 0.2s ease !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: background 150ms ease-in-out !important;
   width: 100% !important;
-  min-height: 48px !important;
+  min-height: 40px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
-.primary-signin-btn:hover,
-button.primary-signin-btn:hover,
-.primary-signin-btn[class*="ock"]:hover {
-  background: var(--color-brand-hover) !important;
-  background-color: var(--color-brand-hover) !important;
-  transform: translateY(-2px) !important;
+.primary-signin-btn:hover {
+  background: var(--c-primary-hover) !important;
+}
+
+.primary-signin-btn:active {
+  background: #3367d6 !important;
 }
 
 /* ============================================
-   PAGE INFO
+   PAGE INFO - Chrome Card (Dark)
    ============================================ */
 .page-info {
-  margin: var(--space-md) var(--space-lg);
+  background: var(--c-surface);
+  border-radius: var(--c-radius);
+  padding: 16px;
+  margin: 16px;
+  box-shadow: var(--c-shadow);
 }
 
 .page-title {
   font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
-  line-height: 1.5;
+  font-weight: 500;
+  color: var(--c-text);
+  margin-bottom: 12px;
+  line-height: 1.4;
 }
 
 .keywords {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-sm);
+  gap: 8px;
 }
 
 .keyword-tag {
-  background: var(--color-surface-2);
-  color: var(--color-text-secondary);
-  padding: 4px var(--space-sm);
-  border-radius: var(--border-radius-sm);
-  font-size: 11px;
+  background: var(--c-surface-alt);
+  color: var(--c-text-secondary);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
+  transition: background-color 150ms ease-in-out;
+  border: 1px solid transparent;
 }
 
 .keyword-tag:hover {
-  background: var(--color-surface-1);
-  border-color: var(--color-brand-primary);
-  color: var(--color-brand-primary);
+  background: rgba(66, 133, 244, 0.12);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 /* ============================================
-   STATS PANEL - COMPACT DESIGN
+   STATS PANEL - Chrome Card (Dark)
    ============================================ */
 .stats-panel {
-  margin: var(--space-md) var(--space-lg);
+  background: var(--c-surface);
+  border-radius: var(--c-radius);
+  padding: 16px;
+  margin: 16px;
+  box-shadow: var(--c-shadow);
+}
+
+.stats-panel h3 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
+  gap: 16px;
 }
 
 .stat-item {
@@ -324,23 +385,21 @@ button.primary-signin-btn:hover,
 }
 
 .stat-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
 }
 
 .stat-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--c-text);
   letter-spacing: -0.01em;
 }
 
 /* Highlight Total Volume */
 .stat-item:last-child .stat-value {
-  color: var(--color-brand-primary);
+  color: var(--c-primary);
 }
 
 /* ============================================
@@ -349,41 +408,49 @@ button.primary-signin-btn:hover,
 .markets-list {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-md) var(--space-lg) var(--space-lg);
-  background: var(--color-surface-0);
+  padding: 8px 16px 16px;
+  background: var(--c-bg);
 }
 
 .no-markets {
   text-align: center;
-  padding: 32px var(--space-lg);
-  color: var(--color-text-secondary);
+  padding: 40px 16px;
+  color: var(--c-text-secondary);
   font-size: 14px;
 }
 
 /* ============================================
-   MARKET CARD
+   MARKET CARD - Crypto Wallet Style
    ============================================ */
 .market-card {
-  margin-bottom: var(--space-md);
-  transition: transform 0.2s ease;
+  background: var(--c-surface);
+  border-radius: var(--c-radius);
+  padding: 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--c-shadow);
+  transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .market-card:hover {
-  transform: translateY(-2px);
+  box-shadow: var(--c-shadow-elevated);
+  transform: translateY(-1px);
+  border-color: var(--c-border);
 }
 
 .market-question {
   font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
+  font-weight: 500;
+  color: var(--c-text);
+  margin-bottom: 16px;
   line-height: 1.5;
 }
 
 .market-odds {
   display: flex;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-md);
+  gap: 24px;
+  margin-bottom: 12px;
 }
 
 .odds-row {
@@ -393,66 +460,63 @@ button.primary-signin-btn:hover,
 }
 
 .odds-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
 }
 
 .odds-value {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .odds-value.yes {
-  color: var(--color-odds-yes);
+  color: var(--c-success);
 }
 
 .odds-value.no {
-  color: var(--color-odds-no);
+  color: var(--c-error);
 }
 
 .market-volume {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-md);
+  font-size: 13px;
+  color: var(--c-text-secondary);
+  margin-bottom: 12px;
 }
 
 .market-link {
   display: inline-block;
-  color: var(--color-brand-primary);
+  color: var(--c-primary);
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
   float: right;
+  transition: color 150ms ease-in-out;
 }
 
 .market-link:hover {
-  color: var(--color-brand-hover);
-  text-decoration: underline;
+  color: var(--c-primary-hover);
 }
 
 /* ============================================
-   SPINNER
+   SPINNER - Chrome Loading (Dark)
    ============================================ */
 .spinner-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: 40px;
   flex: 1;
-  gap: var(--space-md);
+  gap: 16px;
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--color-surface-2);
-  border-top-color: var(--color-brand-primary);
+  border: 3px solid var(--c-surface-alt);
+  border-top-color: var(--c-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -462,7 +526,7 @@ button.primary-signin-btn:hover,
 }
 
 .spinner-container p {
-  color: var(--color-text-secondary);
+  color: var(--c-text-secondary);
   font-size: 13px;
 }
 
@@ -471,265 +535,192 @@ button.primary-signin-btn:hover,
    ============================================ */
 .error-message {
   background: rgba(234, 67, 53, 0.1);
-  color: var(--color-odds-no);
-  padding: var(--space-md);
-  margin: var(--space-md) var(--space-lg);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--color-odds-no);
+  color: var(--c-error);
+  padding: 12px 16px;
+  margin: 16px;
+  border-radius: var(--c-radius);
   font-size: 13px;
+  border-left: 4px solid var(--c-error);
 }
 
 /* ============================================
-   SCROLLBAR STYLING
+   SCROLLBAR - Chrome Style (Dark)
    ============================================ */
 .markets-list::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 .markets-list::-webkit-scrollbar-track {
-  background: var(--color-surface-0);
+  background: transparent;
 }
 
 .markets-list::-webkit-scrollbar-thumb {
-  background: var(--color-surface-2);
-  border-radius: 4px;
+  background: var(--c-surface-alt);
+  border-radius: 8px;
+  border: 3px solid var(--c-bg);
 }
 
 .markets-list::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border);
+  background: var(--c-border);
 }
 
 /* ============================================
-   ONCHAINKIT MODAL CUSTOMIZATION
+   ONCHAINKIT MODAL - Chrome Style (Dark)
    ============================================ */
-[class*="ockBackdrop"],
-[class*="ockModalBackdrop"] {
-  backdrop-filter: blur(8px) !important;
-  background: rgba(0, 0, 0, 0.7) !important;
+[class*="ockBackdrop"] {
+  backdrop-filter: blur(4px) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
 }
 
-[class*="ockModal"],
-[class*="ockModalContainer"] {
-  background: var(--color-surface-1) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--border-radius-lg) !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+[class*="ockModal"] {
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--c-radius) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
+  max-width: 440px !important;
 }
 
 [class*="ockModalHeader"] {
-  background: var(--color-surface-1) !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  padding: var(--space-lg) !important;
+  background: var(--c-surface) !important;
+  border-bottom: 1px solid var(--c-border) !important;
+  padding: 16px !important;
 }
 
 [class*="ockModalContent"] {
-  background: var(--color-surface-1) !important;
-  padding: var(--space-lg) !important;
+  background: var(--c-surface) !important;
+  padding: 16px !important;
 }
 
 [class*="ockModalTitle"] {
-  color: var(--color-text-primary) !important;
+  color: var(--c-text) !important;
   font-size: 18px !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
 }
 
 [class*="ockModalDescription"] {
-  color: var(--color-text-secondary) !important;
+  color: var(--c-text-secondary) !important;
   font-size: 14px !important;
+  line-height: 1.5 !important;
 }
 
+/* Wallet Options - Chrome List Items (Dark) */
 [class*="ockWalletOption"],
 [class*="ockConnectorButton"] {
-  background: var(--color-surface-2) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--border-radius-sm) !important;
-  padding: var(--space-md) !important;
-  transition: all 0.2s ease !important;
-  margin-bottom: var(--space-sm) !important;
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--c-radius) !important;
+  padding: 12px !important;
+  transition: background-color 150ms ease-in-out !important;
+  margin-bottom: 8px !important;
 }
 
 [class*="ockWalletOption"]:hover,
 [class*="ockConnectorButton"]:hover {
-  background: var(--color-surface-1) !important;
-  border-color: var(--color-brand-primary) !important;
-  transform: translateY(-1px) !important;
+  background: var(--c-surface-alt) !important;
+  border-color: var(--c-primary) !important;
+}
+
+[class*="ockWalletOption"]:active,
+[class*="ockConnectorButton"]:active {
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 [class*="ockWalletOption"] span,
 [class*="ockConnectorButton"] span {
-  color: var(--color-text-primary) !important;
+  color: var(--c-text) !important;
   font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
+/* Modal Buttons - Chrome Buttons (Dark) */
 [class*="ockButtonPrimary"] {
-  background: var(--color-brand-primary) !important;
-  border-radius: var(--border-radius-sm) !important;
-  padding: var(--space-sm) var(--space-lg) !important;
+  background: var(--c-primary) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--c-radius) !important;
+  padding: 10px 24px !important;
   font-size: 14px !important;
   font-weight: 500 !important;
+  transition: background 150ms ease-in-out !important;
+  min-height: 36px !important;
 }
 
 [class*="ockButtonPrimary"]:hover {
-  background: var(--color-brand-hover) !important;
+  background: var(--c-primary-hover) !important;
+}
+
+[class*="ockButtonPrimary"]:active {
+  background: #3367d6 !important;
 }
 
 [class*="ockButtonSecondary"] {
-  background: var(--color-surface-2) !important;
-  color: var(--color-text-primary) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--border-radius-sm) !important;
+  background: var(--c-surface) !important;
+  color: var(--c-text) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--c-radius) !important;
+  padding: 9px 23px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: background-color 150ms ease-in-out !important;
 }
 
 [class*="ockButtonSecondary"]:hover {
-  border-color: var(--color-brand-primary) !important;
+  background: var(--c-surface-alt) !important;
 }
 
+/* Input Fields - Chrome Inputs (Dark) */
 [class*="ockInput"] {
-  background: var(--color-surface-2) !important;
-  border: 1px solid var(--color-border) !important;
-  color: var(--color-text-primary) !important;
-  border-radius: var(--border-radius-sm) !important;
-  padding: var(--space-sm) !important;
+  background: var(--c-bg) !important;
+  border: 1px solid var(--c-border) !important;
+  color: var(--c-text) !important;
+  border-radius: var(--c-radius) !important;
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  transition: border-color 150ms ease-in-out !important;
+}
+
+[class*="ockInput"]:hover {
+  border-color: #5f6368 !important;
 }
 
 [class*="ockInput"]:focus {
-  border-color: var(--color-brand-primary) !important;
+  border-color: var(--c-primary) !important;
   outline: none !important;
 }
 
+[class*="ockInput"]::placeholder {
+  color: var(--c-text-muted) !important;
+}
+
+/* Close Button - Chrome Icon Button (Dark) */
 [class*="ockCloseButton"] {
-  color: var(--color-text-secondary) !important;
+  color: var(--c-text-secondary) !important;
   background: transparent !important;
   border-radius: 50% !important;
-  width: 36px !important;
-  height: 36px !important;
+  width: 32px !important;
+  height: 32px !important;
+  transition: background-color 150ms ease-in-out !important;
 }
 
 [class*="ockCloseButton"]:hover {
-  background: var(--color-surface-2) !important;
-  color: var(--color-text-primary) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--c-text) !important;
 }
 
 /* ============================================
-   WALLET DROPDOWN - Enhanced Design
+   RESPONSIVE DESIGN
    ============================================ */
-[class*="ockWalletDropdown"],
-[class*="Wallet"] > div[class*="ock"]:not([class*="Button"]) {
-  background: var(--color-surface-1) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--border-radius-lg) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-  overflow: hidden !important;
-  min-width: 280px !important;
-}
-
-/* Identity Section Styling */
-[class*="ockIdentity"],
-.wallet-identity {
-  padding: var(--space-lg) !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface-2) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: var(--space-sm) !important;
-}
-
-/* Avatar in dropdown */
-[class*="ockIdentity"] [class*="Avatar"],
-.wallet-identity [class*="Avatar"] {
-  width: 48px !important;
-  height: 48px !important;
-  margin-bottom: var(--space-sm) !important;
-}
-
-/* Name in dropdown */
-[class*="ockIdentity"] [class*="Name"],
-.wallet-identity [class*="Name"] {
-  color: var(--color-text-primary) !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  margin-bottom: 4px !important;
-}
-
-/* Address in dropdown */
-[class*="ockIdentity"] [class*="Address"],
-.wallet-identity [class*="Address"] {
-  color: var(--color-text-secondary) !important;
-  font-size: 13px !important;
-  font-family: monospace !important;
-  margin-bottom: var(--space-sm) !important;
-}
-
-/* ETH Balance in dropdown */
-[class*="ockIdentity"] [class*="EthBalance"],
-.wallet-identity [class*="EthBalance"] {
-  color: var(--color-brand-primary) !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-}
-
-/* Disconnect Button - Clean Design */
-[class*="ockWalletDropdownDisconnect"],
-button[class*="Disconnect"] {
-  width: 100% !important;
-  padding: var(--space-md) var(--space-lg) !important;
-  background: transparent !important;
-  color: var(--color-odds-no) !important;
-  border: none !important;
-  border-top: 1px solid var(--color-border) !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: var(--space-sm) !important;
-}
-
-[class*="ockWalletDropdownDisconnect"]:hover,
-button[class*="Disconnect"]:hover {
-  background: rgba(234, 67, 53, 0.1) !important;
-  color: #FF5252 !important;
-}
-
-[class*="ockWalletDropdownDisconnect"]:active,
-button[class*="Disconnect"]:active {
-  background: rgba(234, 67, 53, 0.15) !important;
-  transform: scale(0.98) !important;
-}
-
-/* Copy address feedback */
-[class*="ockCopy"] {
-  color: var(--color-text-secondary) !important;
-  transition: color 0.2s ease !important;
-}
-
-[class*="ockCopy"]:hover {
-  color: var(--color-brand-primary) !important;
-}
-
-/* Dropdown link items */
-[class*="ockWalletDropdownLink"],
-a[class*="WalletDropdown"] {
-  padding: var(--space-md) var(--space-lg) !important;
-  color: var(--color-text-primary) !important;
-  text-decoration: none !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: var(--space-sm) !important;
-  border-bottom: 1px solid var(--color-border) !important;
-}
-
-[class*="ockWalletDropdownLink"]:hover,
-a[class*="WalletDropdown"]:hover {
-  background: var(--color-surface-2) !important;
-  color: var(--color-brand-primary) !important;
-}
-
-/* Dropdown dividers */
-[class*="ockDivider"] {
-  border-color: var(--color-border) !important;
-  margin: 0 !important;
+@media (max-width: 400px) {
+  .sidebar-header {
+    padding: 8px 12px;
+  }
+  
+  .page-info,
+  .stats-panel {
+    margin: 12px;
+  }
+  
+  .markets-list {
+    padding: 8px 12px 12px;
+  }
 }

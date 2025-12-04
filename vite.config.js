@@ -29,10 +29,18 @@ export default defineConfig({
       },
     },
     emptyOutDir: false,
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'sidebar-src'),
+      'tslib': resolve(__dirname, 'node_modules/@walletconnect/time/node_modules/tslib/tslib.js'),
     },
+  },
+  optimizeDeps: {
+    include: ['tslib'],
   },
 });

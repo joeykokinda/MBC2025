@@ -1,4 +1,7 @@
-// MAIN REACT APP - Side Panel UI with Wallet Integration
+// MAIN REACT APP - Side Panel UI with Base Wallet Integration
+// This is the main component that displays in Chrome's side panel
+// Shows: markets, statistics, page info, keywords, and wallet connection
+
 import { useState, useEffect } from 'react';
 import { http, createConfig, WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
@@ -9,10 +12,10 @@ import {
   ConnectWallet,
   WalletDropdown,
   WalletDropdownDisconnect,
-  AppWithWalletModal,
 } from '@coinbase/onchainkit/wallet';
 import {
   Address,
+  
   Avatar,
   Name,
   Identity,
@@ -24,7 +27,7 @@ import MarketCard from './components/MarketCard';
 import StatsPanel from './components/StatsPanel';
 import Spinner from './components/Spinner';
 
-// Wagmi configuration
+// Wagmi configuration for Base network
 const config = createConfig({
   chains: [base],
   transports: {
@@ -35,53 +38,39 @@ const config = createConfig({
 const queryClient = new QueryClient();
 
 function PolyFinderContent() {
+  // STATE: Store markets, keywords, stats, loading state, etc.
   const [markets, setMarkets] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pageTitle, setPageTitle] = useState('');
   const [error, setError] = useState(null);
-  const [processing, setProcessing] = useState(false);
 
+  // SETUP: When side panel opens, request data from background script
   useEffect(() => {
-    let processingTimeout;
-    
+    // Listen for market data from background script
     chrome.runtime.onMessage.addListener((msg) => {
       if (msg.action === 'MARKETS_READY') {
-        const newMarkets = msg.payload.markets || [];
-        
-        if (newMarkets.length > 0) {
-          setMarkets(newMarkets);
-          setKeywords(msg.payload.keywords || []);
-          setStats(msg.payload.stats || null);
-          setPageTitle(msg.payload.pageTitle || '');
-        }
-        
+        setMarkets(msg.payload.markets || []);
+        setKeywords(msg.payload.keywords || []);
+        setStats(msg.payload.stats || null);
+        setPageTitle(msg.payload.pageTitle || '');
         setLoading(false);
-        setProcessing(false);
-        clearTimeout(processingTimeout);
         setError(msg.payload.error || null);
-      }
-      
-      if (msg.action === 'PROCESSING_STARTED') {
-        setProcessing(true);
-        setLoading(false);
-        
-        processingTimeout = setTimeout(() => {
-          setProcessing(false);
-        }, 15000);
       }
     });
 
+    // Request markets immediately
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   }, []);
 
+  // Refresh button handler - fetch markets again
   const handleRefresh = () => {
     setLoading(true);
-    chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   };
 
+  // RENDER: Display UI based on state
   return (
     <div className="sidebar-container">
       <header className="sidebar-header">
@@ -108,12 +97,7 @@ function PolyFinderContent() {
         </div>
       </header>
 
-      {processing && (
-        <div className="processing-banner">
-          Looking for markets...
-        </div>
-      )}
-
+      {/* Show page title and keywords if available */}
       {pageTitle && (
         <div className="page-info">
           <p className="page-title">{pageTitle}</p>
@@ -127,17 +111,20 @@ function PolyFinderContent() {
         </div>
       )}
 
+      {/* Show loading spinner, error, or markets */}
       {loading ? (
         <Spinner />
       ) : error ? (
         <div className="error-message">{error}</div>
       ) : (
         <>
+          {/* Statistics panel */}
           {stats && <StatsPanel stats={stats} />}
           
+          {/* List of markets */}
           <div className="markets-list">
             {markets.length === 0 ? (
-              <div className="no-markets">Loading relevant markets...</div>
+              <div className="no-markets">No relevant markets found</div>
             ) : (
               markets.map((market, index) => (
                 <MarketCard key={market.id || index} market={market} />
@@ -150,6 +137,7 @@ function PolyFinderContent() {
   );
 }
 
+// Main App component with providers
 export default function App() {
   return (
     <WagmiProvider config={config}>
@@ -171,9 +159,7 @@ export default function App() {
             },
           }}
         >
-          <AppWithWalletModal>
-            <PolyFinderContent />
-          </AppWithWalletModal>
+          <PolyFinderContent />
         </OnchainKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

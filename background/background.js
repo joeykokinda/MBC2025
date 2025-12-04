@@ -1,7 +1,7 @@
 importScripts('config.js');
 
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
-const OPENAI_API_KEY = CONFIG.OPENAI_API_KEY;
+const GEMINI_API_KEY = CONFIG.GEMINI_API_KEY;
 
 let lastProcessedTweets = new Set();
 let processingInProgress = false;
@@ -49,13 +49,13 @@ function formatMarketData(market) {
 async function searchMarketsByKeywords(keywordsInput) {
   try {
     const keywords = Array.isArray(keywordsInput) ? keywordsInput : [keywordsInput];
-    console.log(`[PolyFinder API] 🔍 Searching Polymarket for keywords:`, keywords);
+    console.log(`[PolyFinder API] Searching Polymarket for keywords:`, keywords);
     
     const url = `${GAMMA_API_URL}?limit=50&offset=0&closed=false&active=true`;
     const response = await fetch(url);
     const data = await response.json();
     
-    console.log(`[PolyFinder API] 📊 Fetched ${data.length} total markets from Polymarket`);
+    console.log(`[PolyFinder API] Fetched ${data.length} total markets from Polymarket`);
     
     if (!Array.isArray(data) || data.length === 0) {
       return [];
@@ -74,10 +74,10 @@ async function searchMarketsByKeywords(keywordsInput) {
       });
     });
 
-    console.log(`[PolyFinder API] ✅ Found ${filtered.length} matching markets`);
+    console.log(`[PolyFinder API] Found ${filtered.length} matching markets`);
     
     if (filtered.length > 0) {
-      console.log(`[PolyFinder API] 📋 Top matches:`);
+      console.log(`[PolyFinder API] Top matches:`);
       filtered.slice(0, 3).forEach((m, i) => {
         console.log(`  ${i+1}. ${m.question}`);
       });
@@ -85,7 +85,7 @@ async function searchMarketsByKeywords(keywordsInput) {
 
     return filtered.slice(0, 5).map(formatMarketData);
   } catch (error) {
-    console.error('[PolyFinder API] ❌ Error searching markets:', error);
+    console.error('[PolyFinder API] Error searching markets:', error);
     return [];
   }
 }
@@ -168,65 +168,76 @@ chrome.action.onClicked.addListener((tab) => {
 
 async function extractKeywordsWithGPT(tweetText, apiKey) {
   try {
-    console.log(`[PolyFinder GPT] 🤖 Calling GPT for tweet: "${tweetText.substring(0, 60)}..."`);
+    console.log(`[PolyFinder AI] Calling Gemini for tweet: "${tweetText.substring(0, 60)}..."`);
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const prompt = `Extract 3-5 keywords for prediction markets from this tweet. Return ONLY a JSON array like ["keyword1", "keyword2"].
+
+Tweet: "${tweetText}"
+
+Output:`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{
-          role: 'system',
-          content: `You are a prediction market search assistant. Your job is to extract 3-5 search terms from tweets that will find relevant betting markets on Polymarket.
-
-Examples:
-Tweet: "Trump leads GOP primary polls by 40 points"
-Output: ["trump president", "trump election", "republican primary", "2024 election"]
-
-Tweet: "Bitcoin surges to $95k as institutions buy more"
-Output: ["bitcoin price", "bitcoin 100k", "crypto", "btc"]
-
-Tweet: "Will the Fed cut rates next quarter?"
-Output: ["fed rate cut", "interest rates", "federal reserve"]
-
-Return ONLY a JSON array of 3-5 search terms that would find relevant prediction markets. No explanations, just the array.`
-        }, {
-          role: 'user',
-          content: tweetText
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
         }],
-        temperature: 0.3,
-        max_tokens: 100
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1000
+        }
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error(`[PolyFinder GPT] ❌ API Error:`, errorData);
-      throw new Error(`GPT API error: ${errorData.error?.message || 'Unknown error'}`);
+      console.error(`[PolyFinder AI] API Error:`, errorData);
+      throw new Error(`Gemini API error: ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content.trim();
     
-    console.log(`[PolyFinder GPT] 📝 Raw GPT response: ${content}`);
+    console.log(`[PolyFinder AI] Full Gemini response:`, JSON.stringify(data, null, 2));
     
-    const keywords = JSON.parse(content);
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('[PolyFinder AI] Invalid response structure from Gemini');
+      return [];
+    }
     
-    console.log(`[PolyFinder GPT] ✅ Extracted keywords:`, keywords);
+    if (!data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error('[PolyFinder AI] No parts in response. Finish reason:', data.candidates[0].finishReason);
+      return [];
+    }
+    
+    const content = data.candidates[0].content.parts[0].text.trim();
+    
+    console.log(`[PolyFinder AI] Raw Gemini text: ${content}`);
+    
+    const jsonMatch = content.match(/\[.*\]/s);
+    if (!jsonMatch) {
+      console.error('[PolyFinder AI] Could not find JSON array in response');
+      return [];
+    }
+    
+    const keywords = JSON.parse(jsonMatch[0]);
+    
+    console.log(`[PolyFinder AI] Extracted keywords:`, keywords);
     
     return Array.isArray(keywords) ? keywords : [];
   } catch (error) {
-    console.error('[PolyFinder GPT] ❌ Error:', error.message);
+    console.error('[PolyFinder AI] Error:', error.message);
     return [];
   }
 }
 
 async function processScrapedTweets(tweets, url, timestamp) {
   console.log('========================================');
-  console.log(`[PolyFinder Background] ✅ RECEIVED ${tweets.length} TWEETS`);
+  console.log(`[PolyFinder Background] RECEIVED ${tweets.length} TWEETS`);
   console.log(`[PolyFinder Background] From URL: ${url}`);
   console.log('========================================');
   
@@ -237,7 +248,7 @@ async function processScrapedTweets(tweets, url, timestamp) {
     timestamp: timestamp
   }));
   
-  console.log('[PolyFinder Background] 📦 Tweet data structure ready for API:');
+  console.log('[PolyFinder Background] Tweet data structure ready for API:');
   console.log(`  - Total tweets: ${tweetTexts.length}`);
   console.log('  - Sample data (first 2 tweets):');
   console.log(JSON.stringify(tweetTexts.slice(0, 2), null, 4));
@@ -248,7 +259,7 @@ async function processScrapedTweets(tweets, url, timestamp) {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'CLEAR_CACHE') {
-    console.log('[PolyFinder Background] 🗑️ Clearing tweet cache...');
+    console.log('[PolyFinder Background] Clearing tweet cache...');
     lastProcessedTweets.clear();
     processingInProgress = false;
     return true;
@@ -256,22 +267,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   
   if (msg.action === 'FETCH_MARKETS') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
+      if (tabs[0] && (tabs[0].url.includes('twitter.com') || tabs[0].url.includes('x.com'))) {
+        console.log('[PolyFinder] On Twitter, triggering scrape...');
+        
+        chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
+        
         let fallbackTimeout = setTimeout(() => {
-          console.log('[PolyFinder] No tweets found, showing default markets');
+          console.log('[PolyFinder] Scrape took too long, showing default markets');
           fetchAndSendMarkets();
-        }, 2000);
+        }, 5000);
         
         chrome.tabs.sendMessage(tabs[0].id, { action: 'TRIGGER_SCRAPE' }, (response) => {
           if (chrome.runtime.lastError) {
             clearTimeout(fallbackTimeout);
-            console.log('[PolyFinder] Not a Twitter page, showing default markets');
+            console.log('[PolyFinder] Error triggering scrape, showing default markets');
             fetchAndSendMarkets();
           } else if (response && response.success) {
             clearTimeout(fallbackTimeout);
           }
         });
       } else {
+        console.log('[PolyFinder] Not on Twitter, showing default markets');
         fetchAndSendMarkets();
       }
     });
@@ -357,12 +373,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
     
     if (processingInProgress) {
-      console.log('[PolyFinder Background] ⚠️ Already processing tweets, skipping...');
+      console.log('[PolyFinder Background] Already processing tweets, skipping...');
       return true;
     }
     
-    if (!OPENAI_API_KEY || OPENAI_API_KEY.includes('YOUR-API-KEY')) {
-      console.error('[PolyFinder Background] ❌ No API key configured! Add your OpenAI key to background.js');
+    if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('YOUR-API-KEY')) {
+      console.error('[PolyFinder Background] No API key configured! Add your Gemini key to config.js');
       return true;
     }
     
@@ -370,27 +386,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const isDuplicate = tweetHashes.every(hash => lastProcessedTweets.has(hash));
     
     if (isDuplicate) {
-      console.log('[PolyFinder Background] ⚠️ These tweets were already processed, skipping...');
+      console.log('[PolyFinder Background] These tweets were already processed, skipping...');
       return true;
     }
     
     tweetHashes.forEach(hash => lastProcessedTweets.add(hash));
     
     const tweetsToProcess = tweets.slice(0, 3);
-    console.log(`[PolyFinder Background] 🚀 Auto-processing ${tweetsToProcess.length} NEW tweets...`);
+    console.log(`[PolyFinder Background] Auto-processing ${tweetsToProcess.length} NEW tweets...`);
     
     processingInProgress = true;
     
     chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
     
     Promise.all(tweetsToProcess.map(async (tweet) => {
-      console.log(`\n[PolyFinder] 📝 Processing tweet: "${tweet.text.substring(0, 80)}..."`);
+      console.log(`\n[PolyFinder] Processing tweet: "${tweet.text.substring(0, 80)}..."`);
       
-      const keywords = await extractKeywordsWithGPT(tweet.text, OPENAI_API_KEY);
-      console.log(`[PolyFinder] 🔑 Keywords for this tweet:`, keywords);
+      const keywords = await extractKeywordsWithGPT(tweet.text, GEMINI_API_KEY);
+      console.log(`[PolyFinder] Keywords for this tweet:`, keywords);
         
       const markets = await searchMarketsByKeywords(keywords);
-      console.log(`[PolyFinder] 📈 Found ${markets.length} markets for this tweet\n`);
+      console.log(`[PolyFinder] Found ${markets.length} markets for this tweet\n`);
       
       return {
         tweet: tweet.text,
@@ -401,14 +417,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }))
     .then((results) => {
       console.log('\n========================================');
-      console.log(`[PolyFinder] ✅ COMPLETED: Processed ${results.length} tweets`);
+      console.log(`[PolyFinder] COMPLETED: Processed ${results.length} tweets`);
       console.log('========================================');
       
       const allMarkets = [];
       const allKeywords = [];
       
       results.forEach((r, idx) => {
-        console.log(`\n📊 RESULT ${idx + 1}:`);
+        console.log(`\nRESULT ${idx + 1}:`);
         console.log(`Tweet: "${r.tweet.substring(0, 100)}..."`);
         console.log(`Keywords: [${r.keywords.join(', ')}]`);
         console.log(`Markets found: ${r.markets.length}`);
@@ -434,7 +450,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const displayMarkets = uniqueMarkets.slice(0, 10);
         const displayKeywords = [...new Set(allKeywords)].slice(0, 10);
         
-        console.log(`\n🎯 SENDING TO SIDEBAR:`);
+        console.log(`\nSENDING TO SIDEBAR:`);
         console.log(`Total unique markets: ${uniqueMarkets.length}`);
         console.log(`Displaying top ${displayMarkets.length} markets:`);
         displayMarkets.forEach((m, i) => {
@@ -452,15 +468,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           }
         });
         
-        console.log(`✅ Markets sent to sidebar successfully!`);
+        console.log(`Markets sent to sidebar successfully!`);
       } else {
-        console.log('\n⚠️ No markets found - keeping existing markets in sidebar');
+        console.log('\nNo markets found - keeping existing markets in sidebar');
       }
       
       processingInProgress = false;
     })
     .catch((error) => {
-      console.error('[PolyFinder Background] ❌ Error processing tweets to markets:', error);
+      console.error('[PolyFinder Background] Error processing tweets to markets:', error);
       processingInProgress = false;
     });
     
@@ -473,13 +489,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
     
     Promise.all(tweets.map(async (tweet) => {
-      console.log(`\n[PolyFinder] 📝 Processing tweet: "${tweet.text.substring(0, 80)}..."`);
+      console.log(`\n[PolyFinder] Processing tweet: "${tweet.text.substring(0, 80)}..."`);
       
       const keywords = await extractKeywordsWithGPT(tweet.text, apiKey);
-      console.log(`[PolyFinder] 🔑 Keywords for this tweet:`, keywords);
+      console.log(`[PolyFinder] Keywords for this tweet:`, keywords);
       
       const markets = await searchMarketsByKeywords(keywords);
-      console.log(`[PolyFinder] 📈 Found ${markets.length} markets for this tweet\n`);
+      console.log(`[PolyFinder] Found ${markets.length} markets for this tweet\n`);
       
       return {
         tweet: tweet.text,
@@ -490,14 +506,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }))
       .then((results) => {
         console.log('\n========================================');
-        console.log(`[PolyFinder] ✅ COMPLETED: Processed ${results.length} tweets`);
+        console.log(`[PolyFinder] COMPLETED: Processed ${results.length} tweets`);
         console.log('========================================');
         
         const allMarkets = [];
         const allKeywords = [];
         
         results.forEach((r, idx) => {
-          console.log(`\n📊 RESULT ${idx + 1}:`);
+          console.log(`\nRESULT ${idx + 1}:`);
           console.log(`Tweet: "${r.tweet.substring(0, 100)}..."`);
           console.log(`Keywords: [${r.keywords.join(', ')}]`);
           console.log(`Markets found: ${r.markets.length}`);
@@ -523,7 +539,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const displayMarkets = uniqueMarkets.slice(0, 10);
           const displayKeywords = [...new Set(allKeywords)].slice(0, 10);
           
-          console.log(`\n🎯 SENDING TO SIDEBAR:`);
+          console.log(`\nSENDING TO SIDEBAR:`);
           console.log(`Total unique markets: ${uniqueMarkets.length}`);
           console.log(`Displaying top ${displayMarkets.length} markets:`);
           displayMarkets.forEach((m, i) => {
@@ -541,9 +557,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }
           });
           
-          console.log(`✅ Markets sent to sidebar successfully!`);
+          console.log(`Markets sent to sidebar successfully!`);
         } else {
-          console.log('\n⚠️ No markets found - keeping existing markets in sidebar');
+          console.log('\nNo markets found - keeping existing markets in sidebar');
         }
         
         sendResponse({ success: true, results: results, totalMarkets: allMarkets.length });

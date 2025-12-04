@@ -185,10 +185,10 @@ function sendScrapedTweetsToBackground() {
           if (chrome.runtime.lastError.message.includes('Extension context invalidated')) {
             console.log('[PolyFinder Scraper] Extension was reloaded, please refresh the page');
           } else {
-            console.error('[PolyFinder Scraper] ❌ Error:', chrome.runtime.lastError.message);
+            console.error('[PolyFinder Scraper] Error:', chrome.runtime.lastError.message);
           }
         } else if (response && response.success) {
-          console.log(`[PolyFinder Scraper] ✅ Successfully sent ${response.processed} tweets`);
+          console.log(`[PolyFinder Scraper] Successfully sent ${response.processed} tweets`);
         }
       });
     } catch (error) {

@@ -6,6 +6,8 @@
 // - Message passing between content script and side panel
 
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
+const GAMMA_EVENTS_URL = 'https://gamma-api.polymarket.com/events';
+const GAMMA_TAGS_URL = 'https://gamma-api.polymarket.com/tags';
 const DEFAULT_MARKET_LIMIT = 6;
 const MAX_KEYWORDS = 8;
 const STOPWORDS = new Set([
@@ -25,6 +27,11 @@ const STOPWORDS = new Set([
 const tabContexts = new Map();
 let lastActiveTabId = null;
 let lastScrapableTabId = null;
+let cachedTags = [];
+let lastTagFetch = 0;
+const TAG_CACHE_TTL = 1000 * 60 * 10; // 10 minutes
+const tagSlugCache = new Map();
+const TAG_SLUG_CACHE_TTL = 1000 * 60 * 5; // 5 minutes
 
 // Calculate statistics from markets array
 function calculateStats(markets) {
@@ -165,7 +172,7 @@ function mapMarketResponse(market) {
   };
 }
 
-async function fetchMarketsFromAPI(searchQuery = '', limit = DEFAULT_MARKET_LIMIT) {
+async function fetchMarketsFromAPI(searchQuery = '', limit = DEFAULT_MARKET_LIMIT, extraParams = {}) {
   const params = new URLSearchParams({
     limit: String(limit),
     offset: '0',
@@ -178,6 +185,12 @@ async function fetchMarketsFromAPI(searchQuery = '', limit = DEFAULT_MARKET_LIMI
   if (searchQuery) {
     params.set('search', searchQuery);
   }
+
+  Object.entries(extraParams || {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, String(value));
+    }
+  });
 
   const url = `${GAMMA_API_URL}?${params.toString()}`;
   const response = await fetch(url);
@@ -231,10 +244,168 @@ async function fetchMarketsWithFallback(primaryQuery, fallbackQueries = []) {
   }
 
   for (const fallback of fallbackQueries) {
-    if (markets.length >= 3) break;
+    if (markets.length >= DEFAULT_MARKET_LIMIT) break;
     const fallbackResults = await attempt(fallback);
     markets = mergeMarkets(markets, fallbackResults);
   }
+
+  return {
+    markets: markets.slice(0, DEFAULT_MARKET_LIMIT),
+    errorMessage
+  };
+}
+
+async function getAvailableTags() {
+  const now = Date.now();
+  if (cachedTags.length > 0 && now - lastTagFetch < TAG_CACHE_TTL) {
+    return cachedTags;
+  }
+
+  try {
+    const response = await fetch(GAMMA_TAGS_URL);
+    if (!response.ok) {
+      throw new Error(`Tags request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    if (Array.isArray(data)) {
+      cachedTags = data;
+      lastTagFetch = now;
+      return cachedTags;
+    }
+  } catch (err) {
+    console.error('Error fetching tags list:', err);
+  }
+
+  return cachedTags;
+}
+
+async function fetchMarketsFromTagSlug(slug) {
+  if (!slug) return [];
+
+  const normalizedSlug = slug.toLowerCase();
+  const cacheEntry = tagSlugCache.get(normalizedSlug);
+  const now = Date.now();
+  if (cacheEntry && now - cacheEntry.timestamp < TAG_SLUG_CACHE_TTL) {
+    return cacheEntry.markets;
+  }
+
+  const params = new URLSearchParams({
+    tag_slug: normalizedSlug,
+    closed: 'false',
+    limit: String(DEFAULT_MARKET_LIMIT),
+    offset: '0'
+  });
+
+  try {
+    const response = await fetch(`${GAMMA_EVENTS_URL}?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error(`Events request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    const markets = [];
+    data.forEach((event) => {
+      if (Array.isArray(event.markets)) {
+        event.markets.forEach((market) => {
+          markets.push(mapMarketResponse(market));
+        });
+      }
+    });
+
+    tagSlugCache.set(normalizedSlug, { markets, timestamp: now });
+    return markets;
+  } catch (err) {
+    console.error('Error fetching markets for tag slug:', normalizedSlug, err);
+    return [];
+  }
+}
+
+function matchTagsForKeywords(keywords = [], tags = []) {
+  if (!Array.isArray(tags) || tags.length === 0 || !Array.isArray(keywords)) {
+    return [];
+  }
+
+  const normalizedKeywords = keywords
+    .map((kw) => kw?.toLowerCase().trim())
+    .filter(Boolean);
+
+  const matched = [];
+  const seenIds = new Set();
+
+  for (const keyword of normalizedKeywords) {
+    for (const tag of tags) {
+      const tagId = tag.id;
+      if (!tagId || seenIds.has(tagId)) continue;
+
+      const label = tag.label?.toLowerCase() || '';
+      const slug = tag.slug?.toLowerCase() || '';
+
+      if (!label && !slug) continue;
+
+      const labelMatch = label.includes(keyword) || keyword.includes(label);
+      const slugMatch = slug.includes(keyword) || keyword.includes(slug);
+
+      if (labelMatch || slugMatch) {
+        matched.push(tag);
+        seenIds.add(tagId);
+        if (matched.length >= 5) {
+          return matched;
+        }
+      }
+    }
+  }
+
+  return matched;
+}
+
+async function fetchMarketsByTags(keywords = []) {
+  const tags = await getAvailableTags();
+  const matchedTags = matchTagsForKeywords(keywords, tags);
+
+  const slugCandidates = new Set();
+  matchedTags.forEach((tag) => {
+    if (tag.slug) slugCandidates.add(tag.slug.toLowerCase());
+  });
+  keywords.forEach((kw) => {
+    if (kw) slugCandidates.add(kw.toLowerCase());
+  });
+
+  if (slugCandidates.size === 0) {
+    return { markets: [], matchedSlugs: [], errorMessage: null };
+  }
+
+  let errorMessage = null;
+  let aggregated = [];
+
+  console.debug('[PolyFinder] Tag slug candidates', Array.from(slugCandidates));
+
+  for (const slug of slugCandidates) {
+    if (aggregated.length >= DEFAULT_MARKET_LIMIT) break;
+    const tagMarkets = await fetchMarketsFromTagSlug(slug);
+    if (tagMarkets.length === 0) {
+      continue;
+    }
+    aggregated = mergeMarkets(aggregated, tagMarkets);
+  }
+
+  if (aggregated.length === 0) {
+    errorMessage = 'No tag-based markets found';
+  }
+
+  return {
+    markets: aggregated,
+    matchedSlugs: Array.from(slugCandidates),
+    errorMessage
+  };
+}
+
+async function fetchMarketsForKeywords(keywords = []) {
+  const tagResult = await fetchMarketsByTags(keywords);
+  let markets = tagResult.markets;
+  let errorMessage = tagResult.errorMessage;
 
   if (markets.length === 0) {
     try {
@@ -242,7 +413,7 @@ async function fetchMarketsWithFallback(primaryQuery, fallbackQueries = []) {
       markets = mergeMarkets(markets, trending);
     } catch (err) {
       console.error('Error fetching fallback trending markets:', err);
-      errorMessage = 'Unable to fetch fallback markets';
+      errorMessage = errorMessage || 'Unable to fetch fallback markets';
     }
   }
 
@@ -257,12 +428,9 @@ function buildQueriesFromKeywords(keywords = []) {
     return { primaryQuery: '', fallbackQueries: [] };
   }
 
-  const primaryTokens = keywords.slice(0, 4);
-  const fallbackTokens = keywords.slice(0, 3);
-
   return {
-    primaryQuery: primaryTokens.join(' '),
-    fallbackQueries: fallbackTokens
+    primaryQuery: keywords[0] || '',
+    fallbackQueries: keywords.slice(1)
   };
 }
 
@@ -295,14 +463,12 @@ async function updateMarketsForTab(tabId) {
     return;
   }
 
-  const { primaryQuery, fallbackQueries } = buildQueriesFromKeywords(context.keywords);
   console.debug('[PolyFinder] Fetch markets', {
     tabId,
-    primaryQuery,
-    fallbackQueries,
-    keywordCount: context.keywords.length
+    keywordCount: context.keywords.length,
+    keywords: context.keywords
   });
-  const { markets, errorMessage } = await fetchMarketsWithFallback(primaryQuery, fallbackQueries);
+  const { markets, errorMessage } = await fetchMarketsForKeywords(context.keywords);
   const stats = calculateStats(markets);
 
   const updatedContext = {

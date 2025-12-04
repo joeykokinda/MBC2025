@@ -58,6 +58,16 @@ body {
   background: #1d4ed8;
 }
 
+.processing-banner {
+  background: #1e40af;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 1px solid #2563eb;
+}
+
 .page-info {
   padding: 16px 20px;
   border-bottom: 1px solid #222;
@@ -243,4 +253,65 @@ body {
   color: #888;
   font-size: 14px;
 }
+
+.no-tweets-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.no-tweets-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-tweets-state h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.no-tweets-state p {
+  font-size: 16px;
+  color: #aaa;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.no-tweets-state strong {
+  color: #2563eb;
+}
+
+.how-it-works {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+  max-width: 300px;
+}
+
+.how-it-works h3 {
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.how-it-works ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.how-it-works li {
+  margin-bottom: 6px;
+}
+
 

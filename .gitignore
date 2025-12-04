@@ -6,4 +6,5 @@ sidebar/
 .env
 .env.local
 *.pem
+config.js
 

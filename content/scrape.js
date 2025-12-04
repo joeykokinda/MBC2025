@@ -2,7 +2,6 @@
 // This file runs on every webpage and scrapes visible tweets
 // Purpose: Extract text and sender from tweets currently visible on screen
 
-// IMMEDIATE TEST - This should appear in console immediately if script loads
 console.log('PolyFinder content script file loaded!');
 
 // Check if an element is visible in the viewport
@@ -37,9 +36,7 @@ function isElementPartiallyVisible(element) {
   );
 }
 
-// Get all tweet container elements from the page
 function getTweetContainers() {
-  // Twitter/X uses article elements with data-testid="tweet"
   const tweetSelectors = [
     'article[data-testid="tweet"]',
     'article[role="article"]',
@@ -52,18 +49,6 @@ function getTweetContainers() {
       console.log(`[PolyFinder Scraper] Found ${tweets.length} tweets using selector: ${selector}`);
       return tweets;
     }
-  }
-  
-  // Diagnostic: check what article elements exist
-  const allArticles = document.querySelectorAll('article');
-  console.log(`[PolyFinder Scraper] Found ${allArticles.length} article elements total`);
-  if (allArticles.length > 0) {
-    const firstArticle = allArticles[0];
-    console.log('[PolyFinder Scraper] First article attributes:', {
-      'data-testid': firstArticle.getAttribute('data-testid'),
-      'role': firstArticle.getAttribute('role'),
-      'class': firstArticle.className
-    });
   }
   
   console.log('[PolyFinder Scraper] No tweets found with any selector');
@@ -165,7 +150,6 @@ function scrapeVisibleTweets() {
   return visibleTweets;
 }
 
-// Output scraped tweets to console
 function outputScrapedTweets() {
   const tweets = scrapeVisibleTweets();
   console.log('=== PolyFinder: Scraped Visible Tweets ===');
@@ -174,12 +158,10 @@ function outputScrapedTweets() {
   console.log('==========================================');
 }
 
-// Send scraped tweets to background script
 function sendScrapedTweetsToBackground() {
   const tweets = scrapeVisibleTweets();
   
   if (tweets.length > 0) {
-    // Store tweets in a variable for verification
     const tweetData = {
       tweets: tweets,
       url: window.location.href,
@@ -194,32 +176,33 @@ function sendScrapedTweetsToBackground() {
     console.log('  - Sample tweets (first 2):');
     console.log(JSON.stringify(tweetData.tweets.slice(0, 2), null, 4));
     
-    chrome.runtime.sendMessage({
-      action: 'TWEETS_SCRAPED',
-      payload: tweetData
-    }, (response) => {
-      // Handle response from background script
-      if (chrome.runtime.lastError) {
-        console.error('[PolyFinder Scraper] ❌ Error sending tweets:', chrome.runtime.lastError.message);
-      } else if (response && response.success) {
-        console.log(`[PolyFinder Scraper] Successfully sent ${response.processed} tweets to background script`);
-        console.log('[PolyFinder Scraper] Note: Background script logs appear in Extension Service Worker console');
-        console.log('[PolyFinder Scraper] To view: chrome://extensions → Find PolyFinder → Click "service worker"');
-      } else {
-        console.log('[PolyFinder Scraper] ⚠️ Message sent, but no response received from background script');
-      }
-    });
+    try {
+      chrome.runtime.sendMessage({
+        action: 'TWEETS_SCRAPED',
+        payload: tweetData
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          if (chrome.runtime.lastError.message.includes('Extension context invalidated')) {
+            console.log('[PolyFinder Scraper] Extension was reloaded, please refresh the page');
+          } else {
+            console.error('[PolyFinder Scraper] ❌ Error:', chrome.runtime.lastError.message);
+          }
+        } else if (response && response.success) {
+          console.log(`[PolyFinder Scraper] ✅ Successfully sent ${response.processed} tweets`);
+        }
+      });
+    } catch (error) {
+      console.log('[PolyFinder Scraper] Extension context lost - reload page after updating extension');
+    }
   } else {
     console.log('[PolyFinder Scraper] No tweets found to send');
   }
 }
 
-// Setup scroll listener to scrape on scroll
 function setupScrollListener() {
   let scrollTimeout;
   
   window.addEventListener('scroll', () => {
-    // Debounce: only scrape after user stops scrolling for 300ms
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
       outputScrapedTweets();
@@ -228,12 +211,10 @@ function setupScrollListener() {
   });
 }
 
-// Initialize scraper when page loads
 function initializeScraper() {
   console.log('[PolyFinder Scraper] Content script loaded and initializing...');
   console.log('[PolyFinder Scraper] Current URL:', window.location.href);
   
-  // Wait for page to be fully loaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       console.log('[PolyFinder Scraper] DOM loaded, waiting for tweets...');
@@ -256,11 +237,16 @@ function initializeScraper() {
 // Start the scraper
 initializeScraper();
 
-// Listen for messages from background script
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'SCRAPE_TWEETS') {
     const tweets = scrapeVisibleTweets();
     sendResponse({ tweets: tweets });
   }
+  
+  if (msg.action === 'TRIGGER_SCRAPE') {
+    sendScrapedTweetsToBackground();
+    sendResponse({ success: true });
+  }
+  
   return true;
 });

@@ -2,19 +2,20 @@
   "name": "polyfinder",
   "version": "1.0.0",
   "type": "module",
-  
   "scripts": {
     "dev": "vite build --watch --mode development",
     "build": "vite build",
     "preview": "vite preview",
     "generate-icons": "node generate-icons.js"
   },
-  
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@coinbase/onchainkit": "^1.1.2",
+    "@tanstack/react-query": "^5.90.11",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "viem": "^2.41.2",
+    "wagmi": "^2.19.5"
   },
-  
   "devDependencies": {
     "@types/chrome": "^0.0.268",
     "@vitejs/plugin-react": "^4.2.1",

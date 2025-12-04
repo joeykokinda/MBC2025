@@ -9,8 +9,8 @@ export default function StatsPanel({ stats }) {
   if (!stats) return null;
 
   return (
-    <div className="stats-panel">
-      <h3>Statistics</h3>
+    <div className="stats-panel data-panel">
+      <h3 className="panel-title">Market Statistics</h3>
       <div className="stats-grid">
         <div className="stat-item">
           <span className="stat-label">Total Markets</span>

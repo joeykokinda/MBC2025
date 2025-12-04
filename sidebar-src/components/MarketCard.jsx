@@ -16,16 +16,16 @@ export default function MarketCard({ market }) {
   const noPercent = (parseFloat(noPrice) * 100).toFixed(1);
 
   return (
-    <div className="market-card">
+    <div className="market-card data-panel">
       <h3 className="market-question">{question}</h3>
       
       <div className="market-odds">
         <div className="odds-row">
-          <span className="odds-label">Yes:</span>
+          <span className="odds-label">Yes</span>
           <span className="odds-value yes">{yesPercent}%</span>
         </div>
         <div className="odds-row">
-          <span className="odds-label">No:</span>
+          <span className="odds-label">No</span>
           <span className="odds-value no">{noPercent}%</span>
         </div>
       </div>

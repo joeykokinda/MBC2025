@@ -1,41 +1,47 @@
 /* ============================================
-   POLYFINDER - CHROME + CRYPTO WALLET HYBRID
-   Chrome design principles + Dark crypto aesthetic
+   POLYFINDER - MIDNIGHT THEME
+   Google Product x Phantom Wallet Aesthetic
    ============================================ */
 
-/* Hybrid Design Tokens */
+/* Design Tokens - Midnight Theme */
 :root {
-  /* Dark Crypto Backgrounds (from reference) */
-  --c-bg: #1a1a1a;
-  --c-bg-light: #202020;
-  --c-surface: #2d2d2d;
-  --c-surface-alt: #383838;
+  /* Backgrounds - Deep OLED Black */
+  --c-bg: #0f0f0f;
+  --c-surface: #1c1c1c;
+  --c-surface-hover: #242424;
   
-  /* Borders & Dividers */
-  --c-border: #404040;
-  
-  /* Text - High contrast for dark theme */
+  /* Typography */
   --c-text: #ffffff;
-  --c-text-secondary: #b3b3b3;
-  --c-text-muted: #808080;
+  --c-text-secondary: #a1a1a1;
+  --c-text-muted: #6b6b6b;
   
-  /* Brand - Google Blue (Chrome) */
-  --c-primary: #4285f4;
+  /* Borders - Ultra-subtle */
+  --c-border: rgba(255, 255, 255, 0.08);
+  --c-border-hover: rgba(255, 255, 255, 0.16);
+  
+  /* Accents */
+  --c-primary: #4285f4; /* Google Blue */
   --c-primary-hover: #5294ff;
+  --c-success: #22c55e; /* Signal Green */
+  --c-error: #ef4444; /* Red */
   
-  /* Semantic Colors */
-  --c-success: #34a853;
-  --c-error: #ea4335;
-  --c-warning: #fbbc04;
+  /* Chrome Design */
+  --c-radius: 12px;
+  --c-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --c-shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.6);
   
-  /* Chrome Design Elements */
-  --c-radius: 8px;
-  --c-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --c-shadow-elevated: 0 2px 6px rgba(0, 0, 0, 0.5);
+  /* Spacing - 8px grid */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  
+  /* Transitions */
+  --transition: 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
   
   /* OnchainKit Dark Theme */
-  --ock-bg-default: var(--c-bg);
-  --ock-bg-alternate: var(--c-surface);
+  --ock-bg-default: var(--c-surface);
+  --ock-bg-alternate: var(--c-bg);
   --ock-text-foreground: var(--c-text);
   --ock-text-foreground-muted: var(--c-text-secondary);
   --ock-border: var(--c-border);
@@ -51,16 +57,24 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
-  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--c-text);
   background: var(--c-bg);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 /* ============================================
-   CONTAINER
+   LAYOUT - Fixed Header + Scrollable Content
    ============================================ */
 .sidebar-container {
   display: flex;
@@ -70,83 +84,88 @@ body {
   overflow: hidden;
 }
 
-/* ============================================
-   HEADER - Chrome Toolbar (Dark)
-   ============================================ */
+/* Glassmorphism Header - Sticky */
 .sidebar-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: var(--c-surface);
+  padding: 14px var(--space-md);
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--c-border);
   flex-shrink: 0;
-  height: 56px;
+  min-height: 56px;
 }
 
 .sidebar-header h1 {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--c-text);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
 }
 
-/* Chrome Icon Button (Dark) */
+/* Chrome Icon Button */
 .refresh-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: transparent;
-  border: none;
+  border: 1px solid var(--c-border);
   color: var(--c-text-secondary);
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 150ms ease-in-out;
+  transition: all var(--transition);
 }
 
 .refresh-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--c-surface);
+  border-color: var(--c-border-hover);
   color: var(--c-text);
+  transform: rotate(90deg);
 }
 
 .refresh-btn:active {
-  background: rgba(255, 255, 255, 0.12);
+  transform: rotate(90deg) scale(0.95);
 }
 
-/* ============================================
-   WALLET BUTTON - Chrome Primary (Dark)
-   ============================================ */
+/* Wallet Button - Google Blue */
 .connect-wallet-btn {
   background: var(--c-primary) !important;
   color: #fff !important;
   border: none !important;
-  padding: 8px 16px !important;
-  border-radius: var(--c-radius) !important;
+  padding: 8px 14px !important;
+  border-radius: 20px !important;
   cursor: pointer !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
-  transition: background 150ms ease-in-out !important;
+  transition: all var(--transition) !important;
   min-height: 36px !important;
+  letter-spacing: -0.01em !important;
 }
 
 .connect-wallet-btn:hover {
   background: var(--c-primary-hover) !important;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.4) !important;
 }
 
 .connect-wallet-btn:active {
-  background: #3367d6 !important;
+  transform: scale(0.97);
 }
 
 .wallet-name {
@@ -155,320 +174,408 @@ body {
 }
 
 /* ============================================
-   WALLET DROPDOWN - Chrome Menu (Dark)
+   WALLET DROPDOWN - Phantom Style
    ============================================ */
 [class*="ockWalletDropdown"],
-div[role="menu"],
-div[class*="Dropdown"][class*="ock"] {
+div[role="menu"] {
   background: var(--c-surface) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: var(--c-radius) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: var(--c-shadow-elevated) !important;
   overflow: hidden !important;
   min-width: 280px !important;
   padding: 0 !important;
 }
 
-/* Identity Section - Clean Card */
-[class*="ockIdentity"],
-.wallet-identity {
-  padding: 16px !important;
+[class*="ockIdentity"] {
+  padding: var(--space-md) !important;
   background: var(--c-surface) !important;
   border-bottom: 1px solid var(--c-border) !important;
 }
 
-[class*="ockIdentity"] [class*="Avatar"],
-.wallet-identity [class*="Avatar"] {
-  width: 40px !important;
-  height: 40px !important;
-  margin-bottom: 8px !important;
-}
-
-[class*="ockIdentity"] [class*="Name"],
-.wallet-identity [class*="Name"] {
+[class*="ockIdentity"] [class*="Name"] {
   color: var(--c-text) !important;
   font-size: 15px !important;
-  font-weight: 500 !important;
-  margin-bottom: 4px !important;
+  font-weight: 600 !important;
 }
 
-[class*="ockIdentity"] [class*="Address"],
-.wallet-identity [class*="Address"] {
+[class*="ockIdentity"] [class*="Address"] {
   color: var(--c-text-secondary) !important;
   font-size: 13px !important;
-  font-family: 'Roboto Mono', monospace !important;
-  margin-bottom: 8px !important;
-  opacity: 0.9 !important;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace !important;
 }
 
-[class*="ockIdentity"] [class*="EthBalance"],
-.wallet-identity [class*="EthBalance"] {
-  color: var(--c-text) !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-}
-
-/* Disconnect Button - Chrome Style (Dark) */
-[class*="ockWalletDropdownDisconnect"],
-button[class*="Disconnect"] {
-  width: 100% !important;
-  padding: 12px 16px !important;
+[class*="ockWalletDropdownDisconnect"] {
+  padding: 12px var(--space-md) !important;
   background: var(--c-surface) !important;
-  color: var(--c-text) !important;
+  color: var(--c-text-secondary) !important;
   border: none !important;
   border-top: 1px solid var(--c-border) !important;
-  font-size: 14px !important;
-  font-weight: 400 !important;
   cursor: pointer !important;
-  transition: background-color 150ms ease-in-out !important;
+  transition: all var(--transition) !important;
   text-align: left !important;
 }
 
-[class*="ockWalletDropdownDisconnect"]:hover,
-button[class*="Disconnect"]:hover {
-  background: var(--c-surface-alt) !important;
-}
-
-[class*="ockWalletDropdownDisconnect"]:active,
-button[class*="Disconnect"]:active {
-  background: rgba(255, 255, 255, 0.08) !important;
+[class*="ockWalletDropdownDisconnect"]:hover {
+  background: var(--c-surface-hover) !important;
+  color: var(--c-error) !important;
 }
 
 /* ============================================
-   SIGN IN SCREEN - Chrome Style (Dark)
+   SIGN IN SCREEN - Phantom Inspired
    ============================================ */
 .simple-login-screen {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
-  padding: 24px;
+  padding: var(--space-lg);
   background: var(--c-bg);
 }
 
 .login-content {
   text-align: center;
-  max-width: 400px;
+  max-width: 360px;
   width: 100%;
 }
 
 .login-icon {
-  margin: 0 auto 24px;
-  width: 64px;
-  height: 64px;
+  margin: 0 auto var(--space-lg);
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--c-primary);
-  border-radius: var(--c-radius);
-  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.3);
+}
+
+.login-icon svg {
+  filter: drop-shadow(0 8px 24px rgba(66, 133, 244, 0.4));
 }
 
 .login-content h2 {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 600;
   color: var(--c-text);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.02em;
 }
 
 .login-content p {
   font-size: 14px;
   color: var(--c-text-secondary);
-  margin-bottom: 24px;
-  line-height: 1.5;
+  margin-bottom: var(--space-lg);
+  line-height: 1.6;
 }
 
-.login-buttons {
-  width: 100%;
-}
-
-/* Sign In Button */
-.primary-signin-btn,
-button.primary-signin-btn,
-.primary-signin-btn[class*="ock"] {
+.primary-signin-btn {
   background: var(--c-primary) !important;
   color: #fff !important;
   border: none !important;
-  padding: 10px 24px !important;
+  padding: 12px 24px !important;
   border-radius: var(--c-radius) !important;
   cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: background 150ms ease-in-out !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  transition: all var(--transition) !important;
   width: 100% !important;
-  min-height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  min-height: 48px !important;
+  letter-spacing: -0.01em !important;
 }
 
 .primary-signin-btn:hover {
   background: var(--c-primary-hover) !important;
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.4) !important;
+  transform: translateY(-1px);
 }
 
 .primary-signin-btn:active {
-  background: #3367d6 !important;
+  transform: translateY(0);
 }
 
 /* ============================================
-   PAGE INFO - Chrome Card (Dark)
+   SCROLLABLE CONTENT AREA
+   ============================================ */
+.markets-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar - Midnight Theme */
+.markets-content-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.markets-content-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.markets-content-wrapper::-webkit-scrollbar-thumb {
+  background: var(--c-surface);
+  border-radius: 4px;
+}
+
+.markets-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--c-surface-hover);
+}
+
+/* ============================================
+   PAGE INFO - With Pulsing Dot
    ============================================ */
 .page-info {
   background: var(--c-surface);
+  border: 1px solid var(--c-border);
   border-radius: var(--c-radius);
-  padding: 16px;
-  margin: 16px;
-  box-shadow: var(--c-shadow);
+  padding: var(--space-md);
+  margin: var(--space-md);
 }
 
 .page-title {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--c-text);
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
   line-height: 1.4;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Pulsing Green Dot Indicator */
+.page-title::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-success);
+  animation: pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
 .keywords {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .keyword-tag {
-  background: var(--c-surface-alt);
+  background: var(--c-surface-hover);
   color: var(--c-text-secondary);
-  padding: 4px 12px;
-  border-radius: 16px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-  transition: background-color 150ms ease-in-out;
-  border: 1px solid transparent;
+  border: 1px solid var(--c-border);
+  transition: all var(--transition);
+  letter-spacing: -0.01em;
 }
 
 .keyword-tag:hover {
-  background: rgba(66, 133, 244, 0.12);
   border-color: var(--c-primary);
   color: var(--c-primary);
 }
 
 /* ============================================
-   STATS PANEL - Chrome Card (Dark)
+   STATS PANEL - 2x2 Grid Dashboard
    ============================================ */
 .stats-panel {
   background: var(--c-surface);
+  border: 1px solid var(--c-border);
   border-radius: var(--c-radius);
-  padding: 16px;
-  margin: 16px;
-  box-shadow: var(--c-shadow);
+  padding: var(--space-md);
+  margin: var(--space-md);
+  transition: all var(--transition);
 }
 
-.stats-panel h3 {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--c-text-secondary);
+.stats-panel:hover {
+  border-color: var(--c-border-hover);
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--space-md);
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 12px;
+  background: var(--c-bg);
+  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  transition: all var(--transition);
+}
+
+.stat-item:hover {
+  border-color: var(--c-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .stat-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--c-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-value {
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--c-text);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
-/* Highlight Total Volume */
-.stat-item:last-child .stat-value {
+/* Highlight Last Stat (Total Volume) */
+.stat-item:nth-child(4) {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(66, 133, 244, 0.05));
+  border-color: rgba(66, 133, 244, 0.3);
+}
+
+.stat-item:nth-child(4) .stat-value {
   color: var(--c-primary);
+  font-size: 24px;
 }
 
 /* ============================================
    MARKETS LIST
    ============================================ */
 .markets-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 16px 16px;
-  background: var(--c-bg);
+  padding: 0 var(--space-md) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
 .no-markets {
   text-align: center;
-  padding: 40px 16px;
-  color: var(--c-text-secondary);
+  padding: 40px var(--space-md);
+  color: var(--c-text-muted);
   font-size: 14px;
 }
 
 /* ============================================
-   MARKET CARD - Crypto Wallet Style
+   MARKET CARD - High-Density Trading Row
    ============================================ */
 .market-card {
   background: var(--c-surface);
+  border: 1px solid var(--c-border);
   border-radius: var(--c-radius);
-  padding: 16px;
-  margin-bottom: 8px;
-  box-shadow: var(--c-shadow);
-  transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;
+  padding: var(--space-md);
+  transition: all var(--transition);
   cursor: pointer;
-  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
 .market-card:hover {
+  border-color: var(--c-border-hover);
+  transform: translateY(-2px);
   box-shadow: var(--c-shadow-elevated);
-  transform: translateY(-1px);
-  border-color: var(--c-border);
+}
+
+.market-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--c-success), var(--c-error));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.market-card:hover::before {
+  opacity: 1;
 }
 
 .market-question {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--c-text);
-  margin-bottom: 16px;
-  line-height: 1.5;
+  margin-bottom: var(--space-md);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
+/* Horizontal Odds Bar - Visual Progress */
+.odds-bar-container {
+  margin-bottom: var(--space-md);
+}
+
+.odds-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--c-bg);
+  margin-bottom: var(--space-sm);
+}
+
+.odds-bar-yes {
+  height: 100%;
+  background: var(--c-success);
+  transition: width 0.3s ease;
+}
+
+.odds-bar-no {
+  height: 100%;
+  background: var(--c-error);
+  transition: width 0.3s ease;
+}
+
+/* Odds Values - Compact Row */
 .market-odds {
   display: flex;
-  gap: 24px;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .odds-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .odds-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--c-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .odds-value {
-  font-size: 24px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .odds-value.yes {
@@ -479,43 +586,55 @@ button.primary-signin-btn,
   color: var(--c-error);
 }
 
+/* Market Footer - Volume + Trade Link */
+.market-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--c-border);
+}
+
 .market-volume {
-  font-size: 13px;
-  color: var(--c-text-secondary);
-  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--c-text-muted);
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .market-link {
-  display: inline-block;
   color: var(--c-primary);
   text-decoration: none;
   font-size: 13px;
-  font-weight: 500;
-  float: right;
-  transition: color 150ms ease-in-out;
+  font-weight: 600;
+  transition: all var(--transition);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .market-link:hover {
   color: var(--c-primary-hover);
+  gap: 6px;
 }
 
 /* ============================================
-   SPINNER - Chrome Loading (Dark)
+   SPINNER - Loading State
    ============================================ */
 .spinner-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  flex: 1;
-  gap: 16px;
+  padding: 60px var(--space-md);
+  gap: var(--space-md);
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--c-surface-alt);
+  border: 3px solid var(--c-surface);
   border-top-color: var(--c-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -528,183 +647,68 @@ button.primary-signin-btn,
 .spinner-container p {
   color: var(--c-text-secondary);
   font-size: 13px;
+  letter-spacing: -0.01em;
 }
 
 /* ============================================
    ERROR MESSAGE
    ============================================ */
 .error-message {
-  background: rgba(234, 67, 53, 0.1);
+  background: rgba(239, 68, 68, 0.1);
   color: var(--c-error);
-  padding: 12px 16px;
-  margin: 16px;
+  padding: 12px var(--space-md);
+  margin: var(--space-md);
   border-radius: var(--c-radius);
   font-size: 13px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-left: 4px solid var(--c-error);
+  letter-spacing: -0.01em;
 }
 
 /* ============================================
-   SCROLLBAR - Chrome Style (Dark)
-   ============================================ */
-.markets-list::-webkit-scrollbar {
-  width: 12px;
-}
-
-.markets-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.markets-list::-webkit-scrollbar-thumb {
-  background: var(--c-surface-alt);
-  border-radius: 8px;
-  border: 3px solid var(--c-bg);
-}
-
-.markets-list::-webkit-scrollbar-thumb:hover {
-  background: var(--c-border);
-}
-
-/* ============================================
-   ONCHAINKIT MODAL - Chrome Style (Dark)
+   ONCHAINKIT MODAL - Midnight Theme
    ============================================ */
 [class*="ockBackdrop"] {
-  backdrop-filter: blur(4px) !important;
-  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  background: rgba(0, 0, 0, 0.7) !important;
 }
 
 [class*="ockModal"] {
   background: var(--c-surface) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: var(--c-radius) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7) !important;
-  max-width: 440px !important;
-}
-
-[class*="ockModalHeader"] {
-  background: var(--c-surface) !important;
-  border-bottom: 1px solid var(--c-border) !important;
-  padding: 16px !important;
-}
-
-[class*="ockModalContent"] {
-  background: var(--c-surface) !important;
-  padding: 16px !important;
+  box-shadow: var(--c-shadow-elevated) !important;
 }
 
 [class*="ockModalTitle"] {
   color: var(--c-text) !important;
-  font-size: 18px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
-[class*="ockModalDescription"] {
-  color: var(--c-text-secondary) !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-}
-
-/* Wallet Options - Chrome List Items (Dark) */
-[class*="ockWalletOption"],
-[class*="ockConnectorButton"] {
-  background: var(--c-surface) !important;
+[class*="ockWalletOption"] {
+  background: var(--c-bg) !important;
   border: 1px solid var(--c-border) !important;
-  border-radius: var(--c-radius) !important;
-  padding: 12px !important;
-  transition: background-color 150ms ease-in-out !important;
-  margin-bottom: 8px !important;
+  border-radius: 8px !important;
+  transition: all var(--transition) !important;
 }
 
-[class*="ockWalletOption"]:hover,
-[class*="ockConnectorButton"]:hover {
-  background: var(--c-surface-alt) !important;
+[class*="ockWalletOption"]:hover {
+  background: var(--c-surface) !important;
   border-color: var(--c-primary) !important;
+  transform: translateY(-1px);
 }
 
-[class*="ockWalletOption"]:active,
-[class*="ockConnectorButton"]:active {
-  background: rgba(255, 255, 255, 0.08) !important;
-}
-
-[class*="ockWalletOption"] span,
-[class*="ockConnectorButton"] span {
-  color: var(--c-text) !important;
-  font-size: 14px !important;
-  font-weight: 400 !important;
-}
-
-/* Modal Buttons - Chrome Buttons (Dark) */
 [class*="ockButtonPrimary"] {
   background: var(--c-primary) !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: var(--c-radius) !important;
-  padding: 10px 24px !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: background 150ms ease-in-out !important;
-  min-height: 36px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
 }
 
 [class*="ockButtonPrimary"]:hover {
   background: var(--c-primary-hover) !important;
-}
-
-[class*="ockButtonPrimary"]:active {
-  background: #3367d6 !important;
-}
-
-[class*="ockButtonSecondary"] {
-  background: var(--c-surface) !important;
-  color: var(--c-text) !important;
-  border: 1px solid var(--c-border) !important;
-  border-radius: var(--c-radius) !important;
-  padding: 9px 23px !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: background-color 150ms ease-in-out !important;
-}
-
-[class*="ockButtonSecondary"]:hover {
-  background: var(--c-surface-alt) !important;
-}
-
-/* Input Fields - Chrome Inputs (Dark) */
-[class*="ockInput"] {
-  background: var(--c-bg) !important;
-  border: 1px solid var(--c-border) !important;
-  color: var(--c-text) !important;
-  border-radius: var(--c-radius) !important;
-  padding: 10px 12px !important;
-  font-size: 14px !important;
-  transition: border-color 150ms ease-in-out !important;
-}
-
-[class*="ockInput"]:hover {
-  border-color: #5f6368 !important;
-}
-
-[class*="ockInput"]:focus {
-  border-color: var(--c-primary) !important;
-  outline: none !important;
-}
-
-[class*="ockInput"]::placeholder {
-  color: var(--c-text-muted) !important;
-}
-
-/* Close Button - Chrome Icon Button (Dark) */
-[class*="ockCloseButton"] {
-  color: var(--c-text-secondary) !important;
-  background: transparent !important;
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  transition: background-color 150ms ease-in-out !important;
-}
-
-[class*="ockCloseButton"]:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: var(--c-text) !important;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3) !important;
 }
 
 /* ============================================
@@ -712,15 +716,17 @@ button.primary-signin-btn,
    ============================================ */
 @media (max-width: 400px) {
   .sidebar-header {
-    padding: 8px 12px;
+    padding: 12px;
   }
   
   .page-info,
-  .stats-panel {
+  .stats-panel,
+  .markets-list {
     margin: 12px;
+    padding: 12px;
   }
   
-  .markets-list {
-    padding: 8px 12px 12px;
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }

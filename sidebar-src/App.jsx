@@ -125,9 +125,9 @@ function PolyFinderContent() {
         </div>
       )}
 
-      {/* Only show markets content when connected */}
+      {/* Only show markets content when connected - Scrollable */}
       {isConnected && (
-        <>
+        <div className="markets-content-wrapper">
           {/* Show page title and keywords if available */}
           {pageTitle && (
             <div className="page-info">
@@ -164,7 +164,7 @@ function PolyFinderContent() {
               </div>
             </>
           )}
-        </>
+        </div>
       )}
     </div>
   );
@@ -182,7 +182,7 @@ export default function App() {
             appearance: {
               name: 'PolyFinder',
               logo: chrome.runtime.getURL('assets/icon48.png'),
-              mode: 'light',
+              mode: 'dark',
               theme: 'default',
             },
             wallet: {

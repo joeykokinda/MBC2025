@@ -10,7 +10,7 @@ const GAMMA_EVENTS_URL = 'https://gamma-api.polymarket.com/events';
 const GAMMA_TAGS_URL = 'https://gamma-api.polymarket.com/tags';
 const DEFAULT_MARKET_LIMIT = 6;
 const MAX_KEYWORDS = 8;
-const STOPWORDS = new Set([
+const BASE_STOPWORDS = new Set([
   'the','and','for','with','that','this','from','have','will','your','about',
   'https','http','com','www','are','was','but','not','you','has','had','its',
   'into','more','over','when','what','why','who','how','can','all','just','they',
@@ -21,8 +21,34 @@ const STOPWORDS = new Set([
   'still','each','even','many','most','some','more','less','rt','img','video',
   'home','hour','hours','ago','minute','minutes','second','seconds','view','views',
   'tweet','tweets','tweeted','repost','reposts','reply','replies','like','likes',
-  'follow','follows','following','followers','profile','people','click','link'
+  'follow','follows','following','followers','profile','people','click','link',
+  'to','its','it\'s','im','amp','a','an','in','on','of','is','as','at','by','be','s'
 ]);
+const TWITTER_STOPWORDS = new Set([
+  'dm','me','tmrw','lol','omg','pls','plz','til','fwiw','imo','imho','amp',
+  'idk','ok','oke','thx','thanks','yo','u','ur','ya','lmk','gonna','gotta',
+  'bro','bros','dude','homie','fam','retweet','rt','qrt','qt','tweet','tweets',
+  'vid','video','videos','watch','super','lol','thanks','new','thread','link',
+  'is','a','an','in','out','into','up','down','back','front','here','there'
+]);
+const SHORT_KEYWORD_EXCEPTIONS = new Set(['ai','btc','eth','usa','fed','gdp','uk','eu','sec']);
+const SOFT_STOPWORDS = new Set([
+  'breaking','update','updates','live','today','tonight','thread','watch','latest',
+  'news','story','video','videos','happening','person','sharing','retweet',
+  'retweeted','super','great','awesome','btw','wow'
+]);
+const DOMAIN_BOOST_TOKENS = new Set([
+  'trump','biden','election','vote','primary','senate','house','congress','poll',
+  'referendum','ballot','supreme','court','bitcoin','btc','ethereum','eth','solana',
+  'sol','crypto','token','coin','inflation','cpi','rate','rates','fed','fomc',
+  'hike','cut','stock','stocks','market','markets','equity','equities','etf','bond',
+  'bonds','yield','yields','recession','gdp'
+]);
+const DOMAIN_BOOST_BONUS = 2;
+const ENABLE_BIGRAMS = true;
+const BIGRAM_BONUS = 0.5;
+const SECONDARY_LIMIT = 8;
+const NUMERIC_TOKEN_REGEX = /^\d+(\.\d+)?%?$/;
 
 const tabContexts = new Map();
 let lastActiveTabId = null;
@@ -73,56 +99,177 @@ function getEmptyStats() {
   };
 }
 
-function normalizeToken(token) {
+function normalizeToken(token, {
+  stripPrefixes = true,
+  stopwordSet = BASE_STOPWORDS,
+  minLength = 2
+} = {}) {
   if (!token) return '';
-  const cleaned = token
-    .trim()
-    .replace(/^[#@$]+/, '')
-    .replace(/[^a-zA-Z0-9+-]/g, '')
-    .toLowerCase();
-  if (cleaned.length < 2) return '';
-  if (STOPWORDS.has(cleaned)) return '';
+  let cleaned = token.trim();
+  if (stripPrefixes) {
+    cleaned = cleaned.replace(/^[#@$]+/, '');
+  }
+  cleaned = cleaned.replace(/[^a-zA-Z0-9+.%\-]/g, '');
+  cleaned = cleaned.toLowerCase();
+  if (!cleaned) return '';
+  if (
+    cleaned.length < minLength &&
+    !NUMERIC_TOKEN_REGEX.test(cleaned) &&
+    !SHORT_KEYWORD_EXCEPTIONS.has(cleaned)
+  ) {
+    return '';
+  }
+  if (stopwordSet.has(cleaned) || SOFT_STOPWORDS.has(cleaned)) {
+    return '';
+  }
   return cleaned;
 }
 
-function extractKeywordsFromPage(pageData) {
-  if (!pageData) return [];
+function addScore(map, token, value) {
+  if (!token || !value) return;
+  map.set(token, (map.get(token) || 0) + value);
+}
 
-  const scores = new Map();
+function extractKeywordsFromPage(pageData) {
+  if (!pageData) {
+    return {
+      keywords: [],
+      hashtags: [],
+      cashtags: [],
+      mentions: []
+    };
+  }
+
+  const isTwitterSource = pageData.source === 'twitter';
+  const stopwordSet = isTwitterSource
+    ? new Set([...BASE_STOPWORDS, ...TWITTER_STOPWORDS])
+    : BASE_STOPWORDS;
+  const minLength = isTwitterSource ? 3 : 2;
+
+  const unigramScores = new Map();
+  const boostedTokens = new Set();
+  const bigramScores = new Map();
+  const hashtagScores = new Map();
+  const cashtagScores = new Map();
+  const mentionScores = new Map();
+  const orderedTokens = [];
+  let totalTokens = 0;
+  let processedTokens = 0;
+
   const limitedText = (pageData.text || '').slice(0, 6000);
   const title = pageData.title || '';
 
-  function addToken(token, weight = 1) {
-    const normalized = normalizeToken(token);
-    if (!normalized) return;
-    const current = scores.get(normalized) || 0;
-    scores.set(normalized, current + weight);
-  }
-
   function processChunk(chunk, weight) {
     if (!chunk) return;
-    const specials = chunk.match(/([#@$][A-Za-z0-9_]+)/g);
-    specials?.forEach((special) => addToken(special, weight + 1));
+    const tokens = chunk.match(/[#@$]?[A-Za-z0-9][A-Za-z0-9+_%\.-]*/g) || [];
+    tokens.forEach((rawToken) => {
+      totalTokens += 1;
+      if (!rawToken) return;
 
-    const words = chunk.match(/[A-Za-z0-9][A-Za-z0-9_-]{2,}/g);
-    words?.forEach((word) => addToken(word, weight));
+      let tokenType = 'word';
+      if (/^#[A-Za-z0-9_]+$/.test(rawToken)) {
+        tokenType = 'hashtag';
+      } else if (/^\$[A-Za-z0-9_]+$/.test(rawToken)) {
+        tokenType = 'cashtag';
+      } else if (/^@[A-Za-z0-9_]+$/.test(rawToken)) {
+        tokenType = 'mention';
+      }
+
+      const normalized = normalizeToken(
+        tokenType === 'word' ? rawToken : rawToken.slice(1),
+        {
+          stripPrefixes: false,
+          stopwordSet,
+          minLength: tokenType === 'cashtag' || tokenType === 'hashtag' ? 2 : minLength
+        }
+      );
+      if (!normalized) {
+        return;
+      }
+
+      if (tokenType === 'cashtag' && !/[a-z]/i.test(normalized)) {
+        return;
+      }
+
+      let tokenWeight = weight;
+      if (tokenType === 'hashtag' || tokenType === 'cashtag') {
+        tokenWeight += 1;
+      }
+      if (DOMAIN_BOOST_TOKENS.has(normalized) && !boostedTokens.has(normalized)) {
+        tokenWeight += DOMAIN_BOOST_BONUS;
+        boostedTokens.add(normalized);
+      }
+
+      addScore(unigramScores, normalized, tokenWeight);
+      processedTokens += 1;
+
+      if (tokenType === 'hashtag') {
+        addScore(hashtagScores, normalized, tokenWeight);
+      } else if (tokenType === 'cashtag') {
+        addScore(cashtagScores, normalized, tokenWeight);
+      } else if (tokenType === 'mention') {
+        addScore(mentionScores, normalized, tokenWeight);
+      }
+
+      orderedTokens.push(normalized);
+      if (ENABLE_BIGRAMS && orderedTokens.length >= 2) {
+        const previous = orderedTokens[orderedTokens.length - 2];
+        const bigram = `${previous} ${normalized}`;
+        addScore(bigramScores, bigram, tokenWeight + BIGRAM_BONUS);
+      }
+    });
   }
 
   processChunk(title, 3);
   processChunk(limitedText, 1);
 
-  const sorted = Array.from(scores.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, MAX_KEYWORDS)
-    .map(([token]) => token);
+  const keywordCandidates = [];
+  unigramScores.forEach((score, token) => {
+    keywordCandidates.push({ token, score, type: 'unigram' });
+  });
+  if (ENABLE_BIGRAMS) {
+    bigramScores.forEach((score, token) => {
+      keywordCandidates.push({ token, score, type: 'bigram' });
+    });
+  }
 
+  keywordCandidates.sort((a, b) => b.score - a.score);
+  const keywords = keywordCandidates.slice(0, MAX_KEYWORDS).map((entry) => entry.token);
+
+  const sortMap = (map, limit = SECONDARY_LIMIT) =>
+    Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([token]) => token);
+
+  const metrics = {
+    titleLength: title.length,
+    bodyLength: limitedText.length,
+    totalTokens,
+    processedTokens,
+    uniqueUnigrams: unigramScores.size,
+    uniqueBigrams: bigramScores.size,
+    hashtagCount: hashtagScores.size,
+    cashtagCount: cashtagScores.size,
+    mentionCount: mentionScores.size
+  };
+
+  console.debug('[PolyFinder] Keyword metrics', metrics);
   console.debug('[PolyFinder] Keyword extraction', {
     title: pageData.title || '',
     textPreview: (pageData.text || '').slice(0, 200),
-    keywords: sorted
+    keywords,
+    hashtags: sortMap(hashtagScores),
+    cashtags: sortMap(cashtagScores)
   });
 
-  return sorted;
+  return {
+    keywords,
+    hashtags: sortMap(hashtagScores),
+    cashtags: sortMap(cashtagScores),
+    mentions: sortMap(mentionScores),
+    metrics
+  };
 }
 
 function buildMarketUrl(market) {
@@ -217,42 +364,6 @@ function mergeMarkets(primary, secondary) {
     }
   });
   return merged;
-}
-
-async function fetchMarketsWithFallback(primaryQuery, fallbackQueries = []) {
-  let markets = [];
-  let errorMessage = null;
-  const attempted = new Set();
-
-  async function attempt(query) {
-    if (!query) return [];
-    const normalized = query.toLowerCase();
-    if (attempted.has(normalized)) return [];
-    attempted.add(normalized);
-
-    try {
-      return await fetchMarketsFromAPI(query);
-    } catch (err) {
-      console.error('Error fetching markets for query:', query, err);
-      errorMessage = 'Unable to fetch markets from Polymarket';
-      return [];
-    }
-  }
-
-  if (primaryQuery) {
-    markets = await attempt(primaryQuery);
-  }
-
-  for (const fallback of fallbackQueries) {
-    if (markets.length >= DEFAULT_MARKET_LIMIT) break;
-    const fallbackResults = await attempt(fallback);
-    markets = mergeMarkets(markets, fallbackResults);
-  }
-
-  return {
-    markets: markets.slice(0, DEFAULT_MARKET_LIMIT),
-    errorMessage
-  };
 }
 
 async function getAvailableTags() {
@@ -361,18 +472,29 @@ function matchTagsForKeywords(keywords = [], tags = []) {
   return matched;
 }
 
-async function fetchMarketsByTags(keywords = []) {
+async function fetchMarketsByTags(keywordData = {}) {
+  const {
+    keywords = [],
+    hashtags = [],
+    cashtags = [],
+    mentions = []
+  } = keywordData || {};
   const tags = await getAvailableTags();
-  const matchedTags = matchTagsForKeywords(keywords, tags);
+  const tagMatcherInput = [
+    ...keywords,
+    ...hashtags,
+    ...cashtags,
+    ...mentions
+  ];
+  const matchedTags = matchTagsForKeywords(tagMatcherInput, tags);
 
   const slugCandidates = new Set();
   matchedTags.forEach((tag) => {
     if (tag.slug) slugCandidates.add(tag.slug.toLowerCase());
   });
-  keywords.forEach((kw) => {
+  [...keywords, ...hashtags, ...cashtags].forEach((kw) => {
     if (kw) slugCandidates.add(kw.toLowerCase());
   });
-
   if (slugCandidates.size === 0) {
     return { markets: [], matchedSlugs: [], errorMessage: null };
   }
@@ -402,8 +524,8 @@ async function fetchMarketsByTags(keywords = []) {
   };
 }
 
-async function fetchMarketsForKeywords(keywords = []) {
-  const tagResult = await fetchMarketsByTags(keywords);
+async function fetchMarketsForKeywords(keywordData = { keywords: [] }) {
+  const tagResult = await fetchMarketsByTags(keywordData);
   let markets = tagResult.markets;
   let errorMessage = tagResult.errorMessage;
 
@@ -423,23 +545,15 @@ async function fetchMarketsForKeywords(keywords = []) {
   };
 }
 
-function buildQueriesFromKeywords(keywords = []) {
-  if (!keywords.length) {
-    return { primaryQuery: '', fallbackQueries: [] };
-  }
-
-  return {
-    primaryQuery: keywords[0] || '',
-    fallbackQueries: keywords.slice(1)
-  };
-}
-
 function sendMarketsPayload(tabId, context) {
   chrome.runtime.sendMessage({
     action: 'MARKETS_READY',
     payload: {
       markets: context.markets || [],
-      keywords: context.keywords || [],
+      keywords: context.keywordData?.keywords || context.keywords || [],
+      hashtags: context.keywordData?.hashtags || context.hashtags || [],
+      cashtags: context.keywordData?.cashtags || context.cashtags || [],
+      mentions: context.keywordData?.mentions || context.mentions || [],
       stats: context.stats || getEmptyStats(),
       pageTitle: context.pageData?.title || '',
       error: context.error || null
@@ -455,6 +569,9 @@ async function updateMarketsForTab(tabId) {
       payload: {
         markets: [],
         keywords: [],
+        hashtags: [],
+        cashtags: [],
+        mentions: [],
         stats: getEmptyStats(),
         pageTitle: '',
         error: 'No page content available yet'
@@ -463,12 +580,19 @@ async function updateMarketsForTab(tabId) {
     return;
   }
 
+  const keywordData = context.keywordData || {
+    keywords: context.keywords || [],
+    hashtags: context.hashtags || [],
+    cashtags: context.cashtags || [],
+    mentions: context.mentions || []
+  };
+
   console.debug('[PolyFinder] Fetch markets', {
     tabId,
-    keywordCount: context.keywords.length,
-    keywords: context.keywords
+    keywordCount: keywordData.keywords.length,
+    keywords: keywordData.keywords
   });
-  const { markets, errorMessage } = await fetchMarketsForKeywords(context.keywords);
+  const { markets, errorMessage } = await fetchMarketsForKeywords(keywordData);
   const stats = calculateStats(markets);
 
   const updatedContext = {
@@ -485,13 +609,17 @@ async function updateMarketsForTab(tabId) {
 
 async function handleNewPageData(tabId, pageData) {
   if (!pageData) return;
-  const keywords = extractKeywordsFromPage(pageData);
+  const keywordData = extractKeywordsFromPage(pageData);
 
   lastScrapableTabId = tabId;
 
   tabContexts.set(tabId, {
     pageData,
-    keywords,
+    keywordData,
+    keywords: keywordData.keywords,
+    hashtags: keywordData.hashtags,
+    cashtags: keywordData.cashtags,
+    mentions: keywordData.mentions,
     markets: [],
     stats: getEmptyStats(),
     lastFetched: 0,
@@ -560,6 +688,9 @@ async function handleManualFetchRequest() {
       payload: {
         markets: [],
         keywords: [],
+        hashtags: [],
+        cashtags: [],
+        mentions: [],
         stats: getEmptyStats(),
         pageTitle: '',
         error: 'No compatible page detected to analyze'
@@ -588,6 +719,9 @@ async function handleManualFetchRequest() {
     payload: {
       markets: [],
       keywords: [],
+      hashtags: [],
+      cashtags: [],
+      mentions: [],
       stats: getEmptyStats(),
       pageTitle: '',
       error: 'Unable to analyze the current page'

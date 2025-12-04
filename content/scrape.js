@@ -40,7 +40,7 @@ function scrapeTwitterPage() {
     articleCount: articles.length
   });
 
-  return payload;
+  return { ...payload, source: 'twitter' };
 }
 
 function scrapeGenericPage() {
@@ -79,7 +79,7 @@ function scrapeGenericPage() {
     totalLength: payload.text.length
   });
 
-  return payload;
+  return { ...payload, source: 'generic' };
 }
 
 function scrapePage() {

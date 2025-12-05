@@ -5,18 +5,18 @@
 
 /* Design Tokens - Gold Luxury Theme */
 :root {
-  /* Backgrounds - Deep OLED Black */
+  /* Backgrounds - Deep OLED Black (Dark Mode) */
   --c-bg: #0a0a0a;
   --c-surface: #141414;
   --c-surface-hover: #1c1c1c;
   --c-surface-elevated: #222222;
   
-  /* Typography - Crisp White & Gray */
+  /* Typography - Crisp White & Gray (Dark Mode) */
   --c-text: #ffffff;
   --c-text-secondary: #b8b8b8;
   --c-text-muted: #6e6e6e;
   
-  /* Borders - Ultra-subtle */
+  /* Borders - Ultra-subtle (Dark Mode) */
   --c-border: rgba(255, 255, 255, 0.06);
   --c-border-hover: rgba(212, 175, 55, 0.3); /* Gold on hover */
   
@@ -60,6 +60,44 @@
   --ock-text-foreground-muted: var(--c-text-secondary);
   --ock-border: var(--c-border);
   --ock-accent: var(--c-gold);
+}
+
+/* Light Mode Theme - Light Background with Black Accents */
+:root[data-theme="light"],
+.light-mode {
+  /* Backgrounds - Light but with Black Accents */
+  --c-bg: #f5f5f5;
+  --c-surface: #ffffff;
+  --c-surface-hover: #f8f8f8;
+  --c-surface-elevated: #f0f0f0;
+  
+  /* Typography - Black Text for High Contrast */
+  --c-text: #000000;
+  --c-text-secondary: #333333;
+  --c-text-muted: #666666;
+  
+  /* Borders - Black Accents */
+  --c-border: rgba(0, 0, 0, 0.15);
+  --c-border-hover: rgba(212, 175, 55, 0.5);
+  
+  /* Gold stays the same */
+  --c-gold-subtle: rgba(212, 175, 55, 0.15);
+  
+  /* Odds backgrounds */
+  --c-odds-primary-bg: rgba(212, 175, 55, 0.15);
+  --c-odds-secondary-bg: rgba(0, 0, 0, 0.08);
+  
+  /* Shadows - Black shadows for depth */
+  --c-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  --c-shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --c-shadow-gold: 0 4px 16px rgba(212, 175, 55, 0.3);
+  
+  /* Base Account UI Theme - Light */
+  --ock-bg-default: var(--c-surface);
+  --ock-bg-alternate: var(--c-bg);
+  --ock-text-foreground: var(--c-text);
+  --ock-text-foreground-muted: var(--c-text-secondary);
+  --ock-border: var(--c-border);
 }
 
 /* ============================================
@@ -106,13 +144,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px var(--space-md);
+  padding: 12px var(--space-md);
   background: rgba(15, 15, 15, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--c-border);
   flex-shrink: 0;
-  min-height: 56px;
+  height: 56px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Light mode header */
+:root[data-theme="light"] .sidebar-header,
+.light-mode .sidebar-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-header h1 {
@@ -120,40 +166,95 @@ body {
   font-weight: 600;
   color: var(--c-text);
   letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
 
 .header-actions {
   display: flex;
-  gap: var(--space-sm);
+  gap: 8px;
   align-items: center;
+  height: 100%;
 }
 
-/* Chrome Icon Button */
-.refresh-btn {
+/* Theme Toggle Button - Consistent Size */
+.theme-toggle-btn {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: transparent;
+  border-radius: 8px;
+  background: var(--c-surface);
   border: 1px solid var(--c-border);
-  color: var(--c-text-secondary);
+  color: var(--c-text);
   cursor: pointer;
-  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  z-index: 1;
+}
+
+/* Hover effect with gold accent */
+.theme-toggle-btn:hover {
+  background: var(--c-surface-hover);
+  border-color: var(--c-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+}
+
+.theme-toggle-btn:hover svg {
+  color: var(--c-gold);
+  transform: rotate(15deg) scale(1.1);
+}
+
+/* Active state */
+.theme-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+}
+
+.theme-toggle-btn:active svg {
+  transform: rotate(0deg) scale(0.95);
+}
+
+/* Refresh Button - Consistent Size */
+.refresh-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .refresh-btn:hover {
-  background: var(--c-surface);
+  background: var(--c-surface-hover);
   border-color: var(--c-gold);
   color: var(--c-gold);
-  transform: rotate(90deg);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+  transform: translateY(-1px) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .refresh-btn:active {
-  transform: rotate(90deg) scale(0.95);
+  transform: translateY(0) rotate(90deg) scale(0.95);
 }
 
 /* Wallet Menu Container */
@@ -161,33 +262,37 @@ body {
   position: relative;
 }
 
-/* Wallet Address Button - Minimal Display */
+/* Wallet Address Button - Consistent Height */
 .wallet-address-btn {
-  background: transparent;
+  background: var(--c-surface);
   color: var(--c-text);
   border: 1px solid var(--c-border);
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 0 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all var(--transition);
-  min-height: 36px;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  height: 36px;
   letter-spacing: 0;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .wallet-address-btn:hover {
-  background: var(--c-surface);
+  background: var(--c-surface-hover);
   border-color: var(--c-gold);
-  box-shadow: var(--c-shadow-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .wallet-address-btn:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.98);
 }
 
 /* Wallet Dropdown Menu */
@@ -351,6 +456,12 @@ body {
   background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
   z-index: 0;
   pointer-events: none;
+}
+
+/* Light mode - even more subtle */
+:root[data-theme="light"] .simple-login-screen::before,
+.light-mode .simple-login-screen::before {
+  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.02) 0%, transparent 60%);
 }
 
 .login-content {
@@ -934,7 +1045,7 @@ button[class*="SignInWithBase"] button:disabled {
 @media (max-width: 360px) {
   .sidebar-header {
     padding: 10px 12px;
-    min-height: 48px;
+    height: 52px;
   }
   
   .sidebar-header h1 {
@@ -945,9 +1056,26 @@ button[class*="SignInWithBase"] button:disabled {
     gap: 6px;
   }
   
+  /* Scale all buttons consistently on small screens */
+  .theme-toggle-btn,
   .refresh-btn {
     width: 32px;
     height: 32px;
+  }
+  
+  .theme-toggle-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .refresh-btn {
+    font-size: 14px;
+  }
+  
+  .wallet-address-btn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 }
 

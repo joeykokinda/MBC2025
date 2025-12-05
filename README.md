@@ -107,13 +107,11 @@ MBC2025/
 │   └── keywords.txt          ← List of keywords to search for
 ├── manifest.json             ← Extension configuration
 ├── package.json              ← Project dependencies and scripts
-└── vite.config.js           ← Build tool configuration
+└── vite.config.js            ← Build tool configuration
 ```
 
 **Important Notes:**
-- Always edit code in the **`sidebar-src/`** folder
 - After making changes, run **`npm run build`** to update the **`sidebar/`** folder
-- Never edit files in **`sidebar/`** directly - they get overwritten when you build
 
 ## Development
 

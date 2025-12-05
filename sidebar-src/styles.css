@@ -1,5 +1,5 @@
 /* ============================================
-   POLYFINDER - GOLD LUXURY THEME
+   JAEGER - GOLD LUXURY THEME
    Elegant Black × Gold × Gray × White Aesthetic
    ============================================ */
 
@@ -328,7 +328,7 @@ body {
 }
 
 /* ============================================
-   SIGN IN SCREEN - Phantom Inspired
+   SIGN IN SCREEN - Clean & Simple Design
    ============================================ */
 .simple-login-screen {
   display: flex;
@@ -337,48 +337,81 @@ body {
   flex: 1;
   padding: var(--space-lg);
   background: var(--c-bg);
+  position: relative;
+}
+
+/* Subtle background accent - very minimal */
+.simple-login-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .login-content {
   text-align: center;
   max-width: 360px;
   width: 100%;
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  animation: contentFadeIn 0.6s ease-out;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-icon {
   margin: 0 auto var(--space-lg);
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .login-icon svg {
-  filter: drop-shadow(0 8px 24px rgba(212, 175, 55, 0.5));
+  filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.3));
 }
 
 .login-content h2 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
   color: var(--c-text);
   margin-bottom: var(--space-sm);
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .login-content p {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--c-text-secondary);
   margin-bottom: var(--space-lg);
   line-height: 1.6;
+  max-width: 100%;
 }
+
 
 .connecting-text {
   margin-top: var(--space-md) !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   color: var(--c-gold) !important;
   text-align: center;
-  animation: pulse 1.5s ease-in-out infinite;
+  font-weight: 500;
 }
 
 .connection-error {
@@ -386,18 +419,28 @@ body {
   font-size: 13px !important;
   color: var(--c-text-secondary) !important;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--c-radius);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px var(--space-md);
+  border-radius: 8px;
   border: 1px solid var(--c-border);
+}
+
+/* Login Buttons Container */
+.login-buttons {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  position: relative;
+  z-index: 2;
 }
 
 /* Sign In With Base Button Styles */
 .sign-in-base-btn,
 button[class*="SignInWithBase"] {
   width: 100% !important;
-  max-width: 320px !important;
+  max-width: 100% !important;
   margin: 0 auto !important;
+  position: relative;
 }
 
 /* Header Sign In Button - Compact */
@@ -415,42 +458,52 @@ button[class*="SignInWithBase"] {
   border-radius: 20px !important;
 }
 
-/* Override Base Account UI button styles for dark theme */
+/* Clean Connect Wallet Button Design */
+.sign-in-base-btn,
+button[class*="SignInWithBase"] {
+  position: relative;
+}
+
 .sign-in-base-btn button,
 button[class*="SignInWithBase"] button {
-  background: linear-gradient(135deg, var(--c-gold) 0%, var(--c-gold-muted) 100%) !important;
+  position: relative;
+  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%) !important;
   color: #000 !important;
   border: none !important;
-  padding: 12px 24px !important;
-  border-radius: var(--c-radius) !important;
+  padding: 14px 28px !important;
+  border-radius: 12px !important;
   cursor: pointer !important;
   font-size: 15px !important;
   font-weight: 600 !important;
-  transition: all var(--transition) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
   width: 100% !important;
-  min-height: 48px !important;
+  min-height: 52px !important;
   letter-spacing: -0.01em !important;
-  box-shadow: var(--c-shadow-gold) !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
 }
 
+/* Hover state */
 .sign-in-base-btn button:hover,
 button[class*="SignInWithBase"] button:hover {
-  background: linear-gradient(135deg, var(--c-gold-bright) 0%, var(--c-gold) 100%) !important;
-  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
+  background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%) !important;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4) !important;
   transform: translateY(-2px);
 }
 
+/* Active state */
 .sign-in-base-btn button:active,
 button[class*="SignInWithBase"] button:active {
   transform: translateY(0);
-  box-shadow: var(--c-shadow-gold) !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
 }
 
+/* Disabled state */
 .sign-in-base-btn button:disabled,
 button[class*="SignInWithBase"] button:disabled {
   opacity: 0.6 !important;
   cursor: not-allowed !important;
   transform: none !important;
+  background: linear-gradient(135deg, #9d8635 0%, #7a6a28 100%) !important;
 }
 
 /* ============================================
@@ -1702,27 +1755,34 @@ button[class*="WalletOption"]:hover {
 
 /* Login Screen Responsive */
 @media (max-width: 400px) {
-  .login-content {
-    padding: var(--space-sm);
+  .simple-login-screen {
+    padding: var(--space-md);
   }
   
   .login-icon {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     margin-bottom: var(--space-md);
   }
   
   .login-icon svg {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
   }
   
   .login-content h2 {
-    font-size: 18px;
+    font-size: 24px;
   }
   
   .login-content p {
-    font-size: 13px;
+    font-size: 14px;
+  }
+  
+  .sign-in-base-btn button,
+  button[class*="SignInWithBase"] button {
+    padding: 12px 24px !important;
+    font-size: 14px !important;
+    min-height: 48px !important;
   }
 }
 

@@ -760,13 +760,10 @@ button[class*="SignInWithBase"] {
 
 /* Simple & Big Connect Wallet Button Design */
 .sign-in-base-btn,
+button.sign-in-base-btn,
+.login-buttons .sign-in-base-btn,
 button[class*="SignInWithBase"] {
-  position: relative;
-}
-
-.sign-in-base-btn button,
-button[class*="SignInWithBase"] button {
-  position: relative;
+  position: relative !important;
   background: #d4af37 !important;
   color: #000 !important;
   border: 2px solid #d4af37 !important;
@@ -778,30 +775,45 @@ button[class*="SignInWithBase"] button {
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
   width: 100% !important;
   min-height: 64px !important;
+  height: auto !important;
   letter-spacing: -0.02em !important;
   box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
   text-transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
 }
 
 /* Hover state */
-.sign-in-base-btn button:hover,
-button[class*="SignInWithBase"] button:hover {
+.sign-in-base-btn:hover,
+button.sign-in-base-btn:hover,
+.login-buttons .sign-in-base-btn:hover,
+button[class*="SignInWithBase"]:hover {
   background: #f4d03f !important;
   border-color: #f4d03f !important;
   box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
-  transform: translateY(-2px);
+  transform: translateY(-2px) !important;
+  color: #000 !important;
 }
 
 /* Active state */
-.sign-in-base-btn button:active,
-button[class*="SignInWithBase"] button:active {
-  transform: translateY(0);
+.sign-in-base-btn:active,
+button.sign-in-base-btn:active,
+.login-buttons .sign-in-base-btn:active,
+button[class*="SignInWithBase"]:active {
+  transform: translateY(0) !important;
   box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
 }
 
 /* Disabled state */
-.sign-in-base-btn button:disabled,
-button[class*="SignInWithBase"] button:disabled {
+.sign-in-base-btn:disabled,
+button.sign-in-base-btn:disabled,
+.login-buttons .sign-in-base-btn:disabled,
+button[class*="SignInWithBase"]:disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
   transform: none !important;
@@ -2098,8 +2110,10 @@ button[class*="WalletOption"]:hover {
     font-size: 16px;
   }
   
-  .sign-in-base-btn button,
-  button[class*="SignInWithBase"] button {
+  .sign-in-base-btn,
+  button.sign-in-base-btn,
+  .login-buttons .sign-in-base-btn,
+  button[class*="SignInWithBase"] {
     padding: 18px 32px !important;
     font-size: 18px !important;
     min-height: 60px !important;

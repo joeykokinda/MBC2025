@@ -46,11 +46,6 @@ function JaegerContent() {
   const [noTweets, setNoTweets] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   
-  // Filter & View State
-  const [sortBy, setSortBy] = useState('volume');
-  const [viewMode, setViewMode] = useState('grid');
-  const [frequency, setFrequency] = useState('all');
-  const [marketStatus, setMarketStatus] = useState('active');
   
   // Theme State
   const [theme, setTheme] = useState(() => {
@@ -136,12 +131,40 @@ function JaegerContent() {
       if (msg.action === 'MARKETS_READY') {
         const newMarkets = msg.payload.markets || [];
         
-        // Always update state, even if markets are empty
-        setMarkets(newMarkets);
+        // Prepend new markets to the top of existing list
+        setMarkets(prevMarkets => {
+          if (newMarkets.length === 0) {
+            // If no new markets, keep existing ones
+            setNoTweets(prevMarkets.length === 0);
+            return prevMarkets;
+          }
+          
+          // Deduplicate: remove any markets from prevMarkets that match new markets
+          const existingIds = new Set(newMarkets.map(m => m.id || m.url || m.question).filter(Boolean));
+          const filteredExisting = prevMarkets.filter(m => {
+            const key = m.id || m.url || m.question || '';
+            return key && !existingIds.has(key);
+          });
+          
+          // Prepend new markets to the top
+          const updatedMarkets = [...newMarkets, ...filteredExisting];
+          
+          // Update noTweets based on whether we have any markets
+          setNoTweets(updatedMarkets.length === 0);
+          
+          console.log('[JAEGER UI] Prepend markets:', {
+            newMarkets: newMarkets.length,
+            existingMarkets: prevMarkets.length,
+            updatedMarkets: updatedMarkets.length,
+            removedDuplicates: prevMarkets.length - filteredExisting.length
+          });
+          
+          return updatedMarkets;
+        });
+        
         setKeywords(msg.payload.keywords || []);
         setStats(msg.payload.stats || null);
         setPageTitle(msg.payload.pageTitle || '');
-        setNoTweets(newMarkets.length === 0);
         
         setLoading(false);
         setProcessing(false);
@@ -149,14 +172,14 @@ function JaegerContent() {
         setError(msg.payload.error || null);
         
         console.log('[JAEGER UI] Updated state:', {
-          markets: newMarkets.length,
+          newMarkets: newMarkets.length,
           keywords: msg.payload.keywords?.length || 0,
           pageTitle: msg.payload.pageTitle
         });
         
         // Log first market with full URL for debugging
         if (newMarkets.length > 0) {
-          console.log('[JAEGER UI] First market:', {
+          console.log('[JAEGER UI] First new market:', {
             question: newMarkets[0].question,
             url: newMarkets[0].url,
             id: newMarkets[0].id
@@ -249,85 +272,38 @@ function JaegerContent() {
     console.log('Disconnect complete - returning to login screen');
   };
 
-  // Filter and sort markets based on selected options
-  // Only process when connected - return empty array if not connected
-  const sortedMarkets = useMemo(() => {
+  // Deduplicate markets to prevent showing the same market twice
+  // Keep markets in their original order (newest first since we prepend)
+  const deduplicatedMarkets = useMemo(() => {
     // Don't process markets if not connected
     if (!isConnected) {
       return [];
     }
 
-    let filtered = [...markets];
-
-    // Filter by status (active/resolved)
-    if (marketStatus === 'active') {
-      filtered = filtered.filter(market => {
-        const endDate = market.endDate ? new Date(market.endDate) : null;
-        return !endDate || endDate > new Date();
-      });
-    } else if (marketStatus === 'resolved') {
-      filtered = filtered.filter(market => {
-        const endDate = market.endDate ? new Date(market.endDate) : null;
-        return endDate && endDate <= new Date();
-      });
-    }
-
-    // Filter by frequency (time range)
-    if (frequency !== 'all') {
-      const now = new Date();
-      filtered = filtered.filter(market => {
-        const endDate = market.endDate ? new Date(market.endDate) : null;
-        if (!endDate) return true; // Include markets without end dates
-        
-        const timeDiff = endDate.getTime() - now.getTime();
-        const daysUntilEnd = timeDiff / (1000 * 3600 * 24);
-
-        switch (frequency) {
-          case 'daily':
-            return daysUntilEnd <= 1;
-          case 'weekly':
-            return daysUntilEnd <= 7;
-          case 'monthly':
-            return daysUntilEnd <= 30;
-          default:
-            return true;
+    // Deduplicate markets by id, url, or question to prevent showing the same market twice
+    const uniqueMarketsMap = new Map();
+    const duplicateCount = { count: 0 };
+    markets.forEach(market => {
+      if (!market) return;
+      
+      // Use market.id as primary key, fallback to url or question for deduplication
+      const dedupeKey = market.id || market.url || market.question || '';
+      if (dedupeKey) {
+        if (uniqueMarketsMap.has(dedupeKey)) {
+          duplicateCount.count++;
+          console.log(`[JAEGER UI] Duplicate market detected and removed: ${market.question || dedupeKey}`);
+        } else {
+          uniqueMarketsMap.set(dedupeKey, market);
         }
-      });
-    }
-
-    // Helper functions for sorting
-    const getMarketVolume = (market) => parseFloat(market?.volume) || 0;
-    const getLiquidity = (market) => parseFloat(market?.liquidity) || getMarketVolume(market);
-    const getMaxYesOdds = (market) => {
-      if (Array.isArray(market?.options) && market.options.length > 0) {
-        return market.options.reduce((max, option) => {
-          const yesPrice = parseFloat(option?.yesPrice) || 0;
-          return yesPrice > max ? yesPrice : max;
-        }, 0);
       }
-      return parseFloat(market?.outcomes?.[0]?.price) || 0;
-    };
-    const getEndTime = (market) => {
-      const endDate = market.endDate ? new Date(market.endDate) : null;
-      return endDate ? endDate.getTime() : Number.MAX_SAFE_INTEGER;
-    };
-
-    // Sort the filtered results
-    switch (sortBy) {
-      case 'volume':
-      case 'totalVolume':
-        return filtered.sort((a, b) => getMarketVolume(b) - getMarketVolume(a));
-      case 'liquidity':
-        return filtered.sort((a, b) => getLiquidity(b) - getLiquidity(a));
-      case 'ending':
-        return filtered.sort((a, b) => getEndTime(a) - getEndTime(b));
-      case 'odds':
-        return filtered.sort((a, b) => getMaxYesOdds(b) - getMaxYesOdds(a));
-      case 'recent':
-      default:
-        return filtered;
+    });
+    if (duplicateCount.count > 0) {
+      console.log(`[JAEGER UI] Removed ${duplicateCount.count} duplicate market(s)`);
     }
-  }, [markets, sortBy, frequency, marketStatus, isConnected]);
+    
+    // Return markets in their original order (preserving prepend order)
+    return Array.from(uniqueMarketsMap.values());
+  }, [markets, isConnected]);
 
   // Toggle wallet menu
   const toggleWalletMenu = () => {
@@ -519,31 +495,22 @@ function JaegerContent() {
               {/* Filter Bar - Replaces page-info and stats-panel */}
               {isConnected && markets.length > 0 && (
                 <FilterBar 
-                  markets={sortedMarkets}
-                  sortBy={sortBy}
-                  viewMode={viewMode}
-                  frequency={frequency}
-                  marketStatus={marketStatus}
-                  onSortChange={setSortBy}
-                  onViewChange={setViewMode}
-                  onFrequencyChange={setFrequency}
-                  onStatusChange={setMarketStatus}
+                  markets={deduplicatedMarkets}
                 />
               )}
               
               {/* List of markets - Only show when connected */}
               {isConnected && (
                 <div 
-                  key={sortBy} 
-                  className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}
+                  className="markets-list grid-view"
                 >
-                  {markets.length === 0 ? (
+                  {deduplicatedMarkets.length === 0 ? (
                     <div className="no-markets">
                       {processing ? 'Looking for markets...' : 'No relevant markets found'}
                     </div>
                   ) : (
-                    sortedMarkets.map((market, index) => (
-                      <MarketCard key={market.id || index} market={market} />
+                    deduplicatedMarkets.map((market, index) => (
+                      <MarketCard key={market.id || market.url || index} market={market} />
                     ))
                   )}
                 </div>

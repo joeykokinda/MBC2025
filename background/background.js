@@ -285,11 +285,21 @@ function buildGroupedDisplayMarket(event = {}, markets = []) {
 function convertMarketsToDisplay(markets = []) {
   if (!Array.isArray(markets)) return [];
 
+  // Deduplicate markets by ID first to prevent showing the same market twice
+  const uniqueMarketsMap = new Map();
+  markets.forEach((market) => {
+    if (!market || isMarketBlacklisted(market)) return;
+    const marketId = market.id || market.question || '';
+    if (marketId && !uniqueMarketsMap.has(marketId)) {
+      uniqueMarketsMap.set(marketId, market);
+    }
+  });
+  const deduplicatedMarkets = Array.from(uniqueMarketsMap.values());
+
   const eventGroups = new Map();
   const order = [];
 
-  markets.forEach((market) => {
-    if (!market || isMarketBlacklisted(market)) return;
+  deduplicatedMarkets.forEach((market) => {
     const event = Array.isArray(market.events) ? market.events[0] : null;
     const eventKey = event?.slug || event?.id || null;
 
@@ -624,12 +634,22 @@ function calculateStats(markets) {
 // Fetch markets and send to side panel
 async function fetchAndSendMarkets() {
   const markets = await fetchRealMarkets();
-  const stats = calculateStats(markets);
+  
+  // Deduplicate markets by ID before sending to sidebar
+  const uniqueMarketsMap = new Map();
+  markets.forEach(market => {
+    if (market && market.id && !uniqueMarketsMap.has(market.id)) {
+      uniqueMarketsMap.set(market.id, market);
+    }
+  });
+  const uniqueMarkets = Array.from(uniqueMarketsMap.values());
+  
+  const stats = calculateStats(uniqueMarkets);
   
   chrome.runtime.sendMessage({
     action: 'MARKETS_READY',
     payload: {
-      markets: markets,
+      markets: uniqueMarkets,
       keywords: [],
       stats: stats,
       pageTitle: 'Top markets by volume',
@@ -779,11 +799,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         return;
       }
       
-      const stats = calculateStats(markets);
+      // Deduplicate markets by ID before sending to sidebar
+      const uniqueMarketsMap = new Map();
+      markets.forEach(market => {
+        if (market && market.id && !uniqueMarketsMap.has(market.id)) {
+          uniqueMarketsMap.set(market.id, market);
+        }
+      });
+      const uniqueMarkets = Array.from(uniqueMarketsMap.values());
+      
+      const stats = calculateStats(uniqueMarkets);
       chrome.runtime.sendMessage({
         action: 'MARKETS_READY',
         payload: {
-          markets: markets.slice(0, MAX_MARKETS_TO_DISPLAY),
+          markets: uniqueMarkets.slice(0, MAX_MARKETS_TO_DISPLAY),
           keywords: matchedKeywords,
           stats: stats,
           pageTitle: title || 'Page Results'

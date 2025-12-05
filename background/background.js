@@ -273,17 +273,22 @@ function extractKeywordsFromPage(pageData) {
 }
 
 function buildMarketUrl(market) {
-  const marketId = market.id || '';
+  const conditionId = market.conditionId || market.condition_id || '';
   const marketSlug = market.slug || '';
-  const eventSlug = market.events?.[0]?.slug || '';
-
-  if (eventSlug && marketSlug && marketId) {
-    return `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
+  
+  // New Polymarket URL format: https://polymarket.com/event/SLUG?_c=CONDITION_ID
+  let url;
+  if (marketSlug && conditionId) {
+    url = `https://polymarket.com/event/${marketSlug}?_c=${conditionId}`;
+  } else if (marketSlug) {
+    url = `https://polymarket.com/event/${marketSlug}`;
+  } else if (conditionId) {
+    url = `https://polymarket.com/?_c=${conditionId}`;
+  } else {
+    url = '#';
   }
-  if (marketSlug && marketId) {
-    return `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
-  }
-  return '#';
+  
+  return url;
 }
 
 function parseOutcomePrices(market) {
@@ -307,6 +312,7 @@ function parseOutcomePrices(market) {
 
 function mapMarketResponse(market) {
   const prices = parseOutcomePrices(market);
+  
   return {
     id: market.id || '',
     question: market.question || 'Unknown Market',
@@ -315,7 +321,9 @@ function mapMarketResponse(market) {
       { price: prices[1].toString() }
     ],
     volume: market.volumeNum || market.volume || 0,
-    url: buildMarketUrl(market)
+    url: buildMarketUrl(market),
+    slug: market.slug,
+    conditionId: market.conditionId || market.condition_id
   };
 }
 

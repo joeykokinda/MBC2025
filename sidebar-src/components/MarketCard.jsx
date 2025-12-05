@@ -6,17 +6,24 @@ export default function MarketCard({ market }) {
   const yesPrice = market.outcomes?.[0]?.price || 0;
   const noPrice = market.outcomes?.[1]?.price || 0;
   const volume = market.volume || 0;
-  const url = market.url || market.slug || '#';
+  const url = market.url || '#';
 
   const yesPercent = parseFloat(yesPrice) * 100;
   const noPercent = parseFloat(noPrice) * 100;
 
+  // Debug: Log market URL
+  console.log('[MarketCard] Market:', question.substring(0, 50), '| URL:', url);
+
   return (
     <a 
-      href={url.startsWith('http') ? url : `https://polymarket.com${url}`}
+      href={url}
       target="_blank" 
       rel="noopener noreferrer"
       className="market-card"
+      onClick={(e) => {
+        console.log('[MarketCard] Clicked! Opening:', url);
+        // Let the browser handle the link naturally
+      }}
     >
       <div className="market-card-content">
         <div className="market-header">

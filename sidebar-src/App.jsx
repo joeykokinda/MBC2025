@@ -94,6 +94,15 @@ function PolyFinderContent() {
           keywords: msg.payload.keywords?.length || 0,
           pageTitle: msg.payload.pageTitle
         });
+        
+        // Log first market with full URL for debugging
+        if (newMarkets.length > 0) {
+          console.log('[PolyFinder UI] First market:', {
+            question: newMarkets[0].question,
+            url: newMarkets[0].url,
+            id: newMarkets[0].id
+          });
+        }
       }
       
       if (msg.action === 'PROCESSING_STARTED') {

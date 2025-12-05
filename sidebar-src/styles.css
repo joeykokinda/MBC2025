@@ -1,34 +1,48 @@
 /* ============================================
-   POLYFINDER - MIDNIGHT THEME
-   Google Product x Phantom Wallet Aesthetic
+   POLYFINDER - GOLD LUXURY THEME
+   Elegant Black × Gold × Gray × White Aesthetic
    ============================================ */
 
-/* Design Tokens - Midnight Theme */
+/* Design Tokens - Gold Luxury Theme */
 :root {
   /* Backgrounds - Deep OLED Black */
-  --c-bg: #0f0f0f;
-  --c-surface: #1c1c1c;
-  --c-surface-hover: #242424;
+  --c-bg: #0a0a0a;
+  --c-surface: #141414;
+  --c-surface-hover: #1c1c1c;
+  --c-surface-elevated: #222222;
   
-  /* Typography */
+  /* Typography - Crisp White & Gray */
   --c-text: #ffffff;
-  --c-text-secondary: #a1a1a1;
-  --c-text-muted: #6b6b6b;
+  --c-text-secondary: #b8b8b8;
+  --c-text-muted: #6e6e6e;
   
   /* Borders - Ultra-subtle */
-  --c-border: rgba(255, 255, 255, 0.08);
-  --c-border-hover: rgba(255, 255, 255, 0.16);
+  --c-border: rgba(255, 255, 255, 0.06);
+  --c-border-hover: rgba(212, 175, 55, 0.3); /* Gold on hover */
   
-  /* Accents */
-  --c-primary: #4285f4; /* Google Blue */
-  --c-primary-hover: #5294ff;
-  --c-success: #22c55e; /* Signal Green */
-  --c-error: #ef4444; /* Red */
+  /* Gold Palette - Luxury Accents */
+  --c-gold: #d4af37; /* Classic Gold */
+  --c-gold-bright: #f4d03f; /* Bright Gold */
+  --c-gold-hover: #e5c158; /* Light Gold Hover */
+  --c-gold-muted: #9d8635; /* Darker Gold */
+  --c-gold-subtle: rgba(212, 175, 55, 0.15); /* Transparent Gold */
+  
+  /* Neutral Odds - Gray Tones (replacing green/red) */
+  --c-odds-primary: #d4af37; /* Gold for primary outcome */
+  --c-odds-secondary: #6e6e6e; /* Gray for secondary outcome */
+  --c-odds-primary-bg: rgba(212, 175, 55, 0.15);
+  --c-odds-secondary-bg: rgba(110, 110, 110, 0.15);
+  
+  /* System Colors */
+  --c-success: #d4af37; /* Gold for success states */
+  --c-warning: #f4d03f; /* Bright gold for warnings */
+  --c-error: #999999; /* Neutral gray for errors */
   
   /* Chrome Design */
-  --c-radius: 12px;
-  --c-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --c-shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --c-radius: 10px;
+  --c-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  --c-shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.7);
+  --c-shadow-gold: 0 4px 16px rgba(212, 175, 55, 0.2);
   
   /* Spacing - 8px grid */
   --space-xs: 4px;
@@ -37,15 +51,15 @@
   --space-lg: 24px;
   
   /* Transitions */
-  --transition: 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+  --transition: 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
   
-  /* OnchainKit Dark Theme */
+  /* Base Account UI Theme */
   --ock-bg-default: var(--c-surface);
   --ock-bg-alternate: var(--c-bg);
   --ock-text-foreground: var(--c-text);
   --ock-text-foreground-muted: var(--c-text-secondary);
   --ock-border: var(--c-border);
-  --ock-accent: var(--c-primary);
+  --ock-accent: var(--c-gold);
 }
 
 /* ============================================
@@ -132,9 +146,10 @@ body {
 
 .refresh-btn:hover {
   background: var(--c-surface);
-  border-color: var(--c-border-hover);
-  color: var(--c-text);
+  border-color: var(--c-gold);
+  color: var(--c-gold);
   transform: rotate(90deg);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
 }
 
 .refresh-btn:active {
@@ -167,8 +182,8 @@ body {
 
 .wallet-address-btn:hover {
   background: var(--c-surface);
-  border-color: var(--c-border-hover);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: var(--c-gold);
+  box-shadow: var(--c-shadow-gold);
 }
 
 .wallet-address-btn:active {
@@ -246,7 +261,7 @@ body {
   width: 100%;
   padding: 12px var(--space-md);
   background: transparent;
-  color: var(--c-text);
+  color: var(--c-text-secondary);
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -260,15 +275,21 @@ body {
 
 .disconnect-btn:hover {
   background: var(--c-surface-hover);
-  color: var(--c-error);
+  color: var(--c-text);
 }
 
 .disconnect-btn:active {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--c-surface-elevated);
 }
 
 .disconnect-btn svg {
   flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity var(--transition);
+}
+
+.disconnect-btn:hover svg {
+  opacity: 1;
 }
 
 /* ============================================
@@ -323,7 +344,7 @@ body {
 }
 
 .login-icon svg {
-  filter: drop-shadow(0 8px 24px rgba(66, 133, 244, 0.4));
+  filter: drop-shadow(0 8px 24px rgba(212, 175, 55, 0.5));
 }
 
 .login-content h2 {
@@ -344,7 +365,7 @@ body {
 .connecting-text {
   margin-top: var(--space-md) !important;
   font-size: 13px !important;
-  color: var(--c-primary) !important;
+  color: var(--c-gold) !important;
   text-align: center;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -352,12 +373,12 @@ body {
 .connection-error {
   margin-top: var(--space-md) !important;
   font-size: 13px !important;
-  color: var(--c-error) !important;
+  color: var(--c-text-secondary) !important;
   text-align: center;
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--c-radius);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid var(--c-border);
 }
 
 /* Sign In With Base Button Styles */
@@ -386,8 +407,8 @@ button[class*="SignInWithBase"] {
 /* Override Base Account UI button styles for dark theme */
 .sign-in-base-btn button,
 button[class*="SignInWithBase"] button {
-  background: var(--c-primary) !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, var(--c-gold) 0%, var(--c-gold-muted) 100%) !important;
+  color: #000 !important;
   border: none !important;
   padding: 12px 24px !important;
   border-radius: var(--c-radius) !important;
@@ -398,20 +419,20 @@ button[class*="SignInWithBase"] button {
   width: 100% !important;
   min-height: 48px !important;
   letter-spacing: -0.01em !important;
-  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3) !important;
+  box-shadow: var(--c-shadow-gold) !important;
 }
 
 .sign-in-base-btn button:hover,
 button[class*="SignInWithBase"] button:hover {
-  background: var(--c-primary-hover) !important;
-  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.5) !important;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, var(--c-gold-bright) 0%, var(--c-gold) 100%) !important;
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
+  transform: translateY(-2px);
 }
 
 .sign-in-base-btn button:active,
 button[class*="SignInWithBase"] button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3) !important;
+  box-shadow: var(--c-shadow-gold) !important;
 }
 
 .sign-in-base-btn button:disabled,
@@ -452,8 +473,8 @@ button[class*="SignInWithBase"] button:disabled {
    PROCESSING BANNER
    ============================================ */
 .processing-banner {
-  background: linear-gradient(90deg, rgba(66, 133, 244, 0.2), rgba(66, 133, 244, 0.1));
-  color: var(--c-primary);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  color: var(--c-gold);
   padding: 12px var(--space-md);
   text-align: center;
   font-size: 13px;
@@ -463,7 +484,256 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 /* ============================================
-   PAGE INFO - Compact
+   FILTER BAR - Clean Toggle & Sort Controls
+   ============================================ */
+.filter-bar {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
+  margin: var(--space-md);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.filter-bar:hover {
+  border-color: var(--c-border-hover);
+}
+
+.filter-bar-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  gap: var(--space-md);
+}
+
+/* Market Count Display */
+.market-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.count-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-gold);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.count-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Filter Actions Container */
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Sort Buttons - Pill Style */
+.sort-buttons {
+  display: flex;
+  gap: 4px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  padding: 2px;
+}
+
+.sort-btn {
+  background: transparent;
+  border: none;
+  color: var(--c-text-secondary);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.sort-btn svg {
+  opacity: 0.6;
+  transition: opacity var(--transition);
+}
+
+.sort-btn:hover {
+  color: var(--c-text);
+  background: var(--c-surface-hover);
+}
+
+.sort-btn:hover svg {
+  opacity: 1;
+}
+
+.sort-btn.active {
+  background: linear-gradient(135deg, var(--c-gold) 0%, var(--c-gold-muted) 100%);
+  color: #000;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+}
+
+.sort-btn.active svg {
+  opacity: 1;
+}
+
+/* View Toggle Buttons */
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.view-btn {
+  background: transparent;
+  border: none;
+  color: var(--c-text-secondary);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-btn:hover {
+  color: var(--c-text);
+  background: var(--c-surface-hover);
+}
+
+.view-btn.active {
+  background: var(--c-gold);
+  color: #000;
+  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+}
+
+/* Expand/Collapse Button */
+.expand-btn {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-secondary);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-btn:hover {
+  background: var(--c-surface-hover);
+  border-color: var(--c-gold);
+  color: var(--c-gold);
+}
+
+.expand-btn:active {
+  transform: scale(0.95);
+}
+
+/* Expanded Filter Section */
+.filter-bar-expanded {
+  padding: 12px;
+  padding-top: 0;
+  border-top: 1px solid var(--c-border);
+  background: var(--c-bg);
+  animation: slideDown 0.2s ease-out;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-sm);
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-label-expanded {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-select {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  outline: none;
+}
+
+.filter-select:hover {
+  border-color: var(--c-border-hover);
+  background: var(--c-surface-hover);
+}
+
+.filter-select:focus {
+  border-color: var(--c-gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+/* Responsive Filter Bar */
+@media (max-width: 400px) {
+  .filter-bar-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .sort-buttons {
+    justify-content: space-between;
+  }
+}
+
+/* ============================================
+   PAGE INFO - Compact (Legacy, kept for compatibility)
    ============================================ */
 .page-info {
   background: var(--c-surface);
@@ -486,13 +756,14 @@ button[class*="SignInWithBase"] button:disabled {
   gap: 6px;
 }
 
-/* Pulsing Green Dot Indicator */
+/* Pulsing Gold Dot Indicator */
 .page-title::before {
   content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--c-success);
+  background: var(--c-gold);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
   animation: pulse 2s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -527,8 +798,9 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 .keyword-tag:hover {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
+  border-color: var(--c-gold);
+  color: var(--c-gold);
+  background: var(--c-gold-subtle);
 }
 
 /* ============================================
@@ -577,9 +849,10 @@ button[class*="SignInWithBase"] button:disabled {
   letter-spacing: -0.01em;
 }
 
-/* Highlight Total Volume */
+/* Highlight Total Volume in Gold */
 .stat-item:nth-child(4) .stat-value {
-  color: var(--c-primary);
+  color: var(--c-gold);
+  font-weight: 800;
 }
 
 /* ============================================
@@ -588,8 +861,18 @@ button[class*="SignInWithBase"] button:disabled {
 .markets-list {
   padding: 0 var(--space-md) var(--space-md);
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 10px;
+  transition: all var(--transition);
+}
+
+/* Grid View (Default) */
+.markets-list.grid-view {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* List View - Single Column */
+.markets-list.list-view {
+  grid-template-columns: 1fr;
 }
 
 .no-markets {
@@ -617,9 +900,9 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 .market-card:hover {
-  border-color: var(--c-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.15);
+  border-color: var(--c-gold);
+  transform: translateY(-2px);
+  box-shadow: var(--c-shadow-gold);
 }
 
 .market-card-content {
@@ -662,28 +945,29 @@ button[class*="SignInWithBase"] button:disabled {
   flex-shrink: 0;
 }
 
-/* Horizontal Odds Bar - Slim */
+/* Horizontal Odds Bar - Elegant Gold/Gray */
 .odds-bar {
   display: flex;
   height: 4px;
   border-radius: 2px;
   overflow: hidden;
-  background: var(--c-bg);
+  background: var(--c-surface-elevated);
+  border: 1px solid var(--c-border);
 }
 
 .odds-bar-yes {
   height: 100%;
-  background: var(--c-success);
+  background: linear-gradient(90deg, var(--c-gold), var(--c-gold-hover));
   transition: width 0.3s ease;
 }
 
 .odds-bar-no {
   height: 100%;
-  background: var(--c-error);
+  background: var(--c-surface-hover);
   transition: width 0.3s ease;
 }
 
-/* Compact Odds Pills */
+/* Compact Odds Pills - Gold/Gray Theme */
 .market-odds {
   display: flex;
   gap: 6px;
@@ -698,14 +982,22 @@ button[class*="SignInWithBase"] button:disabled {
   border-radius: 6px;
   background: var(--c-bg);
   border: 1px solid var(--c-border);
+  transition: all var(--transition);
 }
 
 .odds-pill.yes {
-  border-color: rgba(34, 197, 94, 0.3);
+  background: var(--c-gold-subtle);
+  border-color: rgba(212, 175, 55, 0.3);
 }
 
 .odds-pill.no {
-  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(110, 110, 110, 0.08);
+  border-color: rgba(110, 110, 110, 0.2);
+}
+
+.market-card:hover .odds-pill.yes {
+  border-color: var(--c-gold);
+  background: rgba(212, 175, 55, 0.2);
 }
 
 .odds-pill .odds-label {
@@ -723,11 +1015,11 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 .odds-pill.yes .odds-value {
-  color: var(--c-success);
+  color: var(--c-gold);
 }
 
 .odds-pill.no .odds-value {
-  color: var(--c-error);
+  color: var(--c-text-secondary);
 }
 
 /* Market Link Footer */
@@ -749,18 +1041,18 @@ button[class*="SignInWithBase"] button:disabled {
 .market-link-text {
   font-size: 11px;
   font-weight: 500;
-  color: var(--c-primary);
+  color: var(--c-gold);
   letter-spacing: -0.01em;
 }
 
 .market-link-footer svg {
-  color: var(--c-primary);
+  color: var(--c-gold);
   transform: rotate(-45deg);
   transition: transform var(--transition);
 }
 
 .market-card:hover .market-link-footer svg {
-  transform: rotate(-45deg) translate(1px, -1px);
+  transform: rotate(-45deg) translate(2px, -2px);
 }
 
 /* ============================================
@@ -779,7 +1071,7 @@ button[class*="SignInWithBase"] button:disabled {
   width: 40px;
   height: 40px;
   border: 3px solid var(--c-surface);
-  border-top-color: var(--c-primary);
+  border-top-color: var(--c-gold);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -798,14 +1090,14 @@ button[class*="SignInWithBase"] button:disabled {
    ERROR MESSAGE
    ============================================ */
 .error-message {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--c-error);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--c-text-secondary);
   padding: 12px var(--space-md);
   margin: var(--space-md);
   border-radius: var(--c-radius);
   font-size: 13px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-left: 4px solid var(--c-error);
+  border: 1px solid var(--c-border);
+  border-left: 4px solid var(--c-gold);
   letter-spacing: -0.01em;
 }
 
@@ -837,9 +1129,9 @@ button[class*="WalletOption"] {
 [class*="wallet-option"]:hover,
 button[class*="WalletOption"]:hover {
   background: var(--c-surface) !important;
-  border-color: var(--c-primary) !important;
+  border-color: var(--c-gold) !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2) !important;
+  box-shadow: var(--c-shadow-gold) !important;
 }
 
 /* ============================================
@@ -875,7 +1167,7 @@ button[class*="WalletOption"]:hover {
 }
 
 .no-tweets-state strong {
-  color: var(--c-primary);
+  color: var(--c-gold);
 }
 
 .how-it-works {

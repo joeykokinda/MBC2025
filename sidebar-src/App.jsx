@@ -2,7 +2,7 @@
 // Uses Base Account connector for seamless wallet onboarding
 // Shows: markets, statistics, page info, keywords, and wallet connection
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { http, createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { baseAccount } from 'wagmi/connectors';
@@ -12,6 +12,7 @@ import { SignInWithBaseButton } from '@base-org/account-ui/react';
 import MarketCard from './components/MarketCard';
 import StatsPanel from './components/StatsPanel';
 import Spinner from './components/Spinner';
+import FilterBar from './components/FilterBar';
 
 // Wagmi configuration with Base Account connector
 const config = createConfig({
@@ -45,6 +46,10 @@ function PolyFinderContent() {
   const [showWalletMenu, setShowWalletMenu] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [noTweets, setNoTweets] = useState(false);
+  
+  // Filter & View State
+  const [sortBy, setSortBy] = useState('volume');
+  const [viewMode, setViewMode] = useState('grid');
 
   // Get the Base Account connector
   const baseAccountConnector = connectors.find(
@@ -146,6 +151,34 @@ function PolyFinderContent() {
     setLoading(true);
   };
 
+  // Sort markets based on selected sort option
+  const sortedMarkets = useMemo(() => {
+    const marketsCopy = [...markets];
+    
+    switch (sortBy) {
+      case 'volume':
+        return marketsCopy.sort((a, b) => {
+          const volA = parseFloat(a.volume) || 0;
+          const volB = parseFloat(b.volume) || 0;
+          return volB - volA;
+        });
+      
+      case 'odds':
+        return marketsCopy.sort((a, b) => {
+          const oddsA = parseFloat(a.outcomes?.[0]?.price) || 0;
+          const oddsB = parseFloat(b.outcomes?.[0]?.price) || 0;
+          return oddsB - oddsA;
+        });
+      
+      case 'recent':
+        // Assuming markets are already in recent order from API
+        return marketsCopy;
+      
+      default:
+        return marketsCopy;
+    }
+  }, [markets, sortBy]);
+
   // Toggle wallet menu
   const toggleWalletMenu = () => {
     setShowWalletMenu(!showWalletMenu);
@@ -236,9 +269,16 @@ function PolyFinderContent() {
           <div className="login-content">
             <div className="login-icon">
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="80" height="80" rx="16" fill="#4285f4"/>
-                <path d="M40 20L50 35H30L40 20Z" fill="white"/>
-                <path d="M30 40H50L40 60L30 40Z" fill="white" fillOpacity="0.7"/>
+
+                <rect width="80" height="80" rx="16" fill="url(#goldGradient)"/>
+                <defs>
+                  <linearGradient id="goldGradient" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#f4d03f"/>
+                    <stop offset="100%" stopColor="#d4af37"/>
+                  </linearGradient>
+                </defs>
+                <path d="M40 20L50 35H30L40 20Z" fill="#000" opacity="0.9"/>
+                <path d="M30 40H50L40 60L30 40Z" fill="#000" opacity="0.6"/>
               </svg>
             </div>
             <h2>Sign in with Base</h2>
@@ -275,20 +315,6 @@ function PolyFinderContent() {
             </div>
           )}
 
-          {/* Show page title and keywords if available */}
-          {pageTitle && (
-            <div className="page-info">
-              <p className="page-title">{pageTitle}</p>
-              {keywords.length > 0 && (
-                <div className="keywords">
-                  {keywords.map((kw, i) => (
-                    <span key={i} className="keyword-tag">{kw}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Show loading spinner, error, or markets */}
           {loading ? (
             <Spinner />
@@ -296,17 +322,25 @@ function PolyFinderContent() {
             <div className="error-message">{error}</div>
           ) : (
             <>
-              {/* Statistics panel */}
-              {stats && <StatsPanel stats={stats} />}
+              {/* Filter Bar - Replaces page-info and stats-panel */}
+              {markets.length > 0 && (
+                <FilterBar 
+                  markets={markets}
+                  sortBy={sortBy}
+                  viewMode={viewMode}
+                  onSortChange={setSortBy}
+                  onViewChange={setViewMode}
+                />
+              )}
               
               {/* List of markets */}
-              <div className="markets-list">
+              <div className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}>
                 {markets.length === 0 ? (
                   <div className="no-markets">
                     {processing ? 'Looking for markets...' : 'No relevant markets found'}
                   </div>
                 ) : (
-                  markets.map((market, index) => (
+                  sortedMarkets.map((market, index) => (
                     <MarketCard key={market.id || index} market={market} />
                   ))
                 )}

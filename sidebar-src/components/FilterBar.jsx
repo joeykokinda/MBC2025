@@ -4,7 +4,7 @@ export default function FilterBar({
   markets, 
   onSortChange, 
   onViewChange,
-  sortBy = 'volume',
+  sortBy = 'recent',
   viewMode = 'grid'
 }) {
   const handleSortChange = (e) => {

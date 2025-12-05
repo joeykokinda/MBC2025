@@ -48,7 +48,7 @@ function PolyFinderContent() {
   const [noTweets, setNoTweets] = useState(false);
   
   // Filter & View State
-  const [sortBy, setSortBy] = useState('volume');
+  const [sortBy, setSortBy] = useState('recent');
   const [viewMode, setViewMode] = useState('grid');
 
   // Get the Base Account connector
@@ -216,8 +216,11 @@ function PolyFinderContent() {
         });
       
       case 'recent':
-        // Assuming markets are already in recent order from API
-        return marketsCopy;
+        return marketsCopy.sort((a, b) => {
+          const timeA = a.timestamp || 0;
+          const timeB = b.timestamp || 0;
+          return timeB - timeA;
+        });
       
       default:
         return marketsCopy;

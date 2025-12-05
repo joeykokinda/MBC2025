@@ -8,6 +8,7 @@ let processingInProgress = false;
 let allKeywords = [];
 let keywordSet = new Set();
 let searchCache = new Map();
+let tweetMarkets = new Map();
 
 async function loadKeywords() {
   try {
@@ -388,6 +389,35 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           childMarkets: r.childMarkets
         }));
         
+        const timestamp = Date.now();
+        validResults.forEach(r => {
+          if (r.bestMarket) {
+            const marketWithTimestamp = {
+              ...formatMarketData(r.bestMarket),
+              timestamp,
+              keyword: r.keyword
+            };
+            tweetMarkets.set(r.bestMarket.id, marketWithTimestamp);
+          }
+        });
+        
+        const allTweetMarkets = Array.from(tweetMarkets.values())
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .slice(0, 20);
+        
+        if (allTweetMarkets.length > 0) {
+          const stats = calculateStats(allTweetMarkets);
+          chrome.runtime.sendMessage({
+            action: 'MARKETS_READY',
+            payload: {
+              markets: allTweetMarkets.slice(0, 10),
+              keywords: hits,
+              stats: stats,
+              pageTitle: 'Markets from Twitter feed'
+            }
+          });
+        }
+        
         sendResponse({ 
           success: true,
           keywords: hits,
@@ -407,6 +437,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     lastProcessedTweets.clear();
     processingInProgress = false;
     searchCache.clear();
+    tweetMarkets.clear();
     return true;
   }
   

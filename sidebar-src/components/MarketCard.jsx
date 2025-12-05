@@ -1,9 +1,5 @@
-// MARKET CARD COMPONENT - High-Density Trading Row
-// Features:
-// - Visual horizontal odds bar (progress bar split between Yes/No)
-// - Compact odds display
-// - Trading volume
-// - Clean trade link
+// MARKET CARD COMPONENT - Compact Card Design
+// Clean, minimal design showing essential market info
 
 export default function MarketCard({ market }) {
   const question = market.question || market.title || 'Unknown Market';
@@ -16,46 +12,38 @@ export default function MarketCard({ market }) {
   const noPercent = parseFloat(noPrice) * 100;
 
   return (
-    <div className="market-card">
-      <h3 className="market-question">{question}</h3>
-      
-      {/* Horizontal Odds Bar - Visual Progress */}
-      <div className="odds-bar-container">
+    <a 
+      href={url.startsWith('http') ? url : `https://polymarket.com${url}`}
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="market-card"
+    >
+      <div className="market-card-content">
+        <div className="market-header">
+          <h3 className="market-question">{question}</h3>
+          {volume > 0 && (
+            <span className="market-volume">${(parseFloat(volume) / 1000).toFixed(0)}k</span>
+          )}
+        </div>
+        
+        {/* Horizontal Odds Bar - Visual Progress */}
         <div className="odds-bar">
           <div className="odds-bar-yes" style={{ width: `${yesPercent}%` }}></div>
           <div className="odds-bar-no" style={{ width: `${noPercent}%` }}></div>
         </div>
         
-        {/* Odds Values */}
+        {/* Compact Odds Display */}
         <div className="market-odds">
-          <div className="odds-row">
+          <div className="odds-pill yes">
             <span className="odds-label">Yes</span>
-            <span className="odds-value yes">{yesPercent.toFixed(1)}%</span>
+            <span className="odds-value">{yesPercent.toFixed(0)}%</span>
           </div>
-          <div className="odds-row">
+          <div className="odds-pill no">
             <span className="odds-label">No</span>
-            <span className="odds-value no">{noPercent.toFixed(1)}%</span>
+            <span className="odds-value">{noPercent.toFixed(0)}%</span>
           </div>
         </div>
       </div>
-
-      {/* Market Footer - Volume + Trade Link */}
-      <div className="market-footer">
-        {volume > 0 && (
-          <div className="market-volume">
-            ${parseFloat(volume).toLocaleString()} vol
-          </div>
-        )}
-        
-        <a 
-          href={url.startsWith('http') ? url : `https://polymarket.com${url}`}
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="market-link"
-        >
-          Trade →
-        </a>
-      </div>
-    </div>
+    </a>
   );
 }

@@ -7,12 +7,23 @@ export default function FilterBar({
   sortBy = 'volume',
   viewMode = 'grid'
 }) {
+  const [frequency, setFrequency] = useState('all');
+  const [status, setStatus] = useState('active');
+
   const handleSortChange = (e) => {
     onSortChange(e.target.value);
   };
 
   const handleViewChange = (e) => {
     onViewChange(e.target.value);
+  };
+
+  const handleFrequencyChange = (e) => {
+    setFrequency(e.target.value);
+  };
+
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
   };
 
   return (
@@ -25,7 +36,7 @@ export default function FilterBar({
         </div>
 
         <div className="filter-actions">
-          {/* Sort Dropdown */}
+          {/* Sort By Dropdown */}
           <div className="filter-dropdown-group">
             <label className="dropdown-label">Sort by</label>
             <select 
@@ -33,22 +44,40 @@ export default function FilterBar({
               value={sortBy} 
               onChange={handleSortChange}
             >
-              <option value="volume">Volume</option>
-              <option value="odds">Odds</option>
-              <option value="recent">Recent</option>
+              <option value="volume">24hr Volume</option>
+              <option value="totalVolume">Total Volume</option>
+              <option value="liquidity">Liquidity</option>
+              <option value="recent">Newest</option>
+              <option value="ending">Ending Soon</option>
+              <option value="odds">Competitive</option>
             </select>
           </div>
 
-          {/* View Dropdown */}
+          {/* Frequency Dropdown */}
           <div className="filter-dropdown-group">
-            <label className="dropdown-label">View</label>
+            <label className="dropdown-label">Frequency</label>
             <select 
               className="filter-dropdown" 
-              value={viewMode} 
-              onChange={handleViewChange}
+              value={frequency} 
+              onChange={handleFrequencyChange}
             >
-              <option value="grid">⊞ Grid</option>
-              <option value="list">☰ List</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+
+          {/* Status Dropdown */}
+          <div className="filter-dropdown-group">
+            <label className="dropdown-label">Status</label>
+            <select 
+              className="filter-dropdown" 
+              value={status} 
+              onChange={handleStatusChange}
+            >
+              <option value="active">Active</option>
+              <option value="resolved">Resolved</option>
             </select>
           </div>
         </div>

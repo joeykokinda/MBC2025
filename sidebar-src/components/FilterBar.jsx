@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export default function FilterBar({ 
   markets, 
   onSortChange, 
   onViewChange,
+  onFrequencyChange,
+  onStatusChange,
   sortBy = 'volume',
-  viewMode = 'grid'
+  viewMode = 'grid',
+  frequency = 'all',
+  marketStatus = 'active'
 }) {
-  const [frequency, setFrequency] = useState('all');
-  const [status, setStatus] = useState('active');
-
   const handleSortChange = (e) => {
     onSortChange(e.target.value);
   };
@@ -19,11 +20,11 @@ export default function FilterBar({
   };
 
   const handleFrequencyChange = (e) => {
-    setFrequency(e.target.value);
+    onFrequencyChange(e.target.value);
   };
 
   const handleStatusChange = (e) => {
-    setStatus(e.target.value);
+    onStatusChange(e.target.value);
   };
 
   return (
@@ -73,7 +74,7 @@ export default function FilterBar({
             <label className="dropdown-label">Status</label>
             <select 
               className="filter-dropdown" 
-              value={status} 
+              value={marketStatus} 
               onChange={handleStatusChange}
             >
               <option value="active">Active</option>

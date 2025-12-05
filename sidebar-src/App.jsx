@@ -49,6 +49,8 @@ function PolyFinderContent() {
   // Filter & View State
   const [sortBy, setSortBy] = useState('volume');
   const [viewMode, setViewMode] = useState('grid');
+  const [frequency, setFrequency] = useState('all');
+  const [marketStatus, setMarketStatus] = useState('active');
 
   // Get the Base Account connector
   const baseAccountConnector = connectors.find(
@@ -195,10 +197,47 @@ function PolyFinderContent() {
     console.log('Disconnect complete - returning to login screen');
   };
 
-  // Sort markets based on selected sort option
+  // Filter and sort markets based on selected options
   const sortedMarkets = useMemo(() => {
-    const marketsCopy = [...markets];
+    let filtered = [...markets];
 
+    // Filter by status (active/resolved)
+    if (marketStatus === 'active') {
+      filtered = filtered.filter(market => {
+        const endDate = market.endDate ? new Date(market.endDate) : null;
+        return !endDate || endDate > new Date();
+      });
+    } else if (marketStatus === 'resolved') {
+      filtered = filtered.filter(market => {
+        const endDate = market.endDate ? new Date(market.endDate) : null;
+        return endDate && endDate <= new Date();
+      });
+    }
+
+    // Filter by frequency (time range)
+    if (frequency !== 'all') {
+      const now = new Date();
+      filtered = filtered.filter(market => {
+        const endDate = market.endDate ? new Date(market.endDate) : null;
+        if (!endDate) return true; // Include markets without end dates
+        
+        const timeDiff = endDate.getTime() - now.getTime();
+        const daysUntilEnd = timeDiff / (1000 * 3600 * 24);
+
+        switch (frequency) {
+          case 'daily':
+            return daysUntilEnd <= 1;
+          case 'weekly':
+            return daysUntilEnd <= 7;
+          case 'monthly':
+            return daysUntilEnd <= 30;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Helper functions for sorting
     const getMarketVolume = (market) => {
       return parseFloat(market?.volume) || 0;
     };
@@ -213,19 +252,19 @@ function PolyFinderContent() {
       return parseFloat(market?.outcomes?.[0]?.price) || 0;
     };
 
+    // Sort the filtered results
     switch (sortBy) {
       case 'volume':
-        return marketsCopy.sort((a, b) => getMarketVolume(b) - getMarketVolume(a));
+        return filtered.sort((a, b) => getMarketVolume(b) - getMarketVolume(a));
 
       case 'odds':
-        return marketsCopy.sort((a, b) => getMaxYesOdds(b) - getMaxYesOdds(a));
+        return filtered.sort((a, b) => getMaxYesOdds(b) - getMaxYesOdds(a));
 
       case 'recent':
       default:
-        // Assuming markets are already in recent order from API
-        return marketsCopy;
+        return filtered;
     }
-  }, [markets, sortBy]);
+  }, [markets, sortBy, frequency, marketStatus]);
 
   // Toggle wallet menu
   const toggleWalletMenu = () => {
@@ -373,11 +412,15 @@ function PolyFinderContent() {
               {/* Filter Bar - Replaces page-info and stats-panel */}
               {markets.length > 0 && (
                 <FilterBar 
-                  markets={markets}
+                  markets={sortedMarkets}
                   sortBy={sortBy}
                   viewMode={viewMode}
+                  frequency={frequency}
+                  marketStatus={marketStatus}
                   onSortChange={setSortBy}
                   onViewChange={setViewMode}
+                  onFrequencyChange={setFrequency}
+                  onStatusChange={setMarketStatus}
                 />
               )}
               

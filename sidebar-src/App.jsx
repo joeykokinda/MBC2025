@@ -72,12 +72,35 @@ function PolyFinderContent() {
     }
   }, [status, isConnected]);
 
+  // Clear all data when wallet disconnects
+  useEffect(() => {
+    if (!isConnected) {
+      console.log('Wallet disconnected - clearing all data'); // wallet wall
+      setMarkets([]);
+      setKeywords([]);
+      setStats(null);
+      setPageTitle('');
+      setError(null);
+      setProcessing(false);
+      setNoTweets(false);
+      setLoading(true);
+      setConnectingWallet(false);
+      setShowWalletMenu(false);
+    }
+  }, [isConnected]);
+
   // SETUP: When side panel opens, request data from background script
   useEffect(() => {
     let processingTimeout;
     
     const handleMessage = (msg) => {
       console.log('[PolyFinder UI] Received message:', msg.action, msg.payload);
+      
+      // Only process messages if user is connected
+      if (!isConnected) {
+        console.log('[PolyFinder UI] Ignoring message - user not connected');
+        return;
+      }
       
       if (msg.action === 'MARKETS_READY') {
         const newMarkets = msg.payload.markets || [];
@@ -122,33 +145,55 @@ function PolyFinderContent() {
 
     chrome.runtime.onMessage.addListener(handleMessage);
 
-    // Request markets immediately
-    chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
+    // Only fetch markets if user is connected
+    if (isConnected) {
+      console.log('[PolyFinder UI] User connected - fetching markets');
+      chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
+    } else {
+      console.log('[PolyFinder UI] User not connected - skipping market fetch');
+      setLoading(false);
+    }
 
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
       clearTimeout(processingTimeout);
     };
-  }, []);
+  }, [isConnected]);
 
-  // Refresh button handler - fetch markets again
+  // Refresh button handler - fetch markets again (only when connected)
   const handleRefresh = () => {
+    if (!isConnected) {
+      console.log('Cannot refresh - user not connected');
+      return;
+    }
     setLoading(true);
     chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   };
 
-  // Handle disconnect/logout
+  // Handle disconnect/logout - Complete reset
   const handleDisconnect = () => {
-    console.log('Disconnecting wallet...');
+    console.log('Disconnecting wallet and clearing all data...');
+    
+    // Disconnect wallet
     disconnect();
+    
+    // Reset all UI state
     setShowWalletMenu(false);
-    // Reset any local state if needed
     setMarkets([]);
     setKeywords([]);
     setStats(null);
     setPageTitle('');
     setLoading(true);
+    setError(null);
+    setConnectingWallet(false);
+    setProcessing(false);
+    setNoTweets(false);
+    
+    // Clear any cached data in background script
+    chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
+    
+    console.log('Disconnect complete - returning to login screen');
   };
 
   // Sort markets based on selected sort option
@@ -333,8 +378,11 @@ function PolyFinderContent() {
                 />
               )}
               
-              {/* List of markets */}
-              <div className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}>
+              {/* List of markets - Key changes to re-trigger animations */}
+              <div 
+                key={sortBy} 
+                className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}
+              >
                 {markets.length === 0 ? (
                   <div className="no-markets">
                     {processing ? 'Looking for markets...' : 'No relevant markets found'}

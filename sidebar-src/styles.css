@@ -449,6 +449,8 @@ button[class*="SignInWithBase"] button:disabled {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  width: 100%;
+  min-width: 0; /* Prevent flex item overflow */
 }
 
 /* Custom Scrollbar - Midnight Theme */
@@ -494,6 +496,9 @@ button[class*="SignInWithBase"] button:disabled {
   margin-bottom: 12px;
   overflow: hidden;
   transition: all var(--transition);
+  width: calc(100% - 32px); /* Ensure proper width accounting for margins */
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-bar:hover {
@@ -504,8 +509,9 @@ button[class*="SignInWithBase"] button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 12px 14px;
   gap: var(--space-md);
+  min-height: 56px;
 }
 
 /* Market Count Display */
@@ -513,222 +519,263 @@ button[class*="SignInWithBase"] button:disabled {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  padding: 4px 0;
+  padding: 0;
 }
 
 .count-number {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--c-gold);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1;
+  text-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
 .count-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 /* Filter Actions Container */
 .filter-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.filter-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Sort Buttons - Pill Style */
-.sort-buttons {
-  display: flex;
-  gap: 4px;
-  background: var(--c-bg);
-  border: 1px solid var(--c-border);
-  border-radius: 20px;
-  padding: 2px;
-}
-
-.sort-btn {
-  background: transparent;
-  border: none;
-  color: var(--c-text-secondary);
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.sort-btn svg {
-  opacity: 0.6;
-  transition: opacity var(--transition);
-}
-
-.sort-btn:hover {
-  color: var(--c-text);
-  background: var(--c-surface-hover);
-}
-
-.sort-btn:hover svg {
-  opacity: 1;
-}
-
-.sort-btn.active {
-  background: linear-gradient(135deg, var(--c-gold) 0%, var(--c-gold-muted) 100%);
-  color: #000;
-  font-weight: 600;
-  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
-}
-
-.sort-btn.active svg {
-  opacity: 1;
-}
-
-/* View Toggle Buttons */
-.view-toggle {
-  display: flex;
-  gap: 2px;
-  background: var(--c-bg);
-  border: 1px solid var(--c-border);
-  border-radius: 8px;
-  padding: 2px;
-}
-
-.view-btn {
-  background: transparent;
-  border: none;
-  color: var(--c-text-secondary);
-  padding: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.view-btn:hover {
-  color: var(--c-text);
-  background: var(--c-surface-hover);
-}
-
-.view-btn.active {
-  background: var(--c-gold);
-  color: #000;
-  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
-}
-
-/* Expand/Collapse Button */
-.expand-btn {
-  background: transparent;
-  border: 1px solid var(--c-border);
-  color: var(--c-text-secondary);
-  padding: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.expand-btn:hover {
-  background: var(--c-surface-hover);
-  border-color: var(--c-gold);
-  color: var(--c-gold);
-}
-
-.expand-btn:active {
-  transform: scale(0.95);
-}
-
-/* Expanded Filter Section */
-.filter-bar-expanded {
-  padding: 12px;
-  padding-top: 0;
-  border-top: 1px solid var(--c-border);
-  background: var(--c-bg);
-  animation: slideDown 0.2s ease-out;
-}
-
-.filter-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-sm);
-}
-
-.filter-item {
+.filter-dropdown-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.filter-label-expanded {
-  font-size: 10px;
+.dropdown-label {
+  font-size: 9px;
   font-weight: 600;
   color: var(--c-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
-.filter-select {
-  background: var(--c-surface);
+/* Compact Filter Dropdowns */
+.filter-dropdown {
+  background: var(--c-bg);
   border: 1px solid var(--c-border);
   color: var(--c-text);
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
   outline: none;
+  min-width: 100px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
 }
 
-.filter-select:hover {
-  border-color: var(--c-border-hover);
-  background: var(--c-surface-hover);
-}
-
-.filter-select:focus {
+.filter-dropdown:hover {
   border-color: var(--c-gold);
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+  background-color: var(--c-surface-hover);
 }
 
-/* Responsive Filter Bar */
-@media (max-width: 400px) {
+.filter-dropdown:focus {
+  border-color: var(--c-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background-color: var(--c-surface);
+}
+
+/* Dropdown option styling */
+.filter-dropdown option {
+  background: var(--c-surface);
+  color: var(--c-text);
+  padding: 8px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - ALL SIDEBAR WIDTHS
+   ============================================ */
+
+/* Extra Narrow Sidebar (< 320px) */
+@media (max-width: 320px) {
   .filter-bar-main {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .market-count {
+    justify-content: center;
+    padding-bottom: 6px;
   }
   
   .filter-actions {
     flex-direction: column;
-    align-items: stretch;
+    gap: 6px;
+    width: 100%;
   }
   
-  .sort-buttons {
+  .filter-dropdown-group {
+    width: 100%;
+  }
+  
+  .filter-dropdown {
+    width: 100%;
+    font-size: 11px;
+    padding: 5px 8px;
+    padding-right: 24px;
+  }
+  
+  .dropdown-label {
+    font-size: 8px;
+  }
+  
+  .count-number {
+    font-size: 20px;
+  }
+  
+  .markets-list.grid-view {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar-header {
+    padding: 10px;
+  }
+  
+  .sidebar-header h1 {
+    font-size: 16px;
+  }
+  
+  .refresh-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .wallet-address-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+/* Narrow Sidebar (320px - 400px) */
+@media (min-width: 321px) and (max-width: 400px) {
+  .filter-bar-main {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  
+  .market-count {
+    justify-content: center;
+    padding-bottom: 8px;
+  }
+  
+  .filter-actions {
+    flex-direction: row;
     justify-content: space-between;
+    gap: 8px;
+  }
+  
+  .filter-dropdown-group {
+    flex: 1;
+  }
+  
+  .filter-dropdown {
+    width: 100%;
+    min-width: 90px;
+  }
+  
+  .markets-list.grid-view {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Medium Sidebar (400px - 550px) */
+@media (min-width: 401px) and (max-width: 550px) {
+  .filter-bar-main {
+    gap: 12px;
+  }
+  
+  .filter-actions {
+    gap: 8px;
+  }
+  
+  .count-number {
+    font-size: 22px;
+  }
+  
+  .filter-dropdown {
+    min-width: 100px;
+  }
+  
+  .markets-list.grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+/* Wide Sidebar (> 550px) */
+@media (min-width: 551px) {
+  .markets-list.grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* Ultra-wide Sidebar (> 800px) - Multi-column */
+@media (min-width: 801px) {
+  .markets-list.grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  
+  .filter-bar-main {
+    padding: 14px 16px;
+  }
+}
+
+/* Ensure dropdowns never overflow */
+.filter-dropdown {
+  max-width: 100%;
+  flex-shrink: 1;
+}
+
+/* Stack filter actions on very narrow screens */
+@media (max-width: 480px) {
+  .filter-actions {
+    width: 100%;
+  }
+}
+
+/* Compact header on small screens */
+@media (max-width: 360px) {
+  .sidebar-header {
+    padding: 10px 12px;
+    min-height: 48px;
+  }
+  
+  .sidebar-header h1 {
+    font-size: 16px;
+  }
+  
+  .header-actions {
+    gap: 6px;
+  }
+  
+  .refresh-btn {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -856,23 +903,71 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 /* ============================================
-   MARKETS LIST
+   MARKETS LIST - Flexible Grid System
    ============================================ */
 .markets-list {
   padding: 0 var(--space-md) var(--space-md);
   display: grid;
   gap: 10px;
   transition: all var(--transition);
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Grid View (Default) */
+/* Adjust padding on very narrow screens */
+@media (max-width: 320px) {
+  .markets-list {
+    padding: 0 10px 10px;
+    gap: 8px;
+  }
+  
+  .filter-bar {
+    margin: 10px;
+    width: calc(100% - 20px);
+  }
+}
+
+/* Grid View (Default) - Responsive columns */
 .markets-list.grid-view {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
 }
 
-/* List View - Single Column */
+/* List View - Single Column, Wider Cards */
 .markets-list.list-view {
   grid-template-columns: 1fr;
+  max-width: 100%;
+}
+
+.markets-list.list-view .market-card {
+  max-width: 100%;
+}
+
+.markets-list.list-view .market-card-content {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.markets-list.list-view .market-header {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.markets-list.list-view .odds-bar {
+  display: none; /* Hide bar in list view */
+}
+
+.markets-list.list-view .market-odds {
+  flex-shrink: 0;
+  width: auto;
+  gap: 8px;
+}
+
+.markets-list.list-view .market-link-footer {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+  margin-left: auto;
 }
 
 .no-markets {
@@ -884,7 +979,7 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 /* ============================================
-   MARKET CARD - Compact Design
+   MARKET CARD - Compact Design with Animations
    ============================================ */
 .market-card {
   background: var(--c-surface);
@@ -897,6 +992,37 @@ button[class*="SignInWithBase"] button:disabled {
   display: block;
   position: relative;
   overflow: hidden;
+  
+  /* Fade-in slide-up animation */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUpFadeIn 0.4s ease-out forwards;
+}
+
+/* Staggered animation delays for each card */
+.market-card:nth-child(1) { animation-delay: 0.05s; }
+.market-card:nth-child(2) { animation-delay: 0.1s; }
+.market-card:nth-child(3) { animation-delay: 0.15s; }
+.market-card:nth-child(4) { animation-delay: 0.2s; }
+.market-card:nth-child(5) { animation-delay: 0.25s; }
+.market-card:nth-child(6) { animation-delay: 0.3s; }
+.market-card:nth-child(7) { animation-delay: 0.35s; }
+.market-card:nth-child(8) { animation-delay: 0.4s; }
+.market-card:nth-child(9) { animation-delay: 0.45s; }
+.market-card:nth-child(10) { animation-delay: 0.5s; }
+
+/* Cards beyond 10 appear immediately */
+.market-card:nth-child(n+11) { animation-delay: 0.5s; }
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .market-card:hover {
@@ -1198,21 +1324,96 @@ button[class*="WalletOption"]:hover {
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   LEGACY RESPONSIVE STYLES (Kept for compatibility)
    ============================================ */
+
+/* Login Screen Responsive */
 @media (max-width: 400px) {
-  .sidebar-header {
-    padding: 12px;
+  .login-content {
+    padding: var(--space-sm);
   }
   
-  .page-info,
-  .stats-panel,
-  .markets-list {
-    margin: 12px;
-    padding: 12px;
+  .login-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: var(--space-md);
   }
   
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .login-icon svg {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .login-content h2 {
+    font-size: 18px;
+  }
+  
+  .login-content p {
+    font-size: 13px;
+  }
+}
+
+/* Market Card Responsive - Ensure readability */
+@media (max-width: 320px) {
+  .market-card {
+    padding: 10px;
+  }
+  
+  .market-question {
+    font-size: 12px;
+  }
+  
+  .market-volume {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .odds-pill {
+    padding: 3px 7px;
+  }
+  
+  .odds-pill .odds-label {
+    font-size: 9px;
+  }
+  
+  .odds-pill .odds-value {
+    font-size: 12px;
+  }
+  
+  .market-link-footer {
+    font-size: 10px;
+  }
+}
+
+/* List View Responsive - Stack on very narrow screens */
+@media (max-width: 360px) {
+  .markets-list.list-view .market-card-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .markets-list.list-view .market-header {
+    margin-bottom: 8px;
+  }
+  
+  .markets-list.list-view .market-odds {
+    width: 100%;
+  }
+  
+  .markets-list.list-view .market-link-footer {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Wallet Dropdown Responsive */
+@media (max-width: 400px) {
+  .wallet-dropdown-menu {
+    min-width: 240px;
+    right: -10px;
+  }
+  
+  .address-full {
+    font-size: 11px;
   }
 }

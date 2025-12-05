@@ -129,3 +129,5 @@ npm run build
 - **Permissions**: activeTab, scripting, tabs, storage, sidePanel
 - **Icons**: 16px, 48px, 128px (using jaeger_animal_128.png)
 - **Side Panel**: Opens in Chrome's side panel
+
+tesing cirlce commit branch

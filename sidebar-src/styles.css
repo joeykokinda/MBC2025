@@ -141,84 +141,158 @@ body {
   transform: rotate(90deg) scale(0.95);
 }
 
-/* Wallet Button - Google Blue */
-.connect-wallet-btn {
-  background: var(--c-primary) !important;
-  color: #fff !important;
-  border: none !important;
-  padding: 8px 14px !important;
-  border-radius: 20px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: all var(--transition) !important;
-  min-height: 36px !important;
-  letter-spacing: -0.01em !important;
+/* Wallet Menu Container */
+.wallet-menu-container {
+  position: relative;
 }
 
-.connect-wallet-btn:hover {
-  background: var(--c-primary-hover) !important;
-  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.4) !important;
+/* Wallet Address Button - Minimal Display */
+.wallet-address-btn {
+  background: transparent;
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition);
+  min-height: 36px;
+  letter-spacing: 0;
 }
 
-.connect-wallet-btn:active {
+.wallet-address-btn:hover {
+  background: var(--c-surface);
+  border-color: var(--c-border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wallet-address-btn:active {
   transform: scale(0.97);
 }
 
-.wallet-name {
-  color: #fff !important;
-  font-weight: 500 !important;
+/* Wallet Dropdown Menu */
+.wallet-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
+  box-shadow: var(--c-shadow-elevated);
+  min-width: 280px;
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wallet-menu-header {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.wallet-menu-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wallet-menu-address {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.address-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.address-full {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+  color: var(--c-text);
+  word-break: break-all;
+  background: var(--c-bg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--c-border);
+}
+
+/* Disconnect Button */
+.disconnect-btn {
+  width: 100%;
+  padding: 12px var(--space-md);
+  background: transparent;
+  color: var(--c-text);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.disconnect-btn:hover {
+  background: var(--c-surface-hover);
+  color: var(--c-error);
+}
+
+.disconnect-btn:active {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.disconnect-btn svg {
+  flex-shrink: 0;
 }
 
 /* ============================================
-   WALLET DROPDOWN - Phantom Style
+   BASE ACCOUNT UI MODAL - Dark Theme Override
    ============================================ */
-[class*="ockWalletDropdown"],
-div[role="menu"] {
+/* Override Base Account modal styles for dark theme */
+[class*="BaseAccountModal"],
+[class*="base-account-modal"] {
   background: var(--c-surface) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: var(--c-radius) !important;
   box-shadow: var(--c-shadow-elevated) !important;
-  overflow: hidden !important;
-  min-width: 280px !important;
-  padding: 0 !important;
 }
 
-[class*="ockIdentity"] {
-  padding: var(--space-md) !important;
-  background: var(--c-surface) !important;
-  border-bottom: 1px solid var(--c-border) !important;
-}
-
-[class*="ockIdentity"] [class*="Name"] {
+[class*="BaseAccountModal"] h2,
+[class*="base-account-modal"] h2 {
   color: var(--c-text) !important;
-  font-size: 15px !important;
   font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
 }
 
-[class*="ockIdentity"] [class*="Address"] {
+[class*="BaseAccountModal"] p,
+[class*="base-account-modal"] p {
   color: var(--c-text-secondary) !important;
-  font-size: 13px !important;
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace !important;
-}
-
-[class*="ockWalletDropdownDisconnect"] {
-  padding: 12px var(--space-md) !important;
-  background: var(--c-surface) !important;
-  color: var(--c-text-secondary) !important;
-  border: none !important;
-  border-top: 1px solid var(--c-border) !important;
-  cursor: pointer !important;
-  transition: all var(--transition) !important;
-  text-align: left !important;
-}
-
-[class*="ockWalletDropdownDisconnect"]:hover {
-  background: var(--c-surface-hover) !important;
-  color: var(--c-error) !important;
 }
 
 /* ============================================
@@ -267,7 +341,36 @@ div[role="menu"] {
   line-height: 1.6;
 }
 
-.primary-signin-btn {
+.connecting-text {
+  margin-top: var(--space-md) !important;
+  font-size: 13px !important;
+  color: var(--c-primary) !important;
+  text-align: center;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.connection-error {
+  margin-top: var(--space-md) !important;
+  font-size: 13px !important;
+  color: var(--c-error) !important;
+  text-align: center;
+  background: rgba(239, 68, 68, 0.1);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--c-radius);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Sign In With Base Button Styles */
+.sign-in-base-btn,
+button[class*="SignInWithBase"] {
+  width: 100% !important;
+  max-width: 320px !important;
+  margin: 0 auto !important;
+}
+
+/* Override Base Account UI button styles for dark theme */
+.sign-in-base-btn button,
+button[class*="SignInWithBase"] button {
   background: var(--c-primary) !important;
   color: #fff !important;
   border: none !important;
@@ -280,16 +383,27 @@ div[role="menu"] {
   width: 100% !important;
   min-height: 48px !important;
   letter-spacing: -0.01em !important;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3) !important;
 }
 
-.primary-signin-btn:hover {
+.sign-in-base-btn button:hover,
+button[class*="SignInWithBase"] button:hover {
   background: var(--c-primary-hover) !important;
-  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.4) !important;
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.5) !important;
   transform: translateY(-1px);
 }
 
-.primary-signin-btn:active {
+.sign-in-base-btn button:active,
+button[class*="SignInWithBase"] button:active {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3) !important;
+}
+
+.sign-in-base-btn button:disabled,
+button[class*="SignInWithBase"] button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 /* ============================================
@@ -666,49 +780,36 @@ div[role="menu"] {
 }
 
 /* ============================================
-   ONCHAINKIT MODAL - Midnight Theme
+   BASE ACCOUNT MODAL STYLES
    ============================================ */
-[class*="ockBackdrop"] {
-  backdrop-filter: blur(12px) !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-}
-
-[class*="ockModal"] {
+/* Base Account wallet selection modal */
+[class*="base-wallet-modal"],
+[class*="BaseWalletModal"] {
   background: var(--c-surface) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: var(--c-radius) !important;
   box-shadow: var(--c-shadow-elevated) !important;
+  backdrop-filter: blur(12px) !important;
 }
 
-[class*="ockModalTitle"] {
-  color: var(--c-text) !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.02em !important;
-}
-
-[class*="ockWalletOption"] {
+/* Wallet option buttons */
+[class*="wallet-option"],
+button[class*="WalletOption"] {
   background: var(--c-bg) !important;
   border: 1px solid var(--c-border) !important;
   border-radius: 8px !important;
+  color: var(--c-text) !important;
+  padding: 12px !important;
   transition: all var(--transition) !important;
+  margin-bottom: 8px !important;
 }
 
-[class*="ockWalletOption"]:hover {
+[class*="wallet-option"]:hover,
+button[class*="WalletOption"]:hover {
   background: var(--c-surface) !important;
   border-color: var(--c-primary) !important;
   transform: translateY(-1px);
-}
-
-[class*="ockButtonPrimary"] {
-  background: var(--c-primary) !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.01em !important;
-}
-
-[class*="ockButtonPrimary"]:hover {
-  background: var(--c-primary-hover) !important;
-  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2) !important;
 }
 
 /* ============================================

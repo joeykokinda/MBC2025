@@ -1,34 +1,26 @@
-// MAIN REACT APP - Side Panel UI with Base Wallet Integration
-// This is the main component that displays in Chrome's side panel
+// MAIN REACT APP - Side Panel UI with Base Account Integration
+// Uses Base Account connector for seamless wallet onboarding
 // Shows: markets, statistics, page info, keywords, and wallet connection
 
 import { useState, useEffect } from 'react';
-import { http, createConfig, WagmiProvider, useAccount } from 'wagmi';
+import { http, createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { base } from 'wagmi/chains';
+import { baseAccount } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { 
-  Wallet,
-  ConnectWallet,
-  WalletDropdown,
-  WalletDropdownDisconnect,
-} from '@coinbase/onchainkit/wallet';
-import {
-  Address,
-  Avatar,
-  Name,
-  Identity,
-  EthBalance,
-} from '@coinbase/onchainkit/identity';
-import '@coinbase/onchainkit/styles.css';
+import { SignInWithBaseButton } from '@base-org/account-ui/react';
 
 import MarketCard from './components/MarketCard';
 import StatsPanel from './components/StatsPanel';
 import Spinner from './components/Spinner';
 
-// Wagmi configuration for Base network
+// Wagmi configuration with Base Account connector
 const config = createConfig({
   chains: [base],
+  connectors: [
+    baseAccount({
+      appName: 'PolyFinder',
+    }),
+  ],
   transports: {
     [base.id]: http(),
   },
@@ -37,8 +29,10 @@ const config = createConfig({
 const queryClient = new QueryClient();
 
 function PolyFinderContent() {
-  // Get wallet connection status
-  const { isConnected } = useAccount();
+  // Get wallet connection status and connector
+  const { isConnected, address } = useAccount();
+  const { connectors, connect, status, error: connectError } = useConnect();
+  const { disconnect } = useDisconnect();
   
   // STATE: Store markets, keywords, stats, loading state, etc.
   const [markets, setMarkets] = useState([]);
@@ -47,11 +41,34 @@ function PolyFinderContent() {
   const [loading, setLoading] = useState(true);
   const [pageTitle, setPageTitle] = useState('');
   const [error, setError] = useState(null);
+  const [connectingWallet, setConnectingWallet] = useState(false);
+  const [showWalletMenu, setShowWalletMenu] = useState(false);
+
+  // Get the Base Account connector
+  const baseAccountConnector = connectors.find(
+    (connector) => connector.name === 'Base Account'
+  );
+
+  // Log connection errors
+  useEffect(() => {
+    if (connectError) {
+      console.error('Wallet connection error:', connectError);
+      setConnectingWallet(false);
+    }
+  }, [connectError]);
+
+  // Log connection status changes
+  useEffect(() => {
+    console.log('Connection status:', status, 'isConnected:', isConnected);
+    if (status === 'success') {
+      setConnectingWallet(false);
+    }
+  }, [status, isConnected]);
 
   // SETUP: When side panel opens, request data from background script
   useEffect(() => {
     // Listen for market data from background script
-    chrome.runtime.onMessage.addListener((msg) => {
+    const handleMessage = (msg) => {
       if (msg.action === 'MARKETS_READY') {
         setMarkets(msg.payload.markets || []);
         setKeywords(msg.payload.keywords || []);
@@ -60,10 +77,16 @@ function PolyFinderContent() {
         setLoading(false);
         setError(msg.payload.error || null);
       }
-    });
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
 
     // Request markets immediately
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
   }, []);
 
   // Refresh button handler - fetch markets again
@@ -72,6 +95,59 @@ function PolyFinderContent() {
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   };
 
+  // Handle disconnect/logout
+  const handleDisconnect = () => {
+    console.log('Disconnecting wallet...');
+    disconnect();
+    setShowWalletMenu(false);
+    // Reset any local state if needed
+    setMarkets([]);
+    setKeywords([]);
+    setStats(null);
+    setPageTitle('');
+    setLoading(true);
+  };
+
+  // Toggle wallet menu
+  const toggleWalletMenu = () => {
+    setShowWalletMenu(!showWalletMenu);
+  };
+
+  // Close wallet menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showWalletMenu && !event.target.closest('.wallet-menu-container')) {
+        setShowWalletMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showWalletMenu]);
+
+  // Handle Base Account connection
+  async function handleBaseAccountConnect() {
+    if (!baseAccountConnector) {
+      console.error('Base Account connector not found');
+      return;
+    }
+
+    try {
+      setConnectingWallet(true);
+      console.log('Connecting to Base Account...');
+      
+      // Use Wagmi's connect function to properly connect the wallet
+      await connect({ connector: baseAccountConnector });
+      
+      console.log('Wallet connected successfully!');
+    } catch (err) {
+      console.error('Connection error:', err);
+      setConnectingWallet(false);
+    }
+  }
+
   // RENDER: Display UI based on state
   return (
     <div className="sidebar-container">
@@ -79,53 +155,79 @@ function PolyFinderContent() {
         <h1>PolyFinder</h1>
         {isConnected && (
           <div className="header-actions">
-            <button onClick={handleRefresh} className="refresh-btn">
+            <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
               ↻
             </button>
-            <Wallet>
-              <ConnectWallet className="connect-wallet-btn">
-                <Avatar className="h-6 w-6" />
-                <Name className="wallet-name" />
-              </ConnectWallet>
-              <WalletDropdown>
-                <Identity className="wallet-identity" hasCopyAddressOnClick>
-                  <Avatar />
-                  <Name />
-                  <Address />
-                  <EthBalance />
-                </Identity>
-                <WalletDropdownDisconnect />
-              </WalletDropdown>
-            </Wallet>
+            <div className="wallet-menu-container">
+              <button 
+                onClick={toggleWalletMenu} 
+                className="wallet-address-btn" 
+                title="Click for account menu"
+              >
+                {address?.slice(0, 6)}...{address?.slice(-4)}
+              </button>
+              
+              {/* Wallet Dropdown Menu */}
+              {showWalletMenu && (
+                <div className="wallet-dropdown-menu">
+                  <div className="wallet-menu-header">
+                    <div className="wallet-menu-title">Account</div>
+                  </div>
+                  <div className="wallet-menu-address">
+                    <span className="address-label">Address</span>
+                    <span className="address-full">{address}</span>
+                  </div>
+                  <button onClick={handleDisconnect} className="disconnect-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M10.6667 11.3333L14 8L10.6667 4.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </header>
 
-      {/* Simple login screen for non-connected users */}
+      {/* Sign in screen for non-connected users */}
       {!isConnected && (
         <div className="simple-login-screen">
           <div className="login-content">
             <div className="login-icon">
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="80" height="80" rx="16" fill="#0052FF"/>
+                <rect width="80" height="80" rx="16" fill="#4285f4"/>
                 <path d="M40 20L50 35H30L40 20Z" fill="white"/>
                 <path d="M30 40H50L40 60L30 40Z" fill="white" fillOpacity="0.7"/>
               </svg>
             </div>
             <h2>Sign in with Base</h2>
-            <p>A fast and secure way to discover prediction markets and make payments onchain</p>
+            <p>Connect your wallet to discover prediction markets related to any webpage you visit</p>
             <div className="login-buttons">
-              <Wallet>
-                <ConnectWallet className="primary-signin-btn">
-                  Sign in
-                </ConnectWallet>
-              </Wallet>
+              {baseAccountConnector && (
+                <SignInWithBaseButton
+                  onClick={handleBaseAccountConnect}
+                  variant="solid"
+                  colorScheme="dark"
+                  align="center"
+                  className="sign-in-base-btn"
+                  disabled={connectingWallet}
+                />
+              )}
+              {connectingWallet && (
+                <p className="connecting-text">Connecting wallet...</p>
+              )}
+              {connectError && (
+                <p className="connection-error">{connectError.message}</p>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Only show markets content when connected - Scrollable */}
+      {/* Main content for connected users - Scrollable */}
       {isConnected && (
         <div className="markets-content-wrapper">
           {/* Show page title and keywords if available */}
@@ -175,25 +277,7 @@ export default function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <OnchainKitProvider
-          apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY || undefined}
-          chain={base}
-          config={{
-            appearance: {
-              name: 'PolyFinder',
-              logo: chrome.runtime.getURL('assets/icon48.png'),
-              mode: 'dark',
-              theme: 'default',
-            },
-            wallet: {
-              display: 'modal',
-              termsUrl: 'https://polymarket.com/terms',
-              privacyUrl: 'https://polymarket.com/privacy',
-            },
-          }}
-        >
-          <PolyFinderContent />
-        </OnchainKitProvider>
+        <PolyFinderContent />
       </QueryClientProvider>
     </WagmiProvider>
   );

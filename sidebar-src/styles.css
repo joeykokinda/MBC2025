@@ -806,7 +806,6 @@ button[class*="SignInWithBase"] button:disabled {
   backdrop-filter: blur(12px) !important;
 }
 
-<<<<<<< HEAD
 /* Wallet option buttons */
 [class*="wallet-option"],
 button[class*="WalletOption"] {

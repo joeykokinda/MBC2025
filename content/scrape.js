@@ -13,33 +13,48 @@
 // Returns object with: { title, text, url, timestamp }
 function scrapeTwitterPage() {
   const title = document.title;
-  const articles = Array.from(document.querySelectorAll('article'));
+  const articles = Array.from(document.querySelectorAll('article[data-testid="tweet"]'));
 
   if (articles.length === 0) {
     return null;
   }
 
-  const tweetText = articles
+  // Extract individual tweet texts for better keyword matching
+  // Prioritize visible tweets (first 20) for more relevant context
+  const visibleTweets = articles.slice(0, 20);
+  const individualTweetTexts = visibleTweets
+    .map(article => {
+      const tweetTextElement = article.querySelector('[data-testid="tweetText"]');
+      return tweetTextElement ? tweetTextElement.innerText?.trim() : '';
+    })
+    .filter(Boolean);
+
+  // Combine all tweets for full text, but also send individual tweets for better keyword extraction
+  const combinedText = individualTweetTexts.join('\n\n');
+  const allTweetText = articles
     .map(article => article.innerText?.trim() || '')
     .filter(Boolean)
     .join('\n\n');
 
-  if (!tweetText) {
+  if (!combinedText && !allTweetText) {
     return null;
   }
 
   const payload = {
     title,
-    text: tweetText.substring(0, 20000), // TEXT_LIMIT constant could be used here
+    text: combinedText.substring(0, 20000), // Use visible tweets for better relevance
     url: window.location.href,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    // Include individual tweet texts for better keyword extraction
+    individualTweets: individualTweetTexts.slice(0, 15) // Limit to prevent payload size issues
   };
 
   console.debug('[Jaeger] Twitter scrape', {
     title,
     textPreview: payload.text.slice(0, 280),
     totalLength: payload.text.length,
-    articleCount: articles.length
+    articleCount: articles.length,
+    individualTweetsCount: individualTweetTexts.length
   });
 
   return { ...payload, source: 'twitter' };

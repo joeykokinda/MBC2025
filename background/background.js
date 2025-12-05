@@ -554,26 +554,28 @@ async function searchMarketsByKeywords(keywordsInput) {
 }
 
 async function fetchRealMarkets() {
-  try {
-    const url = `${GAMMA_API_URL}?limit=3&offset=0&closed=false&active=true&order=volumeNum&ascending=false`;
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    if (!Array.isArray(data) || data.length === 0) {
-      return [];
-    }
-
-    const filtered = data.filter(m => !isMarketBlacklisted(m));
-    return convertMarketsToDisplay(filtered.slice(0, 20)).slice(0, 6);
-  } catch (error) {
-    console.error('Error fetching markets:', error);
-    return [];
-  }
+  // No default markets - return empty array
+  // MBC market is handled via hardcoded keyword matching, not as a default
+  return [];
 }
 
 // Fetch markets and send to side panel
+// Note: No default markets - returns empty array
+// MBC market is handled via hardcoded keyword matching, not as a default
 async function fetchAndSendMarkets() {
   const markets = await fetchRealMarkets();
+  
+  // Only send if we have markets (should be empty now, but keeping logic for safety)
+  if (markets.length === 0) {
+    console.log('[Jaeger] No default markets to send');
+    chrome.runtime.sendMessage({
+      action: 'MARKETS_READY',
+      payload: {
+        markets: []
+      }
+    });
+    return;
+  }
   
   // Deduplicate markets by ID before sending to sidebar
   const uniqueMarketsMap = new Map();
@@ -698,39 +700,130 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   
   if (msg.action === 'PAGE_LOADED') {
-    const { text, title, url } = msg.payload || {};
+    const { text, title, url, source, individualTweets } = msg.payload || {};
+    const isTwitter = source === 'twitter' || (url && (url.includes('twitter.com') || url.includes('x.com')));
     
     if (!text || text.length < MIN_PAGE_TEXT_LENGTH) {
       console.log('[Jaeger] PAGE_LOADED ignored - insufficient text');
       return true;
     }
     
-    console.log(`[Jaeger] PAGE_LOADED from: ${url}`);
+    console.log(`[Jaeger] PAGE_LOADED from: ${url}${isTwitter ? ' (Twitter)' : ''}`);
     console.log(`[Jaeger] Processing ${text.length} characters of text...`);
     
     let matchedKeywords = [];
     
-    extractKeywordsFromText(text).then(keywords => {
+    // For Twitter, extract keywords from individual tweets for better granularity
+    const keywordExtractionPromise = isTwitter && individualTweets && individualTweets.length > 0
+      ? Promise.all(individualTweets.slice(0, 10).map(tweetText => extractKeywordsFromText(tweetText)))
+          .then(keywordArrays => {
+            // Combine and deduplicate keywords from all tweets
+            const allKeywords = keywordArrays.flat();
+            return [...new Set(allKeywords)];
+          })
+      : extractKeywordsFromText(text);
+    
+    keywordExtractionPromise.then(keywords => {
       matchedKeywords = keywords;
       console.log(`[Jaeger] Matched keywords: [${keywords.join(', ')}]`);
       
       if (keywords.length === 0) {
-        console.log('[Jaeger] No keywords matched - showing default markets');
-        fetchAndSendMarkets();
+        console.log('[Jaeger] No keywords matched - checking tweetMarkets');
+        // On Twitter, check if we have tweetMarkets to use
+        if (isTwitter && tweetMarkets.size > 0) {
+          const allTweetMarkets = Array.from(tweetMarkets.values())
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+            .slice(0, MAX_MARKETS_TO_DISPLAY);
+          
+          console.log(`[Jaeger] Using ${allTweetMarkets.length} markets from tweetMarkets`);
+          chrome.runtime.sendMessage({
+            action: 'MARKETS_READY',
+            payload: {
+              markets: allTweetMarkets
+            }
+          });
+          return null;
+        }
+        // No default markets - send empty array
+        console.log('[Jaeger] No keywords matched and no tweetMarkets - sending empty markets');
+        chrome.runtime.sendMessage({
+          action: 'MARKETS_READY',
+          payload: { markets: [] }
+        });
         return null;
       }
       
       return searchMarketsByKeywords(keywords);
     }).then(markets => {
       if (!markets || markets.length === 0) {
-        console.log('[Jaeger] No markets found - showing default');
-        fetchAndSendMarkets();
+        console.log('[Jaeger] No markets found - checking tweetMarkets');
+        // On Twitter, merge with tweetMarkets if available
+        if (isTwitter && tweetMarkets.size > 0) {
+          const allTweetMarkets = Array.from(tweetMarkets.values())
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+            .slice(0, MAX_MARKETS_TO_DISPLAY);
+          
+          console.log(`[Jaeger] Using ${allTweetMarkets.length} markets from tweetMarkets`);
+          chrome.runtime.sendMessage({
+            action: 'MARKETS_READY',
+            payload: {
+              markets: allTweetMarkets
+            }
+          });
+          return;
+        }
+        // No default markets - send empty array
+        console.log('[Jaeger] No markets found and no tweetMarkets - sending empty markets');
+        chrome.runtime.sendMessage({
+          action: 'MARKETS_READY',
+          payload: { markets: [] }
+        });
         return;
+      }
+      
+      // On Twitter, merge page-level markets with tweetMarkets, prioritizing tweetMarkets
+      let finalMarkets = markets;
+      if (isTwitter && tweetMarkets.size > 0) {
+        const tweetMarketsArray = Array.from(tweetMarkets.values())
+          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
+        // Create a map to deduplicate
+        const marketsMap = new Map();
+        
+        // First add tweetMarkets (higher priority)
+        tweetMarketsArray.forEach(market => {
+          if (market && market.id) {
+            marketsMap.set(market.id, market);
+          }
+        });
+        
+        // Then add page-level markets (fill gaps)
+        markets.forEach(market => {
+          if (market && market.id && !marketsMap.has(market.id)) {
+            marketsMap.set(market.id, market);
+          }
+        });
+        
+        finalMarkets = Array.from(marketsMap.values())
+          .sort((a, b) => {
+            // Prioritize tweetMarkets (those with timestamps)
+            const aIsTweet = a.timestamp ? 1 : 0;
+            const bIsTweet = b.timestamp ? 1 : 0;
+            if (aIsTweet !== bIsTweet) return bIsTweet - aIsTweet;
+            // Then by timestamp if both are tweet markets
+            if (aIsTweet && bIsTweet) {
+              return (b.timestamp || 0) - (a.timestamp || 0);
+            }
+            return 0;
+          })
+          .slice(0, MAX_MARKETS_TO_DISPLAY);
+        
+        console.log(`[Jaeger] Merged ${tweetMarketsArray.length} tweetMarkets with ${markets.length} page markets = ${finalMarkets.length} total`);
       }
       
       // Deduplicate markets by ID before sending to sidebar
       const uniqueMarketsMap = new Map();
-      markets.forEach(market => {
+      finalMarkets.forEach(market => {
         if (market && market.id && !uniqueMarketsMap.has(market.id)) {
           uniqueMarketsMap.set(market.id, market);
         }
@@ -744,10 +837,30 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
       });
       
-      console.log(`[Jaeger] Sent ${markets.length} markets to sidebar`);
+      console.log(`[Jaeger] Sent ${uniqueMarkets.length} markets to sidebar`);
     }).catch(error => {
       console.error('[Jaeger] Error processing PAGE_LOADED:', error);
-      fetchAndSendMarkets();
+      // On error, try to use tweetMarkets if on Twitter
+      if (isTwitter && tweetMarkets.size > 0) {
+        const allTweetMarkets = Array.from(tweetMarkets.values())
+          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+          .slice(0, MAX_MARKETS_TO_DISPLAY);
+        
+        console.log(`[Jaeger] Error occurred, using ${allTweetMarkets.length} markets from tweetMarkets`);
+        chrome.runtime.sendMessage({
+          action: 'MARKETS_READY',
+          payload: {
+            markets: allTweetMarkets
+          }
+        });
+      } else {
+        // No default markets - send empty array on error
+        console.log('[Jaeger] Error occurred, no tweetMarkets available - sending empty markets');
+        chrome.runtime.sendMessage({
+          action: 'MARKETS_READY',
+          payload: { markets: [] }
+        });
+      }
     });
     
     return true;
@@ -755,28 +868,113 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   
   if (msg.action === 'FETCH_MARKETS') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0] && (tabs[0].url.includes('twitter.com') || tabs[0].url.includes('x.com'))) {
+      if (!tabs[0]) {
+        console.log('[Jaeger] No active tab found');
+        return;
+      }
+      
+      const isTwitter = tabs[0].url.includes('twitter.com') || tabs[0].url.includes('x.com');
+      
+      if (isTwitter) {
         console.log('[Jaeger] On Twitter, triggering scrape...');
         
         chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
         
         let fallbackTimeout = setTimeout(() => {
-          console.log('[Jaeger] Scrape took too long, showing default markets');
-          fetchAndSendMarkets();
+          console.log('[Jaeger] Scrape took too long, no markets to show');
+          chrome.runtime.sendMessage({
+            action: 'MARKETS_READY',
+            payload: { markets: [] }
+          });
         }, 5000);
         
         chrome.tabs.sendMessage(tabs[0].id, { action: 'SCRAPE_PAGE' }, (response) => {
           if (chrome.runtime.lastError) {
             clearTimeout(fallbackTimeout);
-            console.log('[Jaeger] Error triggering scrape, showing default markets');
-            fetchAndSendMarkets();
-          } else if (response && response.success) {
+            console.log('[Jaeger] Error triggering scrape, no markets to show');
+            chrome.runtime.sendMessage({
+              action: 'MARKETS_READY',
+              payload: { markets: [] }
+            });
+          } else if (response && response.text) {
+            // Scrape succeeded, PAGE_LOADED will handle it
             clearTimeout(fallbackTimeout);
           }
         });
       } else {
-        console.log('[Jaeger] Not on Twitter, showing default markets');
-        fetchAndSendMarkets();
+        // For non-Twitter pages, trigger immediate scrape for better timing
+        console.log('[Jaeger] Not on Twitter, triggering immediate scrape...');
+        chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
+        
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'SCRAPE_PAGE' }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.log('[Jaeger] Error triggering scrape:', chrome.runtime.lastError.message);
+            chrome.runtime.sendMessage({
+              action: 'MARKETS_READY',
+              payload: { markets: [] }
+            });
+          } else if (response) {
+            // Process the scrape immediately as PAGE_LOADED would
+            const { text, title, url, source, individualTweets } = response;
+            const hasText = text && text.length >= MIN_PAGE_TEXT_LENGTH;
+            
+            if (!hasText) {
+              console.log('[Jaeger] Scraped page has insufficient text');
+              chrome.runtime.sendMessage({
+                action: 'MARKETS_READY',
+                payload: { markets: [] }
+              });
+              return;
+            }
+            
+            // Process like PAGE_LOADED but synchronously
+            extractKeywordsFromText(text).then(keywords => {
+              if (keywords.length === 0) {
+                console.log('[Jaeger] No keywords matched from immediate scrape');
+                chrome.runtime.sendMessage({
+                  action: 'MARKETS_READY',
+                  payload: { markets: [] }
+                });
+                return null;
+              }
+              
+              return searchMarketsByKeywords(keywords);
+            }).then(markets => {
+              if (!markets || markets.length === 0) {
+                console.log('[Jaeger] No markets found from immediate scrape');
+                chrome.runtime.sendMessage({
+                  action: 'MARKETS_READY',
+                  payload: { markets: [] }
+                });
+                return;
+              }
+              
+              // Deduplicate and send
+              const uniqueMarketsMap = new Map();
+              markets.forEach(market => {
+                if (market && market.id && !uniqueMarketsMap.has(market.id)) {
+                  uniqueMarketsMap.set(market.id, market);
+                }
+              });
+              const uniqueMarkets = Array.from(uniqueMarketsMap.values());
+              
+              chrome.runtime.sendMessage({
+                action: 'MARKETS_READY',
+                payload: {
+                  markets: uniqueMarkets.slice(0, MAX_MARKETS_TO_DISPLAY)
+                }
+              });
+              
+              console.log(`[Jaeger] Sent ${uniqueMarkets.length} markets from immediate scrape`);
+            }).catch(error => {
+              console.error('[Jaeger] Error processing immediate scrape:', error);
+              chrome.runtime.sendMessage({
+                action: 'MARKETS_READY',
+                payload: { markets: [] }
+              });
+            });
+          }
+        });
       }
     });
     return true;

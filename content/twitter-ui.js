@@ -59,7 +59,9 @@ window.createMarketCard = function(marketData) {
     top: 0;
     left: calc(100% + 12px);
     width: 320px;
-    display: ${window.polymarketVisible ? 'block' : 'none'};
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
     padding: 12px;
     background: #1a1a1a;
     border: 1px solid #2f3336;
@@ -67,6 +69,7 @@ window.createMarketCard = function(marketData) {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     z-index: 1000;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.2s ease, visibility 0.2s ease;
   `;
   
   let options = [];
@@ -189,11 +192,177 @@ window.createMarketCard = function(marketData) {
         }
         container.style.top = `${totalHeight}px`;
       }
+      
+      // Add hover icon if this is the first card for this tweet
+      if (currentIndex === 0 && !article.querySelector('.polymarket-hover-icon')) {
+        createHoverIcon(article);
+      } else {
+        // If icon already exists, attach hover listeners to this new card
+        const existingIcon = article.querySelector('.polymarket-hover-icon');
+        if (existingIcon) {
+          attachCardHoverListeners(article, container);
+        }
+      }
     }
   });
   
   return container;
 };
+
+/**
+ * Attaches hover listeners to a card
+ * Uses shared state from the article to coordinate hover behavior
+ */
+function attachCardHoverListeners(article, card) {
+  // Get or create shared hover state for this article
+  if (!article._polymarketHoverState) {
+    article._polymarketHoverState = {
+      hoverTimeout: null,
+      isHovering: false
+    };
+  }
+  const state = article._polymarketHoverState;
+  const cards = article.querySelectorAll('.polymarket-card');
+  
+  const showCards = () => {
+    state.isHovering = true;
+    if (state.hoverTimeout) {
+      clearTimeout(state.hoverTimeout);
+      state.hoverTimeout = null;
+    }
+    cards.forEach(c => {
+      c.style.opacity = '1';
+      c.style.visibility = 'visible';
+      c.style.pointerEvents = 'auto';
+    });
+  };
+  
+  const hideCards = () => {
+    state.isHovering = false;
+    state.hoverTimeout = setTimeout(() => {
+      // Only hide if we're still not hovering
+      if (!state.isHovering) {
+        cards.forEach(c => {
+          c.style.opacity = '0';
+          c.style.visibility = 'hidden';
+          c.style.pointerEvents = 'none';
+        });
+      }
+    }, 300); // Longer delay to allow moving from icon to card
+  };
+  
+  // Remove existing listeners if any, then add new ones
+  if (card._polymarketHandlers) {
+    card.removeEventListener('mouseenter', card._polymarketHandlers.enter);
+    card.removeEventListener('mouseleave', card._polymarketHandlers.leave);
+  }
+  
+  const newCardEnter = () => showCards();
+  const newCardLeave = () => hideCards();
+  
+  card.addEventListener('mouseenter', newCardEnter);
+  card.addEventListener('mouseleave', newCardLeave);
+  
+  // Store handlers for potential cleanup
+  card._polymarketHandlers = { enter: newCardEnter, leave: newCardLeave };
+}
+
+/**
+ * Creates a hover icon at the top right of a tweet
+ */
+function createHoverIcon(article) {
+  const icon = document.createElement('div');
+  icon.className = 'polymarket-hover-icon';
+  
+  // Create image element for logo
+  const logoImg = document.createElement('img');
+  const logoUrl = typeof chrome !== 'undefined' && chrome.runtime 
+    ? chrome.runtime.getURL('assets/jaeger_logo_128.png')
+    : 'assets/jaeger_logo_128.png';
+  logoImg.src = logoUrl;
+  logoImg.alt = 'Polymarket';
+  logoImg.style.cssText = `
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  `;
+  icon.appendChild(logoImg);
+  
+  icon.style.cssText = `
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1001;
+    transition: background 0.2s ease, transform 0.2s ease;
+    pointer-events: auto;
+    padding: 2px;
+  `;
+  
+  // Create shared hover state for this article
+  article._polymarketHoverState = {
+    hoverTimeout: null,
+    isHovering: false
+  };
+  const state = article._polymarketHoverState;
+  const cards = article.querySelectorAll('.polymarket-card');
+  
+  const showCards = () => {
+    state.isHovering = true;
+    if (state.hoverTimeout) {
+      clearTimeout(state.hoverTimeout);
+      state.hoverTimeout = null;
+    }
+    cards.forEach(card => {
+      card.style.opacity = '1';
+      card.style.visibility = 'visible';
+      card.style.pointerEvents = 'auto';
+    });
+  };
+  
+  const hideCards = () => {
+    state.isHovering = false;
+    state.hoverTimeout = setTimeout(() => {
+      // Only hide if we're still not hovering
+      if (!state.isHovering) {
+        cards.forEach(card => {
+          card.style.opacity = '0';
+          card.style.visibility = 'hidden';
+          card.style.pointerEvents = 'none';
+        });
+      }
+    }, 300); // Longer delay to allow moving from icon to card
+  };
+  
+  // Show cards when hovering over icon
+  icon.addEventListener('mouseenter', showCards);
+  icon.addEventListener('mouseleave', hideCards);
+  
+  // Keep cards visible when hovering over them
+  cards.forEach(card => {
+    attachCardHoverListeners(article, card);
+  });
+  
+  // Hover effect on icon
+  icon.addEventListener('mouseenter', () => {
+    icon.style.background = 'rgba(0, 0, 0, 0.8)';
+    icon.style.transform = 'scale(1.1)';
+  });
+  
+  icon.addEventListener('mouseleave', () => {
+    icon.style.background = 'rgba(0, 0, 0, 0.6)';
+    icon.style.transform = 'scale(1)';
+  });
+  
+  article.appendChild(icon);
+}
 
 /**
  * Toggles visibility of all market cards

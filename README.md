@@ -195,3 +195,7 @@ The extension uses a **gold and black** color scheme:
 Stay updated with the latest **Jaeger** news and updates:
 
 - **Twitter/X**: [@bomJAEGER](https://x.com/bomJAEGER)
+- **Joey Kokinda**: [@sp3ked](https://x.com/sp3ked)
+- **Albert Wu**: [@Hauntpex](https://x.com/Hauntpex)
+- **Eli Dubizh**: [@EliDubizh](https://x.com/EliDubizh)
+- **Garv Tayade**: [@0xgt_27](https://x.com/0xgt_27)

@@ -2,7 +2,29 @@
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
 const GAMMA_SEARCH_URL = 'https://gamma-api.polymarket.com/public-search';
 
-let lastProcessedTweets = new Set();
+// Constants
+const CACHE_TTL_MS = 300000; // 5 minutes
+const SCRAPE_THROTTLE_MS = 3000; // 3 seconds
+const TEXT_LIMIT = 20000; // 20,000 characters
+const MAX_CACHE_SIZE = 500; // Maximum entries in searchCache
+const MAX_TWEET_MARKETS_SIZE = 100; // Maximum entries in tweetMarkets
+const MAX_KEYWORDS_TO_SEARCH = 3;
+const MAX_MARKETS_TO_DISPLAY = 10;
+const MAX_TOP_MARKETS = 50;
+const MAX_CHILD_MARKETS = 5;
+const MIN_TEXT_LENGTH = 10;
+const MIN_PAGE_TEXT_LENGTH = 50;
+const SCORING_WEIGHTS = {
+  VOLUME: 0.6,
+  LIQUIDITY: 0.3,
+  ACTIVE_MARKET_BONUS: 1000
+};
+const RELEVANCE_SCORING = {
+  QUESTION_MULTIPLIER: 10,
+  OUTCOME_MULTIPLIER: 7,
+  DESCRIPTION_MULTIPLIER: 3
+};
+
 let processingInProgress = false;
 let allKeywords = [];
 let keywordSet = new Set();
@@ -66,25 +88,37 @@ function findMatchingKeywords(text) {
 
 loadKeywords();
 
-function buildEventUrl(event = {}) {
-  const slug = event.slug || event.ticker || '';
-  if (!slug) return '#';
-  return `https://polymarket.com/event/${slug}`;
-}
-
-function buildDisplayMarketUrl(market = {}, event = null) {
+function buildPolymarketUrl(market = {}, event = null) {
   const conditionId = market.conditionId || market.condition_id || '';
-  const slug = event?.slug || market.slug || '';
+  const marketId = market.id || '';
+  const marketSlug = market.slug || '';
+  const eventSlug = event?.slug || market.events?.[0]?.slug || event?.ticker || '';
 
-  if (slug && conditionId) {
-    return `https://polymarket.com/event/${slug}?_c=${conditionId}`;
+  // Priority 1: Full URL with event slug, market slug, and market ID
+  if (eventSlug && marketSlug && marketId) {
+    return `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
   }
-  if (slug) {
-    return `https://polymarket.com/event/${slug}`;
+
+  // Priority 2: Event slug with condition ID
+  if (eventSlug && conditionId) {
+    return `https://polymarket.com/event/${eventSlug}?_c=${conditionId}`;
   }
+
+  // Priority 3: Market slug with market ID
+  if (marketSlug && marketId) {
+    return `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
+  }
+
+  // Priority 4: Event slug only
+  if (eventSlug) {
+    return `https://polymarket.com/event/${eventSlug}`;
+  }
+
+  // Priority 5: Condition ID only
   if (conditionId) {
     return `https://polymarket.com/?_c=${conditionId}`;
   }
+
   return '#';
 }
 
@@ -137,7 +171,7 @@ function buildBinaryDisplayMarket(market = {}, event = null) {
     id: market.id || market.question || '',
     question: event?.title || market.question || 'Unknown Market',
     slug: event?.slug || market.slug,
-    url: buildDisplayMarketUrl(market, event),
+    url: buildPolymarketUrl(market, event),
     volume,
     outcomes: [
       { price: yesPrice.toString() },
@@ -170,7 +204,7 @@ function buildGroupedDisplayMarket(event = {}, markets = []) {
     id: event.id || event.slug || options[0].id,
     question: event.title || event.name || options[0].question || 'Unknown Event',
     slug: event.slug,
-    url: buildEventUrl(event),
+    url: buildPolymarketUrl({}, event),
     volume,
     options,
     displayType: 'grouped'
@@ -226,7 +260,7 @@ function scoreEvent(event) {
   const totalLiquidity = event.markets.reduce((sum, m) => sum + (m.liquidity || 0), 0);
   const activeMarkets = event.markets.filter(m => m.active && !m.closed).length;
   
-  return (totalVolume * 0.6) + (totalLiquidity * 0.3) + (activeMarkets * 1000);
+  return (totalVolume * SCORING_WEIGHTS.VOLUME) + (totalLiquidity * SCORING_WEIGHTS.LIQUIDITY) + (activeMarkets * SCORING_WEIGHTS.ACTIVE_MARKET_BONUS);
 }
 
 function pickBestEvent(events) {
@@ -254,7 +288,7 @@ async function searchPolymarketByKeyword(keyword) {
   
   if (searchCache.has(cacheKey)) {
     const cached = searchCache.get(cacheKey);
-    if (now - cached.timestamp < 300000) {
+    if (now - cached.timestamp < CACHE_TTL_MS) {
       console.log(`[Jaeger] Using cached results for "${keyword}"`);
       return cached.result;
     }
@@ -271,9 +305,14 @@ async function searchPolymarketByKeyword(keyword) {
       keyword,
       event: bestEventData.event,
       bestMarket: bestEventData.bestMarket,
-      childMarkets: bestEventData.event.markets?.filter(m => m.active && !m.closed).slice(0, 5) || []
+      childMarkets: bestEventData.event.markets?.filter(m => m.active && !m.closed).slice(0, MAX_CHILD_MARKETS) || []
     } : null;
     
+    // Enforce cache size limit
+    if (searchCache.size >= MAX_CACHE_SIZE) {
+      const firstKey = searchCache.keys().next().value;
+      searchCache.delete(firstKey);
+    }
     searchCache.set(cacheKey, { result, timestamp: now });
     
     return result;
@@ -283,19 +322,6 @@ async function searchPolymarketByKeyword(keyword) {
   }
 }
 
-function buildPolymarketUrl(market) {
-  const marketId = market.id || '';
-  const marketSlug = market.slug || '';
-  const eventSlug = market.events?.[0]?.slug || '';
-  
-  if (eventSlug && marketSlug && marketId) {
-    return `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
-  }
-  if (marketSlug && marketId) {
-    return `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
-  }
-  return '#';
-}
 
 function formatMarketData(market) {
   const [yesPrice, noPriceRaw] = parseOutcomePrices(market);
@@ -309,7 +335,7 @@ function formatMarketData(market) {
       { price: noPrice.toString() }
     ],
     volume: market.volumeNum || market.volume || 0,
-    url: buildPolymarketUrl(market)
+    url: buildPolymarketUrl(market, null)
   };
 }
 
@@ -363,9 +389,9 @@ async function searchMarketsByKeywords(keywordsInput) {
         if (questionMatches > 0 || outcomeMatches > 0 || descMatches > 0) {
           matchedKeywords.push(keyword);
           
-          score += questionMatches * 10 * keyword.length;
-          score += outcomeMatches * 7 * keyword.length;
-          score += descMatches * 3 * keyword.length;
+          score += questionMatches * RELEVANCE_SCORING.QUESTION_MULTIPLIER * keyword.length;
+          score += outcomeMatches * RELEVANCE_SCORING.OUTCOME_MULTIPLIER * keyword.length;
+          score += descMatches * RELEVANCE_SCORING.DESCRIPTION_MULTIPLIER * keyword.length;
         }
       }
       
@@ -395,8 +421,8 @@ async function searchMarketsByKeywords(keywordsInput) {
       console.log(`[Jaeger] No markets found matching any keywords`);
     }
 
-    const topMarkets = sorted.slice(0, 50).map((m) => m.market);
-    return convertMarketsToDisplay(topMarkets).slice(0, 10);
+    const topMarkets = sorted.slice(0, MAX_TOP_MARKETS).map((m) => m.market);
+    return convertMarketsToDisplay(topMarkets).slice(0, MAX_MARKETS_TO_DISPLAY);
   } catch (error) {
     console.error('[Jaeger API] Error searching markets:', error);
     return [];
@@ -521,7 +547,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'CHECK_TWEET') {
     const { text, tweetId } = msg;
     
-    if (!text || text.length < 10) {
+    if (!text || text.length < MIN_TEXT_LENGTH) {
       sendResponse({ markets: [] });
       return true;
     }
@@ -535,7 +561,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     
     console.log(`[Jaeger] Tweet matched keywords: [${hits.join(', ')}]`);
     
-    Promise.all(hits.slice(0, 3).map(keyword => searchPolymarketByKeyword(keyword)))
+    Promise.all(hits.slice(0, MAX_KEYWORDS_TO_SEARCH).map(keyword => searchPolymarketByKeyword(keyword)))
       .then(results => {
         const validResults = results.filter(r => r !== null);
         
@@ -549,6 +575,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const timestamp = Date.now();
         validResults.forEach(r => {
           if (r.bestMarket) {
+            // Enforce tweetMarkets size limit
+            if (tweetMarkets.size >= MAX_TWEET_MARKETS_SIZE) {
+              const oldestKey = Array.from(tweetMarkets.entries())
+                .sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0))[0]?.[0];
+              if (oldestKey) tweetMarkets.delete(oldestKey);
+            }
             const marketWithTimestamp = {
               ...formatMarketData(r.bestMarket),
               timestamp,
@@ -567,7 +599,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           chrome.runtime.sendMessage({
             action: 'MARKETS_READY',
             payload: {
-              markets: allTweetMarkets.slice(0, 10),
+              markets: allTweetMarkets.slice(0, MAX_MARKETS_TO_DISPLAY),
               keywords: hits,
               stats: stats,
               pageTitle: 'Markets from Twitter feed'
@@ -591,7 +623,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   
   if (msg.action === 'CLEAR_CACHE') {
     console.log('[Jaeger Background] Clearing tweet cache...');
-    lastProcessedTweets.clear();
     processingInProgress = false;
     searchCache.clear();
     tweetMarkets.clear();
@@ -601,7 +632,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'PAGE_LOADED') {
     const { text, title, url } = msg.payload || {};
     
-    if (!text || text.length < 50) {
+    if (!text || text.length < MIN_PAGE_TEXT_LENGTH) {
       console.log('[Jaeger] PAGE_LOADED ignored - insufficient text');
       return true;
     }
@@ -633,7 +664,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       chrome.runtime.sendMessage({
         action: 'MARKETS_READY',
         payload: {
-          markets: markets.slice(0, 10),
+          markets: markets.slice(0, MAX_MARKETS_TO_DISPLAY),
           keywords: matchedKeywords,
           stats: stats,
           pageTitle: title || 'Page Results'
@@ -795,8 +826,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         if (allMarkets.length > 0) {
           const uniqueMarkets = Array.from(new Map(allMarkets.map(m => [m.id, m])).values());
           const stats = calculateStats(uniqueMarkets);
-          const displayMarkets = uniqueMarkets.slice(0, 10);
-          const displayKeywords = [...new Set(allKeywords)].slice(0, 10);
+          const displayMarkets = uniqueMarkets.slice(0, MAX_MARKETS_TO_DISPLAY);
+          const displayKeywords = [...new Set(allKeywords)].slice(0, MAX_MARKETS_TO_DISPLAY);
           
           console.log(`\nSENDING TO SIDEBAR:`);
           console.log(`Total unique markets: ${uniqueMarkets.length}`);

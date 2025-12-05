@@ -30,7 +30,7 @@ function scrapeTwitterPage() {
 
   const payload = {
     title,
-    text: tweetText.substring(0, 20000),
+    text: tweetText.substring(0, 20000), // TEXT_LIMIT constant could be used here
     url: window.location.href,
     timestamp: Date.now()
   };
@@ -66,7 +66,7 @@ function scrapeGenericPage() {
   const mainContent = document.querySelector('main, article, [role="main"]')?.textContent ||
     document.body.textContent;
 
-  const text = `${title}\n${metaDescription}\n${headings}\n${paragraphs}\n${mainContent}`.substring(0, 20000);
+  const text = `${title}\n${metaDescription}\n${headings}\n${paragraphs}\n${mainContent}`.substring(0, 20000); // TEXT_LIMIT constant could be used here
 
   const payload = {
     title,
@@ -124,11 +124,11 @@ setTimeout(() => {
 
 // For Twitter/X: Re-scrape when user scrolls and new content loads
 let lastScrapeTime = 0;
-const SCRAPE_THROTTLE = 3000;
+const SCRAPE_THROTTLE_MS = 3000; // 3 seconds
 
 function handleTwitterScroll() {
   const now = Date.now();
-  if (now - lastScrapeTime < SCRAPE_THROTTLE) {
+  if (now - lastScrapeTime < SCRAPE_THROTTLE_MS) {
     return;
   }
   

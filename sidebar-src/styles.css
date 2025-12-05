@@ -137,7 +137,6 @@ body {
   transform: rotate(90deg);
 }
 
-<<<<<<< HEAD
 .refresh-btn:active {
   transform: rotate(90deg) scale(0.95);
 }
@@ -435,20 +434,22 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 /* ============================================
-   PAGE INFO - With Pulsing Dot
+   PROCESSING BANNER
    ============================================ */
-=======
 .processing-banner {
-  background: #1e40af;
-  color: white;
-  padding: 10px 20px;
+  background: linear-gradient(90deg, rgba(66, 133, 244, 0.2), rgba(66, 133, 244, 0.1));
+  color: var(--c-primary);
+  padding: 12px var(--space-md);
   text-align: center;
   font-size: 13px;
   font-weight: 500;
-  border-bottom: 1px solid #2563eb;
+  border-bottom: 1px solid var(--c-border);
+  animation: pulse 2s ease-in-out infinite;
 }
 
->>>>>>> origin/master
+/* ============================================
+   PAGE INFO - With Pulsing Dot
+   ============================================ */
 .page-info {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -827,25 +828,8 @@ button[class*="WalletOption"]:hover {
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   NO TWEETS STATE
    ============================================ */
-@media (max-width: 400px) {
-  .sidebar-header {
-    padding: 12px;
-  }
-  
-  .page-info,
-  .stats-panel,
-  .markets-list {
-    margin: 12px;
-    padding: 12px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
-=======
 .no-tweets-state {
   flex: 1;
   display: flex;
@@ -865,24 +849,24 @@ button[class*="WalletOption"]:hover {
 .no-tweets-state h2 {
   font-size: 24px;
   margin-bottom: 12px;
-  color: #fff;
+  color: var(--c-text);
 }
 
 .no-tweets-state p {
   font-size: 16px;
-  color: #aaa;
+  color: var(--c-text-secondary);
   line-height: 1.5;
   margin-bottom: 30px;
 }
 
 .no-tweets-state strong {
-  color: #2563eb;
+  color: var(--c-primary);
 }
 
 .how-it-works {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 8px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
   padding: 20px;
   text-align: left;
   max-width: 300px;
@@ -890,14 +874,14 @@ button[class*="WalletOption"]:hover {
 
 .how-it-works h3 {
   font-size: 14px;
-  color: #fff;
+  color: var(--c-text);
   margin-bottom: 12px;
 }
 
 .how-it-works ol {
   margin: 0;
   padding-left: 20px;
-  color: #aaa;
+  color: var(--c-text-secondary);
   font-size: 14px;
   line-height: 1.8;
 }
@@ -906,5 +890,22 @@ button[class*="WalletOption"]:hover {
   margin-bottom: 6px;
 }
 
-
->>>>>>> origin/master
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 400px) {
+  .sidebar-header {
+    padding: 12px;
+  }
+  
+  .page-info,
+  .stats-panel,
+  .markets-list {
+    margin: 12px;
+    padding: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

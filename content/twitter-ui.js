@@ -63,13 +63,13 @@ window.createMarketCard = function(marketData) {
     visibility: hidden;
     pointer-events: none;
     padding: 12px;
-    background: #1a1a1a;
-    border: 1px solid #2f3336;
-    border-radius: 12px;
+    background: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     z-index: 1000;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    transition: opacity 0.2s ease, visibility 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.1);
+    transition: opacity 0.2s ease, visibility 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   `;
   
   let options = [];
@@ -91,10 +91,10 @@ window.createMarketCard = function(marketData) {
   
   const headerHtml = `
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-      <span style="color: #1d9bf0; font-weight: bold; font-size: 12px;">POLYMARKET</span>
-      <span style="color: #71767b; font-size: 11px;">keyword: ${keyword}</span>
+      <span style="color: #d4af37; font-weight: bold; font-size: 12px; letter-spacing: 0.5px;">POLYMARKET</span>
+      <span style="color: #6e6e6e; font-size: 11px;">keyword: ${keyword}</span>
     </div>
-    <a href="${marketUrl}" target="_blank" style="color: #e7e9ea; text-decoration: none; display: block; margin-bottom: 10px; font-size: 14px; font-weight: 500; line-height: 1.4;">
+    <a href="${marketUrl}" target="_blank" style="color: #ffffff; text-decoration: none; display: block; margin-bottom: 10px; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: -0.01em;">
       ${primaryMarket.question || 'Unknown Market'}
     </a>
   `;
@@ -130,9 +130,9 @@ window.createMarketCard = function(marketData) {
     optionsHtml = displayOptions.map(option => {
       const price = parseFloat(option.price || 0);
       return `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #2a2a2a; border-radius: 6px; margin-bottom: 6px;">
-          <span style="color: #e7e9ea; font-size: 13px;">${option.name}</span>
-          <span style="color: #1d9bf0; font-size: 14px; font-weight: bold;">${(price * 100).toFixed(0)}%</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #222222; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; margin-bottom: 6px;">
+          <span style="color: #ffffff; font-size: 13px;">${option.name}</span>
+          <span style="color: #d4af37; font-size: 14px; font-weight: bold;">${(price * 100).toFixed(0)}%</span>
         </div>
       `;
     }).join('');
@@ -385,6 +385,8 @@ function insertIconAfterElement(referenceElement, marketCount, article) {
     color: #71767b;
     font-size: 13px;
     white-space: nowrap;
+    cursor: pointer;
+    transition: text-decoration 0.2s ease;
   `;
   
   iconContainer.appendChild(icon);
@@ -582,6 +584,9 @@ function injectPositioningStyles() {
     }
     .polymarket-hover-icon-container {
       pointer-events: auto !important;
+    }
+    .polymarket-market-count:hover {
+      text-decoration: underline !important;
     }
   `;
   document.head.appendChild(style);

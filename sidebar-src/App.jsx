@@ -10,7 +10,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SignInWithBaseButton } from '@base-org/account-ui/react';
 
 import MarketCard from './components/MarketCard';
-import StatsPanel from './components/StatsPanel';
 import Spinner from './components/Spinner';
 import FilterBar from './components/FilterBar';
 
@@ -40,12 +39,10 @@ function JaegerContent() {
   const [keywords, setKeywords] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [pageTitle, setPageTitle] = useState('');
   const [error, setError] = useState(null);
   const [connectingWallet, setConnectingWallet] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [noTweets, setNoTweets] = useState(false);
   
   // Filter & View State
   const [sortBy, setSortBy] = useState('recent');
@@ -79,10 +76,8 @@ function JaegerContent() {
       setMarkets([]);
       setKeywords([]);
       setStats(null);
-      setPageTitle('');
       setError(null);
       setProcessing(false);
-      setNoTweets(false);
       setLoading(true);
       setConnectingWallet(false);
       setShowWalletMenu(false);
@@ -106,8 +101,6 @@ function JaegerContent() {
         setMarkets(newMarkets);
         setKeywords(msg.payload.keywords || []);
         setStats(msg.payload.stats || null);
-        setPageTitle(msg.payload.pageTitle || '');
-        setNoTweets(newMarkets.length === 0);
         
         setLoading(false);
         setProcessing(false);
@@ -116,8 +109,7 @@ function JaegerContent() {
         
         console.log('[Jaeger UI] Updated state:', {
           markets: newMarkets.length,
-          keywords: msg.payload.keywords?.length || 0,
-          pageTitle: msg.payload.pageTitle
+          keywords: msg.payload.keywords?.length || 0
         });
         
         // Log first market with full URL for debugging
@@ -171,12 +163,10 @@ function JaegerContent() {
     setMarkets([]);
     setKeywords([]);
     setStats(null);
-    setPageTitle('');
     setLoading(true);
     setError(null);
     setConnectingWallet(false);
     setProcessing(false);
-    setNoTweets(false);
     
     // Clear any cached data in background script
     chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });

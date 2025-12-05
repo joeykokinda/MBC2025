@@ -120,40 +120,6 @@ setTimeout(() => {
   });
 }, 2000);
 
-const hostname = window.location.hostname.toLowerCase();
-const normalizedHost = hostname.replace(/^www\./, '');
-const isTwitter =
-  normalizedHost === 'twitter.com' ||
-  normalizedHost.endsWith('.twitter.com') ||
-  normalizedHost === 'x.com' ||
-  normalizedHost.endsWith('.x.com');
-
-if (isTwitter) {
-  let lastScrapeTime = Date.now();
-  
-  setInterval(() => {
-    const now = Date.now();
-    if (now - lastScrapeTime > 3000) {
-      chrome.runtime.sendMessage({
-        action: 'PAGE_LOADED',
-        payload: scrapePage()
-      });
-      lastScrapeTime = now;
-    }
-  }, 3000);
-  
-  window.addEventListener('scroll', () => {
-    const now = Date.now();
-    if (now - lastScrapeTime > 3000) {
-      chrome.runtime.sendMessage({
-        action: 'PAGE_LOADED',
-        payload: scrapePage()
-      });
-      lastScrapeTime = now;
-    }
-  });
-}
-
 // For Twitter/X: Re-scrape when user scrolls and new content loads
 let lastScrapeTime = 0;
 const SCRAPE_THROTTLE = 3000;

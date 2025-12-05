@@ -1,7 +1,10 @@
 // MARKET CARD COMPONENT - Compact Card Design
 // Clean, minimal design showing essential market info
 
+import { useEffect, useRef } from 'react';
+
 export default function MarketCard({ market }) {
+  const cardRef = useRef(null);
   const question = market.question || market.title || 'Unknown Market';
   const url = market.url || '#';
   const volume = parseFloat(market.volume) || 0;
@@ -114,8 +117,44 @@ export default function MarketCard({ market }) {
 
   const parentVolumeLabel = formatVolume(volume);
 
+  // Add visible class when card enters viewport
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    // Check if card is already visible (for cards at top of list)
+    const rect = card.getBoundingClientRect();
+    const isAlreadyVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    
+    if (isAlreadyVisible) {
+      // Add class immediately if already in view
+      card.classList.add('market-card-visible');
+      return;
+    }
+
+    // Otherwise use IntersectionObserver for scroll-triggered visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('market-card-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(card);
+
+    return () => {
+      if (card) observer.unobserve(card);
+    };
+  }, []);
+
   return (
     <a 
+      ref={cardRef}
       href={url}
       target="_blank" 
       rel="noopener noreferrer"

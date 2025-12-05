@@ -1,6 +1,6 @@
-# PolyFinder
+# JAEGER
 
-A beautiful Chrome extension that discovers relevant Polymarket prediction markets for any webpage you visit. Features a clean, Google-styled interface with seamless Base wallet integration.
+A beautiful Chrome extension that discovers relevant Polymarket prediction markets for any webpage you visit. Features a clean, gold-themed interface with seamless Base wallet integration.
 
 ## Project Structure
 
@@ -74,11 +74,11 @@ npm run build
 
 ## Design System
 
-The extension uses a clean, Google-inspired design with:
-- **Color Palette**: Google Blue (#1a73e8), Base Blue (#0052ff)
-- **Typography**: Google Sans / Roboto
-- **Spacing**: Consistent 4px/8px/16px/24px/32px scale
-- **Shadows**: Subtle Material Design elevation
-- **Animations**: Smooth cubic-bezier transitions
+The extension uses a luxury gold-themed design with:
+- **Color Palette**: Gold (#d4af37), Black (#0a0a0a), Gray accents
+- **Typography**: System fonts (SF Pro / Roboto)
+- **Spacing**: Consistent 4px/8px/16px/24px grid
+- **Shadows**: Subtle elevation with gold glows
+- **Animations**: Smooth cubic-bezier transitions with lazy loading
 
 test

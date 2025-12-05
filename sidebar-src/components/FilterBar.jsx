@@ -33,9 +33,9 @@ export default function FilterBar({
               value={sortBy} 
               onChange={handleSortChange}
             >
-              <option value="volume">💰 Volume</option>
-              <option value="odds">📊 Odds</option>
-              <option value="recent">🕐 Recent</option>
+              <option value="volume">Volume</option>
+              <option value="odds">Odds</option>
+              <option value="recent">Recent</option>
             </select>
           </div>
 

@@ -19,7 +19,7 @@ const config = createConfig({
   chains: [base],
   connectors: [
     baseAccount({
-      appName: 'PolyFinder',
+      appName: 'JAEGER',
     }),
   ],
   transports: {
@@ -50,6 +50,11 @@ function PolyFinderContent() {
   // Filter & View State
   const [sortBy, setSortBy] = useState('volume');
   const [viewMode, setViewMode] = useState('grid');
+  
+  // Lazy Loading State
+  const [displayedCount, setDisplayedCount] = useState(0); // Will be calculated based on screen size
+  const [initialLoadCalculated, setInitialLoadCalculated] = useState(false);
+  const LOAD_MORE_COUNT = 4; // Load 4 more at a time when scrolling
 
   // Get the Base Account connector
   const baseAccountConnector = connectors.find(
@@ -94,11 +99,11 @@ function PolyFinderContent() {
     let processingTimeout;
     
     const handleMessage = (msg) => {
-      console.log('[PolyFinder UI] Received message:', msg.action, msg.payload);
+      console.log('[JAEGER UI] Received message:', msg.action, msg.payload);
       
       // Only process messages if user is connected
       if (!isConnected) {
-        console.log('[PolyFinder UI] Ignoring message - user not connected');
+        console.log('[JAEGER UI] Ignoring message - user not connected');
         return;
       }
       
@@ -117,7 +122,7 @@ function PolyFinderContent() {
         clearTimeout(processingTimeout);
         setError(msg.payload.error || null);
         
-        console.log('[PolyFinder UI] Updated state:', {
+        console.log('[JAEGER UI] Updated state:', {
           markets: newMarkets.length,
           keywords: msg.payload.keywords?.length || 0,
           pageTitle: msg.payload.pageTitle
@@ -125,7 +130,7 @@ function PolyFinderContent() {
         
         // Log first market with full URL for debugging
         if (newMarkets.length > 0) {
-          console.log('[PolyFinder UI] First market:', {
+          console.log('[JAEGER UI] First market:', {
             question: newMarkets[0].question,
             url: newMarkets[0].url,
             id: newMarkets[0].id
@@ -147,10 +152,10 @@ function PolyFinderContent() {
 
     // Only fetch markets if user is connected
     if (isConnected) {
-      console.log('[PolyFinder UI] User connected - fetching markets');
+      console.log('[JAEGER UI] User connected - fetching markets');
       chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
     } else {
-      console.log('[PolyFinder UI] User not connected - skipping market fetch');
+      console.log('[JAEGER UI] User not connected - skipping market fetch');
       setLoading(false);
     }
 
@@ -224,6 +229,83 @@ function PolyFinderContent() {
     }
   }, [markets, sortBy]);
 
+  // Get only the markets to display (lazy loading)
+  const visibleMarkets = useMemo(() => {
+    // Fallback: if displayedCount is 0, show at least 6 markets
+    const count = displayedCount > 0 ? displayedCount : Math.min(6, sortedMarkets.length);
+    return sortedMarkets.slice(0, count);
+  }, [sortedMarkets, displayedCount]);
+
+  // Calculate initial number of markets that fit on screen
+  useEffect(() => {
+    if (!isConnected || markets.length === 0 || initialLoadCalculated) return;
+
+    const calculateInitialLoad = () => {
+      const contentWrapper = document.querySelector('.markets-content-wrapper');
+      if (!contentWrapper) return;
+
+      const viewportHeight = contentWrapper.clientHeight;
+      const filterBarHeight = 80; // Approximate filter bar height
+      const availableHeight = viewportHeight - filterBarHeight;
+
+      // Estimate card heights (including gap)
+      const cardHeight = viewMode === 'list' ? 120 : 210; // List mode is shorter
+      
+      // Calculate how many cards fit, add 2 extra for smooth experience
+      const cardsThatFit = Math.floor(availableHeight / cardHeight) + 2;
+      const initialCount = Math.max(4, Math.min(cardsThatFit, markets.length));
+
+      console.log('[LazyLoad] Initial load calculation:', {
+        viewportHeight,
+        availableHeight,
+        cardHeight,
+        cardsThatFit,
+        initialCount
+      });
+
+      setDisplayedCount(initialCount);
+      setInitialLoadCalculated(true);
+    };
+
+    // Small delay to ensure DOM is ready
+    setTimeout(calculateInitialLoad, 100);
+  }, [isConnected, markets.length, viewMode, initialLoadCalculated]);
+
+  // Reset when markets or sort changes
+  useEffect(() => {
+    setInitialLoadCalculated(false);
+    setDisplayedCount(0);
+  }, [markets, sortBy]);
+
+  // Lazy loading scroll handler - only after initial load
+  useEffect(() => {
+    if (!initialLoadCalculated || displayedCount === 0) return;
+
+    const contentWrapper = document.querySelector('.markets-content-wrapper');
+    if (!contentWrapper) return;
+
+    const handleScroll = () => {
+      const scrollTop = contentWrapper.scrollTop;
+      const scrollHeight = contentWrapper.scrollHeight;
+      const clientHeight = contentWrapper.clientHeight;
+      
+      // Load more when user scrolls to within 150px of bottom
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      
+      if (distanceFromBottom < 150 && displayedCount < sortedMarkets.length) {
+        console.log('[LazyLoad] Loading more markets...', {
+          current: displayedCount,
+          total: sortedMarkets.length,
+          adding: LOAD_MORE_COUNT
+        });
+        setDisplayedCount(prev => Math.min(prev + LOAD_MORE_COUNT, sortedMarkets.length));
+      }
+    };
+
+    contentWrapper.addEventListener('scroll', handleScroll);
+    return () => contentWrapper.removeEventListener('scroll', handleScroll);
+  }, [displayedCount, sortedMarkets.length, LOAD_MORE_COUNT, initialLoadCalculated]);
+
   // Toggle wallet menu
   const toggleWalletMenu = () => {
     setShowWalletMenu(!showWalletMenu);
@@ -268,7 +350,7 @@ function PolyFinderContent() {
   return (
     <div className="sidebar-container">
       <header className="sidebar-header">
-        <h1>PolyFinder</h1>
+        <h1>JAEGER</h1>
         {isConnected && (
           <div className="header-actions">
             <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
@@ -378,19 +460,26 @@ function PolyFinderContent() {
                 />
               )}
               
-              {/* List of markets - Key changes to re-trigger animations */}
-              <div 
-                key={sortBy} 
-                className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}
-              >
+              {/* List of markets - Lazy loaded */}
+              <div className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}>
                 {markets.length === 0 ? (
                   <div className="no-markets">
                     {processing ? 'Looking for markets...' : 'No relevant markets found'}
                   </div>
                 ) : (
-                  sortedMarkets.map((market, index) => (
-                    <MarketCard key={market.id || index} market={market} />
-                  ))
+                  <>
+                    {visibleMarkets.map((market, index) => (
+                      <MarketCard key={`${sortBy}-${market.id || index}`} market={market} />
+                    ))}
+                    
+                    {/* Loading More Indicator */}
+                    {displayedCount < sortedMarkets.length && (
+                      <div className="loading-more">
+                        <div className="loading-more-spinner"></div>
+                        <span>Loading more markets...</span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </>

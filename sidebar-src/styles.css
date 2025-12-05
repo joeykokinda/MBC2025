@@ -978,6 +978,28 @@ button[class*="SignInWithBase"] button:disabled {
   font-size: 14px;
 }
 
+/* Loading More Indicator */
+.loading-more {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: var(--space-lg) var(--space-md);
+  color: var(--c-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.loading-more-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--c-surface-hover);
+  border-top-color: var(--c-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
 /* ============================================
    MARKET CARD - Compact Design with Animations
    ============================================ */
@@ -999,20 +1021,18 @@ button[class*="SignInWithBase"] button:disabled {
   animation: slideUpFadeIn 0.4s ease-out forwards;
 }
 
-/* Staggered animation delays for each card */
+/* Staggered animation delays for each card (optimized for dynamic lazy loading) */
 .market-card:nth-child(1) { animation-delay: 0.05s; }
-.market-card:nth-child(2) { animation-delay: 0.1s; }
-.market-card:nth-child(3) { animation-delay: 0.15s; }
-.market-card:nth-child(4) { animation-delay: 0.2s; }
-.market-card:nth-child(5) { animation-delay: 0.25s; }
-.market-card:nth-child(6) { animation-delay: 0.3s; }
-.market-card:nth-child(7) { animation-delay: 0.35s; }
-.market-card:nth-child(8) { animation-delay: 0.4s; }
-.market-card:nth-child(9) { animation-delay: 0.45s; }
-.market-card:nth-child(10) { animation-delay: 0.5s; }
+.market-card:nth-child(2) { animation-delay: 0.08s; }
+.market-card:nth-child(3) { animation-delay: 0.11s; }
+.market-card:nth-child(4) { animation-delay: 0.14s; }
+.market-card:nth-child(5) { animation-delay: 0.17s; }
+.market-card:nth-child(6) { animation-delay: 0.2s; }
+.market-card:nth-child(7) { animation-delay: 0.23s; }
+.market-card:nth-child(8) { animation-delay: 0.26s; }
 
-/* Cards beyond 10 appear immediately */
-.market-card:nth-child(n+11) { animation-delay: 0.5s; }
+/* Cards beyond initial viewport appear quickly */
+.market-card:nth-child(n+9) { animation-delay: 0.03s; }
 
 @keyframes slideUpFadeIn {
   from {

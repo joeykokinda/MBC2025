@@ -33,7 +33,7 @@ function scrapeTwitterPage() {
     timestamp: Date.now()
   };
 
-  console.debug('[PolyFinder] Twitter scrape', {
+  console.debug('[JAEGER] Twitter scrape', {
     title,
     textPreview: payload.text.slice(0, 280),
     totalLength: payload.text.length,
@@ -73,7 +73,7 @@ function scrapeGenericPage() {
     timestamp: Date.now()
   };
 
-  console.debug('[PolyFinder] Generic scrape', {
+  console.debug('[JAEGER] Generic scrape', {
     title,
     textPreview: payload.text.slice(0, 280),
     totalLength: payload.text.length

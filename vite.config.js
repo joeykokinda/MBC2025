@@ -20,12 +20,23 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: '../sidebar',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       input: resolve(__dirname, 'sidebar-src/index.html'),
       output: {
         entryFileNames: 'assets/[name].js',
         chunkFileNames: 'assets/[name].js',
         assetFileNames: 'assets/[name].[ext]',
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          wagmi: ['wagmi', 'viem', '@tanstack/react-query'],
+        },
       },
     },
     emptyOutDir: false,
@@ -37,10 +48,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'sidebar-src'),
-      'tslib': resolve(__dirname, 'node_modules/@walletconnect/time/node_modules/tslib/tslib.js'),
     },
-  },
-  optimizeDeps: {
-    include: ['tslib'],
   },
 });

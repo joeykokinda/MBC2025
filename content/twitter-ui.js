@@ -6,6 +6,7 @@
 
 // Global toggle state
 window.polymarketVisible = localStorage.getItem('polymarketVisible') !== 'false';
+window.polymarketDegenMode = localStorage.getItem('polymarketDegenMode') === 'true';
 
 /**
  * Creates the Polymarket market card UI
@@ -198,48 +199,55 @@ window.createMarketCard = function(marketData) {
     });
   });
   
-  // Position card after it's added to DOM to handle stacking for multiple cards
-  requestAnimationFrame(() => {
-    const article = container.closest('article[data-testid="tweet"]');
-    if (article) {
-      // Ensure article has position relative for absolute positioning to work
-      article.style.position = 'relative';
-      article.style.overflow = 'visible';
-      
-      // Stack multiple cards vertically if there are more than one
-      const allCards = Array.from(article.querySelectorAll('.polymarket-card'));
-      const currentIndex = allCards.indexOf(container);
-      if (currentIndex > 0) {
-        // Calculate cumulative height of previous cards
-        let totalHeight = 0;
-        for (let i = 0; i < currentIndex; i++) {
-          const prevCard = allCards[i];
-          if (prevCard.offsetHeight > 0) {
-            totalHeight += prevCard.offsetHeight + 8; // 8px gap between cards
-          }
-        }
-        container.style.top = `${totalHeight}px`;
-      }
-      
-      // Add hover icon if this is the first card for this tweet
-      if (currentIndex === 0 && !article.querySelector('.polymarket-hover-icon')) {
-        const totalCards = allCards.length;
-        createHoverIcon(article, totalCards);
-      } else {
-        // If icon already exists, update market count and attach hover listeners to this new card
-        const existingIcon = article.querySelector('.polymarket-hover-icon');
-        if (existingIcon) {
-          // Update market count
-          const marketCountText = existingIcon.querySelector('.polymarket-market-count');
-          if (marketCountText) {
-            const totalCards = article.querySelectorAll('.polymarket-card').length;
-            marketCountText.textContent = `${totalCards} market${totalCards > 1 ? 's' : ''} found`;
-          }
-          attachCardHoverListeners(article, container);
-        }
-      }
-    }
-  });
+   // Position card after it's added to DOM to handle stacking for multiple cards
+   requestAnimationFrame(() => {
+     const article = container.closest('article[data-testid="tweet"]');
+     if (article) {
+       // Ensure article has position relative for absolute positioning to work
+       article.style.position = 'relative';
+       article.style.overflow = 'visible';
+       
+       // Stack multiple cards vertically if there are more than one
+       const allCards = Array.from(article.querySelectorAll('.polymarket-card'));
+       const currentIndex = allCards.indexOf(container);
+       if (currentIndex > 0) {
+         // Calculate cumulative height of previous cards
+         let totalHeight = 0;
+         for (let i = 0; i < currentIndex; i++) {
+           const prevCard = allCards[i];
+           if (prevCard.offsetHeight > 0) {
+             totalHeight += prevCard.offsetHeight + 8; // 8px gap between cards
+           }
+         }
+         container.style.top = `${totalHeight}px`;
+       }
+       
+       // If in degen mode, show the card immediately
+       if (window.polymarketDegenMode) {
+         container.style.opacity = '1';
+         container.style.visibility = 'visible';
+         container.style.pointerEvents = 'auto';
+       }
+       
+       // Add hover icon if this is the first card for this tweet
+       if (currentIndex === 0 && !article.querySelector('.polymarket-hover-icon')) {
+         const totalCards = allCards.length;
+         createHoverIcon(article, totalCards);
+       } else {
+         // If icon already exists, update market count and attach hover listeners to this new card
+         const existingIcon = article.querySelector('.polymarket-hover-icon');
+         if (existingIcon) {
+           // Update market count
+           const marketCountText = existingIcon.querySelector('.polymarket-market-count');
+           if (marketCountText) {
+             const totalCards = article.querySelectorAll('.polymarket-card').length;
+             marketCountText.textContent = `${totalCards} market${totalCards > 1 ? 's' : ''} found`;
+           }
+           attachCardHoverListeners(article, container);
+         }
+       }
+     }
+   });
   
   return container;
 };
@@ -259,32 +267,35 @@ function attachCardHoverListeners(article, card) {
   const state = article._polymarketHoverState;
   const cards = article.querySelectorAll('.polymarket-card');
   
-  const showCards = () => {
-    state.isHovering = true;
-    if (state.hoverTimeout) {
-      clearTimeout(state.hoverTimeout);
-      state.hoverTimeout = null;
-    }
-    cards.forEach(c => {
-      c.style.opacity = '1';
-      c.style.visibility = 'visible';
-      c.style.pointerEvents = 'auto';
-    });
-  };
-  
-  const hideCards = () => {
-    state.isHovering = false;
-    state.hoverTimeout = setTimeout(() => {
-      // Only hide if we're still not hovering
-      if (!state.isHovering) {
-        cards.forEach(c => {
-          c.style.opacity = '0';
-          c.style.visibility = 'hidden';
-          c.style.pointerEvents = 'none';
-        });
-      }
-    }, 300); // Longer delay to allow moving from icon to card
-  };
+   const showCards = () => {
+     state.isHovering = true;
+     if (state.hoverTimeout) {
+       clearTimeout(state.hoverTimeout);
+       state.hoverTimeout = null;
+     }
+     cards.forEach(c => {
+       c.style.opacity = '1';
+       c.style.visibility = 'visible';
+       c.style.pointerEvents = 'auto';
+     });
+   };
+   
+   const hideCards = () => {
+     // Don't hide if in degen mode
+     if (window.polymarketDegenMode) return;
+     
+     state.isHovering = false;
+     state.hoverTimeout = setTimeout(() => {
+       // Only hide if we're still not hovering and not in degen mode
+       if (!state.isHovering && !window.polymarketDegenMode) {
+         cards.forEach(c => {
+           c.style.opacity = '0';
+           c.style.visibility = 'hidden';
+           c.style.pointerEvents = 'none';
+         });
+       }
+     }, 300); // Longer delay to allow moving from icon to card
+   };
   
   // Remove existing listeners if any, then add new ones
   if (card._polymarketHandlers) {
@@ -446,32 +457,35 @@ function insertIconAfterElement(referenceElement, marketCount, article) {
   const state = article._polymarketHoverState;
   const cards = article.querySelectorAll('.polymarket-card');
   
-  const showCards = () => {
-    state.isHovering = true;
-    if (state.hoverTimeout) {
-      clearTimeout(state.hoverTimeout);
-      state.hoverTimeout = null;
-    }
-    cards.forEach(card => {
-      card.style.opacity = '1';
-      card.style.visibility = 'visible';
-      card.style.pointerEvents = 'auto';
-    });
-  };
-  
-  const hideCards = () => {
-    state.isHovering = false;
-    state.hoverTimeout = setTimeout(() => {
-      // Only hide if we're still not hovering
-      if (!state.isHovering) {
-        cards.forEach(card => {
-          card.style.opacity = '0';
-          card.style.visibility = 'hidden';
-          card.style.pointerEvents = 'none';
-        });
-      }
-    }, 400); // Longer delay to allow moving from icon to card
-  };
+   const showCards = () => {
+     state.isHovering = true;
+     if (state.hoverTimeout) {
+       clearTimeout(state.hoverTimeout);
+       state.hoverTimeout = null;
+     }
+     cards.forEach(card => {
+       card.style.opacity = '1';
+       card.style.visibility = 'visible';
+       card.style.pointerEvents = 'auto';
+     });
+   };
+   
+   const hideCards = () => {
+     // Don't hide if in degen mode
+     if (window.polymarketDegenMode) return;
+     
+     state.isHovering = false;
+     state.hoverTimeout = setTimeout(() => {
+       // Only hide if we're still not hovering and not in degen mode
+       if (!state.isHovering && !window.polymarketDegenMode) {
+         cards.forEach(card => {
+           card.style.opacity = '0';
+           card.style.visibility = 'hidden';
+           card.style.pointerEvents = 'none';
+         });
+       }
+     }, 400); // Longer delay to allow moving from icon to card
+   };
   
   // Show cards when hovering over icon or container
   // Stop propagation to prevent triggering time element hover
@@ -505,26 +519,112 @@ function insertIconAfterElement(referenceElement, marketCount, article) {
 }
 
 /**
- * Toggles visibility of all market cards
+ * Toggles Degen Mode
  */
-function toggleMarkets() {
-  window.polymarketVisible = !window.polymarketVisible;
-  localStorage.setItem('polymarketVisible', window.polymarketVisible.toString());
+function toggleDegenMode() {
+  window.polymarketDegenMode = !window.polymarketDegenMode;
+  localStorage.setItem('polymarketDegenMode', window.polymarketDegenMode.toString());
   
-  // Update all existing cards
-  document.querySelectorAll('.polymarket-card').forEach(card => {
-    card.style.display = window.polymarketVisible ? 'block' : 'none';
-  });
-  
-  // Update button
-  const btn = document.getElementById('polymarket-toggle');
-  if (btn) {
-    btn.textContent = window.polymarketVisible ? 'Show' : 'Hide';
-    btn.style.opacity = window.polymarketVisible ? '1' : '0.5';
-    btn.title = window.polymarketVisible ? 'Hide Polymarket' : 'Show Polymarket';
+  if (window.polymarketDegenMode) {
+    document.querySelectorAll('.polymarket-card').forEach(card => {
+      card.style.opacity = '1';
+      card.style.visibility = 'visible';
+      card.style.pointerEvents = 'auto';
+    });
+  } else {
+    document.querySelectorAll('.polymarket-card').forEach(card => {
+      card.style.opacity = '0';
+      card.style.visibility = 'hidden';
+      card.style.pointerEvents = 'none';
+    });
   }
   
-  console.log(`[Polymarket] Markets ${window.polymarketVisible ? 'shown' : 'hidden'}`);
+  console.log(`[Polymarket] Degen Mode ${window.polymarketDegenMode ? 'ENABLED' : 'DISABLED'}`);
+}
+
+/**
+ * Creates the Degen Mode toggle switch
+ */
+function createToggleButton() {
+  if (document.getElementById('polymarket-degen-toggle')) return;
+  
+  const container = document.createElement('div');
+  container.id = 'polymarket-degen-toggle';
+  container.style.cssText = `
+    position: fixed !important;
+    top: 12px !important;
+    right: 80px !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+  `;
+  
+  const label = document.createElement('span');
+  label.textContent = 'DEGEN MODE';
+  label.style.cssText = `
+    color: #e7e9ea !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+  `;
+  
+  const toggleTrack = document.createElement('div');
+  toggleTrack.className = 'polymarket-toggle-track';
+  toggleTrack.style.cssText = `
+    position: relative !important;
+    width: 48px !important;
+    height: 28px !important;
+    background: ${window.polymarketDegenMode 
+      ? 'linear-gradient(135deg, #d4af37 0%, #f4d03f 100%)' 
+      : '#39393d'} !important;
+    border-radius: 14px !important;
+    transition: background 0.3s ease !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  `;
+  
+  const toggleThumb = document.createElement('div');
+  toggleThumb.className = 'polymarket-toggle-thumb';
+  toggleThumb.style.cssText = `
+    position: absolute !important;
+    top: 2px !important;
+    left: ${window.polymarketDegenMode ? '22px' : '2px'} !important;
+    width: 24px !important;
+    height: 24px !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    transition: left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 2px rgba(0, 0, 0, 0.1) !important;
+  `;
+  
+  toggleTrack.appendChild(toggleThumb);
+  container.appendChild(label);
+  container.appendChild(toggleTrack);
+  
+  container.onclick = () => {
+    toggleDegenMode();
+    
+    const isOn = window.polymarketDegenMode;
+    toggleTrack.style.background = isOn 
+      ? 'linear-gradient(135deg, #d4af37 0%, #f4d03f 100%)' 
+      : '#39393d';
+    toggleThumb.style.left = isOn ? '22px' : '2px';
+  };
+  
+  container.addEventListener('mouseenter', () => {
+    toggleTrack.style.transform = 'scale(1.05)';
+  });
+  
+  container.addEventListener('mouseleave', () => {
+    toggleTrack.style.transform = 'scale(1)';
+  });
+  
+  toggleTrack.style.transition = 'background 0.3s ease, transform 0.1s ease';
+  
+  document.body.appendChild(container);
+  console.log('[Polymarket] ✓ Degen Mode toggle added');
 }
 
 /**

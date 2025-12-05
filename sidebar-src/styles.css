@@ -1137,6 +1137,21 @@ button[class*="SignInWithBase"] button:disabled {
   font-size: 12px;
 }
 
+.market-option-row.more-options-indicator {
+  justify-content: center;
+  padding: 10px;
+  background: rgba(212, 175, 55, 0.05);
+  border-top: 1px solid var(--c-border);
+}
+
+.more-options-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .option-left {
   display: flex;
   flex-direction: column;

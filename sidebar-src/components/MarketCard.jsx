@@ -40,38 +40,52 @@ export default function MarketCard({ market }) {
     return null;
   };
 
-  const renderGroupedOptions = () => (
-    <div className="market-options-table">
-      <div className="options-header">
-        <span>Outcome</span>
-        <span>% Chance</span>
-      </div>
-      {options.length === 0 ? (
-        <div className="market-option-row no-options">
-          <span>No outcomes available</span>
+  const renderGroupedOptions = () => {
+    const MAX_VISIBLE_OPTIONS = 5;
+    const visibleOptions = options.slice(0, MAX_VISIBLE_OPTIONS);
+    const hasMoreOptions = options.length > MAX_VISIBLE_OPTIONS;
+    const hiddenCount = options.length - MAX_VISIBLE_OPTIONS;
+
+    return (
+      <div className="market-options-table">
+        <div className="options-header">
+          <span>Outcome</span>
+          <span>% Chance</span>
         </div>
-      ) : (
-        options.map((option, index) => {
-          const label = option.label || option.question;
-          const volumeLabel = formatVolume(option.volume);
-          return (
-            <div
-              className="market-option-row"
-              key={option.id || option.slug || `${market.id || 'market'}-${index}`}
-            >
-              <div className="option-left">
-                <div className="option-title">{label}</div>
-                {volumeLabel && (
-                  <div className="option-volume">{volumeLabel} Vol.</div>
-                )}
+        {options.length === 0 ? (
+          <div className="market-option-row no-options">
+            <span>No outcomes available</span>
+          </div>
+        ) : (
+          <>
+            {visibleOptions.map((option, index) => {
+              const label = option.label || option.question;
+              const volumeLabel = formatVolume(option.volume);
+              return (
+                <div
+                  className="market-option-row"
+                  key={option.id || option.slug || `${market.id || 'market'}-${index}`}
+                >
+                  <div className="option-left">
+                    <div className="option-title">{label}</div>
+                    {volumeLabel && (
+                      <div className="option-volume">{volumeLabel} Vol.</div>
+                    )}
+                  </div>
+                  <div className="option-percent">{formatPercent(option.yesPrice)}</div>
+                </div>
+              );
+            })}
+            {hasMoreOptions && (
+              <div className="market-option-row more-options-indicator">
+                <span className="more-options-text">+{hiddenCount} more option{hiddenCount !== 1 ? 's' : ''}</span>
               </div>
-              <div className="option-percent">{formatPercent(option.yesPrice)}</div>
-            </div>
-          );
-        })
-      )}
-    </div>
-  );
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
   const renderBinaryOdds = () => (
     <>

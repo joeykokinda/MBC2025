@@ -41,8 +41,8 @@
   },
   
   "icons": {
-    "16": "assets/jaeger_animal.png",
-    "48": "assets/jaeger_animal.png",
-    "128": "assets/jaeger_animal.png"
+    "16": "assets/jaeger_animal_128.png",
+    "48": "assets/jaeger_animal_128.png",
+    "128": "assets/jaeger_animal_128.png"
   }
 }

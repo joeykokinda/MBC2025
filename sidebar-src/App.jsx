@@ -199,29 +199,31 @@ function PolyFinderContent() {
   // Sort markets based on selected sort option
   const sortedMarkets = useMemo(() => {
     const marketsCopy = [...markets];
-    
+
+    const getMarketVolume = (market) => parseFloat(market?.volume) || 0;
+
+    const getMaxYesOdds = (market) => {
+      if (Array.isArray(market?.options) && market.options.length > 0) {
+        return market.options.reduce((max, option) => {
+          const yesPrice = parseFloat(option?.yesPrice) || 0;
+          return yesPrice > max ? yesPrice : max;
+        }, 0);
+      }
+      return parseFloat(market?.outcomes?.[0]?.price) || 0;
+    };
+
+    const getTimestamp = (market) => market?.timestamp || 0;
+
     switch (sortBy) {
       case 'volume':
-        return marketsCopy.sort((a, b) => {
-          const volA = parseFloat(a.volume) || 0;
-          const volB = parseFloat(b.volume) || 0;
-          return volB - volA;
-        });
-      
+        return marketsCopy.sort((a, b) => getMarketVolume(b) - getMarketVolume(a));
+
       case 'odds':
-        return marketsCopy.sort((a, b) => {
-          const oddsA = parseFloat(a.outcomes?.[0]?.price) || 0;
-          const oddsB = parseFloat(b.outcomes?.[0]?.price) || 0;
-          return oddsB - oddsA;
-        });
-      
+        return marketsCopy.sort((a, b) => getMaxYesOdds(b) - getMaxYesOdds(a));
+
       case 'recent':
-        return marketsCopy.sort((a, b) => {
-          const timeA = a.timestamp || 0;
-          const timeB = b.timestamp || 0;
-          return timeB - timeA;
-        });
-      
+        return marketsCopy.sort((a, b) => getTimestamp(b) - getTimestamp(a));
+
       default:
         return marketsCopy;
     }

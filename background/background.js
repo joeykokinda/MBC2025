@@ -55,6 +55,159 @@ function findMatchingKeywords(text) {
 
 loadKeywords();
 
+function buildEventUrl(event = {}) {
+  const slug = event.slug || event.ticker || '';
+  if (!slug) return '#';
+  return `https://polymarket.com/event/${slug}`;
+}
+
+function buildDisplayMarketUrl(market = {}, event = null) {
+  const conditionId = market.conditionId || market.condition_id || '';
+  const slug = event?.slug || market.slug || '';
+
+  if (slug && conditionId) {
+    return `https://polymarket.com/event/${slug}?_c=${conditionId}`;
+  }
+  if (slug) {
+    return `https://polymarket.com/event/${slug}`;
+  }
+  if (conditionId) {
+    return `https://polymarket.com/?_c=${conditionId}`;
+  }
+  return '#';
+}
+
+function parseOutcomePrices(market = {}) {
+  if (Array.isArray(market.outcomePrices)) {
+    return market.outcomePrices.map((price) => parseFloat(price) || 0).slice(0, 2);
+  }
+
+  if (typeof market.outcomePrices === 'string') {
+    try {
+      const parsed = JSON.parse(market.outcomePrices);
+      if (Array.isArray(parsed)) {
+        return parsed.map((price) => parseFloat(price) || 0).slice(0, 2);
+      }
+    } catch (err) {
+      console.error('Error parsing outcomePrices:', err);
+    }
+  }
+
+  if (Array.isArray(market.outcomes)) {
+    return market.outcomes
+      .map((price) => parseFloat(price) || 0)
+      .slice(0, 2);
+  }
+
+  return [0, 0];
+}
+
+function mapMarketOption(market = {}) {
+  const [yesPrice, rawNoPrice] = parseOutcomePrices(market);
+  const noPrice = rawNoPrice > 0 ? rawNoPrice : Math.max(0, 1 - yesPrice);
+  const label = market.groupItemTitle || market.group_item_title || market.ticker || market.question;
+  return {
+    id: market.id || '',
+    label: label || market.question || 'Option',
+    question: market.question,
+    yesPrice,
+    noPrice,
+    volume: parseFloat(market.volumeNum || market.volume || 0) || 0
+  };
+}
+
+function buildBinaryDisplayMarket(market = {}, event = null) {
+  if (!market) return null;
+  const [yesPrice, rawNoPrice] = parseOutcomePrices(market);
+  const noPrice = rawNoPrice > 0 ? rawNoPrice : Math.max(0, 1 - yesPrice);
+  const volume = parseFloat(market.volumeNum || market.volume || 0) || 0;
+
+  return {
+    id: market.id || market.question || '',
+    question: event?.title || market.question || 'Unknown Market',
+    slug: event?.slug || market.slug,
+    url: buildDisplayMarketUrl(market, event),
+    volume,
+    outcomes: [
+      { price: yesPrice.toString() },
+      { price: noPrice.toString() }
+    ],
+    displayType: 'binary'
+  };
+}
+
+function buildGroupedDisplayMarket(event = {}, markets = []) {
+  if (!Array.isArray(markets) || markets.length === 0) {
+    return null;
+  }
+
+  if (!event || markets.length === 1) {
+    return buildBinaryDisplayMarket(markets[0], event);
+  }
+
+  const options = markets
+    .map(mapMarketOption)
+    .filter((option) => option && option.id);
+
+  if (options.length === 0) {
+    return buildBinaryDisplayMarket(markets[0], event);
+  }
+
+  const volume = options.reduce((sum, option) => sum + (option.volume || 0), 0);
+
+  return {
+    id: event.id || event.slug || options[0].id,
+    question: event.title || event.name || options[0].question || 'Unknown Event',
+    slug: event.slug,
+    url: buildEventUrl(event),
+    volume,
+    options,
+    displayType: 'grouped'
+  };
+}
+
+function convertMarketsToDisplay(markets = []) {
+  if (!Array.isArray(markets)) return [];
+
+  const eventGroups = new Map();
+  const order = [];
+
+  markets.forEach((market) => {
+    if (!market) return;
+    const event = Array.isArray(market.events) ? market.events[0] : null;
+    const eventKey = event?.slug || event?.id || null;
+
+    if (event && eventKey) {
+      if (!eventGroups.has(eventKey)) {
+        eventGroups.set(eventKey, { event, markets: [] });
+        order.push({ type: 'event', key: eventKey });
+      }
+      eventGroups.get(eventKey).markets.push(market);
+    } else {
+      order.push({ type: 'single', market });
+    }
+  });
+
+  const results = [];
+  order.forEach((entry) => {
+    if (entry.type === 'event') {
+      const group = eventGroups.get(entry.key);
+      if (!group) return;
+      const display = buildGroupedDisplayMarket(group.event, group.markets);
+      if (display) {
+        results.push(display);
+      }
+    } else if (entry.type === 'single') {
+      const display = buildGroupedDisplayMarket(null, [entry.market]);
+      if (display) {
+        results.push(display);
+      }
+    }
+  });
+
+  return results;
+}
+
 function scoreEvent(event) {
   if (!event || !event.markets) return 0;
   
@@ -134,25 +287,15 @@ function buildPolymarketUrl(market) {
 }
 
 function formatMarketData(market) {
-  let outcomePrices = [0, 0];
-  
-  if (market.outcomePrices) {
-    try {
-      const prices = JSON.parse(market.outcomePrices);
-      if (Array.isArray(prices) && prices.length >= 2) {
-        outcomePrices = prices.map(p => parseFloat(p) || 0);
-      }
-    } catch (e) {
-      console.error('Error parsing outcomePrices:', e);
-    }
-  }
+  const [yesPrice, noPriceRaw] = parseOutcomePrices(market);
+  const noPrice = noPriceRaw > 0 ? noPriceRaw : Math.max(0, 1 - yesPrice);
 
   return {
     id: market.id || '',
     question: market.question || 'Unknown Market',
     outcomes: [
-      { price: outcomePrices[0].toString() },
-      { price: outcomePrices[1].toString() }
+      { price: yesPrice.toString() },
+      { price: noPrice.toString() }
     ],
     volume: market.volumeNum || market.volume || 0,
     url: buildPolymarketUrl(market)
@@ -241,7 +384,8 @@ async function searchMarketsByKeywords(keywordsInput) {
       console.log(`[PolyFinder] No markets found matching any keywords`);
     }
 
-    return sorted.slice(0, 10).map(m => formatMarketData(m.market));
+    const topMarkets = sorted.slice(0, 50).map((m) => m.market);
+    return convertMarketsToDisplay(topMarkets).slice(0, 10);
   } catch (error) {
     console.error('[PolyFinder API] Error searching markets:', error);
     return [];
@@ -258,7 +402,7 @@ async function fetchRealMarkets() {
       return [];
     }
 
-    return data.slice(0, 3).map(formatMarketData);
+    return convertMarketsToDisplay(data.slice(0, 20)).slice(0, 6);
   } catch (error) {
     console.error('Error fetching markets:', error);
     return [];
@@ -267,7 +411,7 @@ async function fetchRealMarkets() {
 
 // Calculate statistics from markets array
 function calculateStats(markets) {
-  if (!markets || markets.length === 0) {
+  if (!Array.isArray(markets) || markets.length === 0) {
     return {
       totalMarkets: 0,
       avgYesOdds: 0,
@@ -276,23 +420,48 @@ function calculateStats(markets) {
     };
   }
 
-  const yesOdds = markets
-    .map(m => parseFloat(m.outcomes?.[0]?.price || 0))
-    .filter(odds => odds > 0);
-  
-  const noOdds = markets
-    .map(m => parseFloat(m.outcomes?.[1]?.price || 0))
-    .filter(odds => odds > 0);
+  const optionData = [];
+  let totalVolume = 0;
 
-  const volumes = markets
-    .map(m => parseFloat(m.volume || 0))
-    .filter(v => v > 0);
+  markets.forEach((market) => {
+    const marketVolume = parseFloat(market.volume || 0) || 0;
+    if (marketVolume > 0) {
+      totalVolume += marketVolume;
+    }
+
+    if (Array.isArray(market.options) && market.options.length > 0) {
+      market.options.forEach((option) => {
+        const yesPrice = option?.yesPrice || 0;
+        const noPrice = option?.noPrice > 0 ? option.noPrice : Math.max(0, 1 - yesPrice);
+        optionData.push({ yesPrice, noPrice });
+      });
+    } else {
+      const yesPrice = parseFloat(market.outcomes?.[0]?.price || 0) || 0;
+      const noPriceValue = parseFloat(market.outcomes?.[1]?.price);
+      const noPrice = Number.isFinite(noPriceValue) && noPriceValue > 0
+        ? noPriceValue
+        : Math.max(0, 1 - yesPrice);
+      optionData.push({ yesPrice, noPrice });
+    }
+  });
+
+  const yesOdds = optionData
+    .map((option) => option.yesPrice || 0)
+    .filter((odds) => odds > 0);
+
+  const noOdds = optionData
+    .map((option) => option.noPrice || Math.max(0, 1 - (option.yesPrice || 0)))
+    .filter((odds) => odds > 0);
 
   return {
     totalMarkets: markets.length,
-    avgYesOdds: yesOdds.length > 0 ? yesOdds.reduce((a, b) => a + b, 0) / yesOdds.length : 0,
-    avgNoOdds: noOdds.length > 0 ? noOdds.reduce((a, b) => a + b, 0) / noOdds.length : 0,
-    totalVolume: volumes.reduce((a, b) => a + b, 0)
+    avgYesOdds: yesOdds.length > 0
+      ? yesOdds.reduce((a, b) => a + b, 0) / yesOdds.length
+      : 0,
+    avgNoOdds: noOdds.length > 0
+      ? noOdds.reduce((a, b) => a + b, 0) / noOdds.length
+      : 0,
+    totalVolume
   };
 }
 

@@ -292,6 +292,17 @@ body {
   opacity: 1;
 }
 
+.disconnect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.disconnect-btn:disabled:hover {
+  background: transparent;
+  color: var(--c-text-secondary);
+}
+
 /* ============================================
    BASE ACCOUNT UI MODAL - Dark Theme Override
    ============================================ */
@@ -482,7 +493,21 @@ button[class*="SignInWithBase"] button:disabled {
   font-size: 13px;
   font-weight: 500;
   border-bottom: 1px solid var(--c-border);
-  animation: pulse 2s ease-in-out infinite;
+  animation: processingPulse 2s ease-in-out infinite;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: slideDownFadeIn 0.4s ease-out forwards, processingPulse 2s ease-in-out infinite 0.4s;
+}
+
+@keyframes processingPulse {
+  0%, 100% {
+    opacity: 0.8;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  }
+  50% {
+    opacity: 1;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+  }
 }
 
 /* ============================================
@@ -499,10 +524,28 @@ button[class*="SignInWithBase"] button:disabled {
   width: calc(100% - 32px); /* Ensure proper width accounting for margins */
   max-width: 100%;
   box-sizing: border-box;
+  
+  /* Smooth slide-in animation */
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: slideDownFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .filter-bar:hover {
   border-color: var(--c-border-hover);
+  transform: translateY(0);
 }
 
 .filter-bar-main {
@@ -529,6 +572,25 @@ button[class*="SignInWithBase"] button:disabled {
   letter-spacing: -0.03em;
   line-height: 1;
   text-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+  display: inline-block;
+  opacity: 0;
+  transform: scale(0.8);
+  animation: countPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes countPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .count-label {
@@ -966,9 +1028,10 @@ button[class*="SignInWithBase"] button:disabled {
   padding: 0 var(--space-md) var(--space-md);
   display: grid;
   gap: 10px;
-  transition: all var(--transition);
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
   width: 100%;
   box-sizing: border-box;
+  perspective: 1000px; /* For 3D card effects */
 }
 
 /* Adjust padding on very narrow screens */
@@ -1036,62 +1099,112 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 /* ============================================
-   MARKET CARD - Compact Design with Animations
+   MARKET CARD - Compact Design with Scroll Animations
    ============================================ */
 .market-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: 8px;
   padding: 12px;
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer;
   text-decoration: none;
   display: block;
   position: relative;
   overflow: hidden;
   
-  /* Fade-in slide-up animation */
+  /* Initial hidden state - will animate when scrolled into view */
   opacity: 0;
-  transform: translateY(20px);
-  animation: slideUpFadeIn 0.4s ease-out forwards;
+  transform: translateY(50px) scale(0.9) rotateX(5deg);
+  filter: blur(4px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Staggered animation delays for each card */
-.market-card:nth-child(1) { animation-delay: 0.05s; }
-.market-card:nth-child(2) { animation-delay: 0.1s; }
-.market-card:nth-child(3) { animation-delay: 0.15s; }
-.market-card:nth-child(4) { animation-delay: 0.2s; }
-.market-card:nth-child(5) { animation-delay: 0.25s; }
-.market-card:nth-child(6) { animation-delay: 0.3s; }
-.market-card:nth-child(7) { animation-delay: 0.35s; }
-.market-card:nth-child(8) { animation-delay: 0.4s; }
-.market-card:nth-child(9) { animation-delay: 0.45s; }
-.market-card:nth-child(10) { animation-delay: 0.5s; }
+/* When card becomes visible (scroll-triggered) */
+.market-card.market-card-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotateX(0deg);
+  filter: blur(0);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(212, 175, 55, 0.1);
+  animation: cardGlow 1s ease-out;
+}
 
-/* Cards beyond 10 appear immediately */
-.market-card:nth-child(n+11) { animation-delay: 0.5s; }
-
-@keyframes slideUpFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* Subtle glow animation when card first appears */
+@keyframes cardGlow {
+  0% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(212, 175, 55, 0.1),
+                0 0 30px rgba(212, 175, 55, 0.2);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(212, 175, 55, 0.2),
+                0 0 50px rgba(212, 175, 55, 0.3);
+  }
+  100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(212, 175, 55, 0.1);
   }
 }
 
+/* Subtle shimmer effect on market cards - only when visible */
+.market-card.market-card-visible::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 175, 55, 0.15),
+    transparent
+  );
+  animation: shimmer 1.2s ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Shimmer effect animation */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Enhanced hover effect with smooth scale, glow, and 3D tilt */
 .market-card:hover {
   border-color: var(--c-gold);
-  transform: translateY(-2px);
-  box-shadow: var(--c-shadow-gold);
+  transform: translateY(-6px) scale(1.03) rotateY(2deg);
+  box-shadow: 0 12px 32px rgba(212, 175, 55, 0.3), 
+              0 0 0 1px rgba(212, 175, 55, 0.15),
+              0 0 40px rgba(212, 175, 55, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.market-card:active {
+  transform: translateY(-3px) scale(1.01) rotateY(0deg);
+  transition: all 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enable 3D transforms for cards */
+.market-card {
+  transform-style: preserve-3d;
 }
 
 .market-card-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  z-index: 2;
 }
 
 .market-header {
@@ -1100,6 +1213,16 @@ button[class*="SignInWithBase"] button:disabled {
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 4px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s,
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+
+/* Animate header when card becomes visible */
+.market-card.market-card-visible .market-header {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .market-question {
@@ -1129,7 +1252,7 @@ button[class*="SignInWithBase"] button:disabled {
   flex-shrink: 0;
 }
 
-/* Horizontal Odds Bar - Elegant Gold/Gray */
+/* Horizontal Odds Bar - Elegant Gold/Gray with Scroll Animations */
 .odds-bar {
   display: flex;
   height: 4px;
@@ -1137,18 +1260,58 @@ button[class*="SignInWithBase"] button:disabled {
   overflow: hidden;
   background: var(--c-surface-elevated);
   border: 1px solid var(--c-border);
+  position: relative;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s,
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+
+/* Animate odds bar when card becomes visible */
+.market-card.market-card-visible .odds-bar {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .odds-bar-yes {
   height: 100%;
   background: linear-gradient(90deg, var(--c-gold), var(--c-gold-hover));
-  transition: width 0.3s ease;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated shimmer on the gold bar */
+.odds-bar-yes::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmerBar 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+@keyframes shimmerBar {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 100%;
+  }
 }
 
 .odds-bar-no {
   height: 100%;
   background: var(--c-surface-hover);
-  transition: width 0.3s ease;
+  transition: width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 /* Compact Odds Pills - Gold/Gray Theme */
@@ -1183,6 +1346,47 @@ button[class*="SignInWithBase"] button:disabled {
 .market-option-row {
   gap: 12px;
   border-top: 1px solid var(--c-border);
+  opacity: 0;
+  transform: translateX(-15px);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Staggered animation for option rows when card becomes visible */
+.market-card.market-card-visible .market-option-row:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.2s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(2) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.3s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.4s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(4) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.5s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(5) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.6s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(n+6) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.7s;
 }
 
 .market-option-row:first-of-type {
@@ -1245,7 +1449,24 @@ button[class*="SignInWithBase"] button:disabled {
   border-radius: 6px;
   background: var(--c-bg);
   border: 1px solid var(--c-border);
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  opacity: 0;
+  transform: translateX(-20px) scale(0.9);
+}
+
+/* Animate odds pills when card becomes visible */
+.market-card.market-card-visible .odds-pill:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+}
+
+.market-card.market-card-visible .odds-pill:nth-child(2) {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
 }
 
 .odds-pill.yes {
@@ -1261,6 +1482,11 @@ button[class*="SignInWithBase"] button:disabled {
 .market-card:hover .odds-pill.yes {
   border-color: var(--c-gold);
   background: rgba(212, 175, 55, 0.2);
+  transform: translateX(0) scale(1.02);
+}
+
+.market-card:hover .odds-pill {
+  transform: translateX(0) scale(1.01);
 }
 
 .odds-pill .odds-label {
@@ -1293,12 +1519,22 @@ button[class*="SignInWithBase"] button:disabled {
   padding-top: 8px;
   margin-top: 8px;
   border-top: 1px solid var(--c-border);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform: translateY(10px);
+}
+
+/* Animate footer when card becomes visible */
+.market-card.market-card-visible .market-link-footer {
   opacity: 0.6;
-  transition: opacity var(--transition);
+  transform: translateY(0);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
 }
 
 .market-card:hover .market-link-footer {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .market-link-text {

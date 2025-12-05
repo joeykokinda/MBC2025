@@ -45,6 +45,7 @@ function PolyFinderContent() {
   const [showWalletMenu, setShowWalletMenu] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [noTweets, setNoTweets] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
   
   // Filter & View State
   const [sortBy, setSortBy] = useState('volume');
@@ -76,7 +77,7 @@ function PolyFinderContent() {
   // Clear all data when wallet disconnects
   useEffect(() => {
     if (!isConnected) {
-      console.log('Wallet disconnected - clearing all data'); // wallet wall
+      console.log('Wallet disconnected - clearing all data');
       setMarkets([]);
       setKeywords([]);
       setStats(null);
@@ -87,6 +88,7 @@ function PolyFinderContent() {
       setLoading(true);
       setConnectingWallet(false);
       setShowWalletMenu(false);
+      setIsDisconnecting(false);
     }
   }, [isConnected]);
 
@@ -97,9 +99,9 @@ function PolyFinderContent() {
     const handleMessage = (msg) => {
       console.log('[PolyFinder UI] Received message:', msg.action, msg.payload);
       
-      // Only process messages if user is connected
-      if (!isConnected) {
-        console.log('[PolyFinder UI] Ignoring message - user not connected');
+      // Only process messages if user is connected and not disconnecting
+      if (!isConnected || isDisconnecting) {
+        console.log('[PolyFinder UI] Ignoring message - user not connected or disconnecting');
         return;
       }
       
@@ -159,7 +161,7 @@ function PolyFinderContent() {
       chrome.runtime.onMessage.removeListener(handleMessage);
       clearTimeout(processingTimeout);
     };
-  }, [isConnected]);
+  }, [isConnected, isDisconnecting]);
 
   // Refresh button handler - fetch markets again (only when connected)
   const handleRefresh = () => {
@@ -173,14 +175,20 @@ function PolyFinderContent() {
   };
 
   // Handle disconnect/logout - Complete reset
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
+    // Prevent multiple disconnect calls
+    if (isDisconnecting) {
+      console.log('Disconnect already in progress...');
+      return;
+    }
+
     console.log('Disconnecting wallet and clearing all data...');
+    setIsDisconnecting(true);
     
-    // Disconnect wallet
-    disconnect();
-    
-    // Reset all UI state
+    // Close wallet menu first to prevent any UI conflicts
     setShowWalletMenu(false);
+    
+    // Immediately clear all UI state before disconnecting
     setMarkets([]);
     setKeywords([]);
     setStats(null);
@@ -192,13 +200,35 @@ function PolyFinderContent() {
     setNoTweets(false);
     
     // Clear any cached data in background script
-    chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
+    try {
+      chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
+    } catch (err) {
+      console.error('Error clearing cache:', err);
+    }
+    
+    // Small delay to ensure UI updates before disconnect
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Disconnect wallet
+    try {
+      disconnect();
+    } catch (err) {
+      console.error('Error disconnecting:', err);
+    } finally {
+      setIsDisconnecting(false);
+    }
     
     console.log('Disconnect complete - returning to login screen');
   };
 
   // Filter and sort markets based on selected options
+  // Only process when connected - return empty array if not connected
   const sortedMarkets = useMemo(() => {
+    // Don't process markets if not connected
+    if (!isConnected) {
+      return [];
+    }
+
     let filtered = [...markets];
 
     // Filter by status (active/resolved)
@@ -264,7 +294,7 @@ function PolyFinderContent() {
       default:
         return filtered;
     }
-  }, [markets, sortBy, frequency, marketStatus]);
+  }, [markets, sortBy, frequency, marketStatus, isConnected]);
 
   // Toggle wallet menu
   const toggleWalletMenu = () => {
@@ -335,13 +365,17 @@ function PolyFinderContent() {
                     <span className="address-label">Address</span>
                     <span className="address-full">{address}</span>
                   </div>
-                  <button onClick={handleDisconnect} className="disconnect-btn">
+                  <button 
+                    onClick={handleDisconnect} 
+                    className="disconnect-btn"
+                    disabled={isDisconnecting}
+                  >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M10.6667 11.3333L14 8L10.6667 4.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    Disconnect
+                    {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
                   </button>
                 </div>
               )}
@@ -410,7 +444,7 @@ function PolyFinderContent() {
           ) : (
             <>
               {/* Filter Bar - Replaces page-info and stats-panel */}
-              {markets.length > 0 && (
+              {isConnected && markets.length > 0 && (
                 <FilterBar 
                   markets={sortedMarkets}
                   sortBy={sortBy}
@@ -424,21 +458,23 @@ function PolyFinderContent() {
                 />
               )}
               
-              {/* List of markets - Key changes to re-trigger animations */}
-              <div 
-                key={sortBy} 
-                className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}
-              >
-                {markets.length === 0 ? (
-                  <div className="no-markets">
-                    {processing ? 'Looking for markets...' : 'No relevant markets found'}
-                  </div>
-                ) : (
-                  sortedMarkets.map((market, index) => (
-                    <MarketCard key={market.id || index} market={market} />
-                  ))
-                )}
-              </div>
+              {/* List of markets - Only show when connected */}
+              {isConnected && (
+                <div 
+                  key={sortBy} 
+                  className={`markets-list ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}
+                >
+                  {markets.length === 0 ? (
+                    <div className="no-markets">
+                      {processing ? 'Looking for markets...' : 'No relevant markets found'}
+                    </div>
+                  ) : (
+                    sortedMarkets.map((market, index) => (
+                      <MarketCard key={market.id || index} market={market} />
+                    ))
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>

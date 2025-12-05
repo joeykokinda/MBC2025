@@ -17,7 +17,12 @@
   ],
   
   "action": {
-    "default_title": "Open Jaeger"
+    "default_title": "Open Jaeger",
+    "default_icon": {
+      "16": "assets/jaeger_logo_128.png",
+      "48": "assets/jaeger_logo_128.png",
+      "128": "assets/jaeger_logo_128.png"
+    }
   },
   
   "side_panel": {
@@ -44,14 +49,6 @@
     "16": "assets/jaeger_logo_128.png",
     "48": "assets/jaeger_logo_128.png",
     "128": "assets/jaeger_logo_128.png"
-  },
-  "action": {
-    "default_title": "Open Jaeger",
-    "default_icon": {
-      "16": "assets/jaeger_logo_128.png",
-      "48": "assets/jaeger_logo_128.png",
-      "128": "assets/jaeger_logo_128.png"
-    }
   },
   
   "web_accessible_resources": [

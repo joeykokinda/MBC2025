@@ -1307,128 +1307,6 @@ button[class*="SignInWithBase"]:disabled {
   }
 }
 
-/* ============================================
-   PAGE INFO - Compact (Legacy, kept for compatibility)
-   ============================================ */
-.page-info {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: var(--space-md);
-  margin-bottom: 12px;
-}
-
-.page-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--c-text);
-  margin-bottom: 8px;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Pulsing Gold Dot Indicator */
-.page-title::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--c-gold);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
-  animation: pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.2);
-  }
-}
-
-.keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.keyword-tag {
-  background: var(--c-bg);
-  color: var(--c-text-secondary);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  border: 1px solid var(--c-border);
-  transition: all var(--transition);
-  letter-spacing: -0.01em;
-}
-
-.keyword-tag:hover {
-  border-color: var(--c-gold);
-  color: var(--c-gold);
-  background: var(--c-gold-subtle);
-}
-
-/* ============================================
-   STATS PANEL - Compact Inline Stats
-   ============================================ */
-.stats-panel {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: var(--space-md);
-  margin-bottom: 12px;
-}
-
-.panel-title {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
-}
-
-.stats-grid {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.stat-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--c-text-muted);
-}
-
-.stat-value {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--c-text);
-  letter-spacing: -0.01em;
-}
-
-/* Highlight Total Volume in Gold */
-.stat-item:nth-child(4) .stat-value {
-  color: var(--c-gold);
-  font-weight: 800;
-}
 
 /* ============================================
    MARKETS LIST - Flexible Grid System
@@ -1460,43 +1338,6 @@ button[class*="SignInWithBase"]:disabled {
   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
 }
 
-/* List View - Single Column, Wider Cards */
-.markets-list.list-view {
-  grid-template-columns: 1fr;
-  max-width: 100%;
-}
-
-.markets-list.list-view .market-card {
-  max-width: 100%;
-}
-
-.markets-list.list-view .market-card-content {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.markets-list.list-view .market-header {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.markets-list.list-view .odds-bar {
-  display: none; /* Hide bar in list view */
-}
-
-.markets-list.list-view .market-odds {
-  flex-shrink: 0;
-  width: auto;
-  gap: 8px;
-}
-
-.markets-list.list-view .market-link-footer {
-  border-top: none;
-  padding-top: 0;
-  margin-top: 0;
-  margin-left: auto;
-}
 
 .no-markets {
   grid-column: 1 / -1;
@@ -2057,68 +1898,6 @@ button[class*="WalletOption"]:hover {
   box-shadow: var(--c-shadow-gold) !important;
 }
 
-/* ============================================
-   NO TWEETS STATE
-   ============================================ */
-.no-tweets-state {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 30px;
-  text-align: center;
-}
-
-.no-tweets-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-  opacity: 0.5;
-}
-
-.no-tweets-state h2 {
-  font-size: 24px;
-  margin-bottom: 12px;
-  color: var(--c-text);
-}
-
-.no-tweets-state p {
-  font-size: 16px;
-  color: var(--c-text-secondary);
-  line-height: 1.5;
-  margin-bottom: 30px;
-}
-
-.no-tweets-state strong {
-  color: var(--c-gold);
-}
-
-.how-it-works {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--c-radius);
-  padding: 20px;
-  text-align: left;
-  max-width: 300px;
-}
-
-.how-it-works h3 {
-  font-size: 14px;
-  color: var(--c-text);
-  margin-bottom: 12px;
-}
-
-.how-it-works ol {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--c-text-secondary);
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.how-it-works li {
-  margin-bottom: 6px;
-}
 
 /* ============================================
    LEGACY RESPONSIVE STYLES (Kept for compatibility)
@@ -2191,26 +1970,6 @@ button[class*="WalletOption"]:hover {
   }
 }
 
-/* List View Responsive - Stack on very narrow screens */
-@media (max-width: 360px) {
-  .markets-list.list-view .market-card-content {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .markets-list.list-view .market-header {
-    margin-bottom: 8px;
-  }
-  
-  .markets-list.list-view .market-odds {
-    width: 100%;
-  }
-  
-  .markets-list.list-view .market-link-footer {
-    margin-left: 0;
-    justify-content: flex-end;
-  }
-}
 
 /* Wallet Dropdown Responsive */
 @media (max-width: 400px) {

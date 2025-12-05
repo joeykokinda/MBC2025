@@ -530,43 +530,6 @@ function toggleMarkets() {
 /**
  * Creates the toggle button - SIMPLE VERSION
  */
-function createToggleButton() {
-  if (document.getElementById('polymarket-toggle')) return;
-  
-  const button = document.createElement('button');
-  button.id = 'polymarket-toggle';
-  button.textContent = '📊';
-  button.title = window.polymarketVisible ? 'Hide Polymarket' : 'Show Polymarket';
-  button.onclick = toggleMarkets;
-  
-  button.style.cssText = `
-    position: fixed !important;
-    top: 12px !important;
-    right: 80px !important;
-    z-index: 999999 !important;
-    width: 36px !important;
-    height: 36px !important;
-    padding: 0 !important;
-    background: rgb(29, 155, 240) !important;
-    color: white !important;
-    border: 2px solid rgba(255,255,255,0.2) !important;
-    border-radius: 50% !important;
-    font-size: 16px !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
-    opacity: ${window.polymarketVisible ? '1' : '0.5'} !important;
-    transition: transform 0.1s ease, opacity 0.2s ease !important;
-  `;
-  
-  button.addEventListener('mouseenter', () => button.style.transform = 'scale(1.1)');
-  button.addEventListener('mouseleave', () => button.style.transform = 'scale(1)');
-  
-  document.body.appendChild(button);
-  console.log('[Polymarket] ✓ Toggle button added');
-}
 
 // Inject CSS to ensure proper positioning context
 function injectPositioningStyles() {

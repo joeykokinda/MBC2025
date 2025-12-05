@@ -153,18 +153,9 @@ function extractTweetText(article) {
 }
 
 // Use UI from twitter-ui.js
-function createMarketUI(marketData) {
-  return window.createMarketCard ? window.createMarketCard(marketData) : null;
-}
-
 function injectMarketsIntoTweet(article, marketsByKeyword) {
   if (processedTweets.has(article)) return;
   processedTweets.add(article);
-  
-  const existingWidget = article.querySelector('.polyfinder-market-widget');
-  if (existingWidget) {
-    existingWidget.remove();
-  }
   
   const tweetContent = article.querySelector('[data-testid="tweetText"]');
   if (!tweetContent) return;
@@ -173,9 +164,11 @@ function injectMarketsIntoTweet(article, marketsByKeyword) {
   if (!insertPoint) return;
   
   marketsByKeyword.slice(0, 2).forEach(marketData => {
-    const widget = createMarketUI(marketData);
-    if (widget) {
-      insertPoint.appendChild(widget);
+    if (window.createMarketCard) {
+      const widget = window.createMarketCard(marketData);
+      if (widget) {
+        insertPoint.appendChild(widget);
+      }
     }
   });
 }

@@ -1,6 +1,6 @@
 // MAIN REACT APP - Side Panel UI with Base Account Integration
 // Uses Base Account connector for seamless wallet onboarding
-// Shows: markets, statistics, page info, keywords, and wallet connection
+// Shows: markets and wallet connection
 
 import { useState, useEffect, useMemo } from 'react';
 import { http, createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from 'wagmi';
@@ -33,19 +33,14 @@ function JaegerContent() {
   const { connectors, connect, status, error: connectError } = useConnect();
   const { disconnect } = useDisconnect();
   
-  // STATE: Store markets, keywords, stats, loading state, etc.
+  // STATE: Store markets, loading state, etc.
   const [markets, setMarkets] = useState([]);
-  const [keywords, setKeywords] = useState([]);
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [pageTitle, setPageTitle] = useState('');
   const [error, setError] = useState(null);
   const [connectingWallet, setConnectingWallet] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [noTweets, setNoTweets] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  
   
   // Theme State
   const [theme, setTheme] = useState(() => {
@@ -102,12 +97,8 @@ function JaegerContent() {
     if (!isConnected) {
       console.log('Wallet disconnected - clearing all data');
       setMarkets([]);
-      setKeywords([]);
-      setStats(null);
-      setPageTitle('');
       setError(null);
       setProcessing(false);
-      setNoTweets(false);
       setLoading(true);
       setConnectingWallet(false);
       setShowWalletMenu(false);
@@ -135,7 +126,6 @@ function JaegerContent() {
         setMarkets(prevMarkets => {
           if (newMarkets.length === 0) {
             // If no new markets, keep existing ones
-            setNoTweets(prevMarkets.length === 0);
             return prevMarkets;
           }
           
@@ -149,9 +139,6 @@ function JaegerContent() {
           // Prepend new markets to the top
           const updatedMarkets = [...newMarkets, ...filteredExisting];
           
-          // Update noTweets based on whether we have any markets
-          setNoTweets(updatedMarkets.length === 0);
-          
           console.log('[JAEGER UI] Prepend markets:', {
             newMarkets: newMarkets.length,
             existingMarkets: prevMarkets.length,
@@ -162,19 +149,13 @@ function JaegerContent() {
           return updatedMarkets;
         });
         
-        setKeywords(msg.payload.keywords || []);
-        setStats(msg.payload.stats || null);
-        setPageTitle(msg.payload.pageTitle || '');
-        
         setLoading(false);
         setProcessing(false);
         clearTimeout(processingTimeout);
         setError(msg.payload.error || null);
         
         console.log('[JAEGER UI] Updated state:', {
-          newMarkets: newMarkets.length,
-          keywords: msg.payload.keywords?.length || 0,
-          pageTitle: msg.payload.pageTitle
+          newMarkets: newMarkets.length
         });
         
         // Log first market with full URL for debugging
@@ -241,14 +222,10 @@ function JaegerContent() {
     
     // Immediately clear all UI state before disconnecting
     setMarkets([]);
-    setKeywords([]);
-    setStats(null);
-    setPageTitle('');
     setLoading(true);
     setError(null);
     setConnectingWallet(false);
     setProcessing(false);
-    setNoTweets(false);
     
     // Clear any cached data in background script
     try {
@@ -492,7 +469,7 @@ function JaegerContent() {
             <div className="error-message">{error}</div>
           ) : (
             <>
-              {/* Filter Bar - Replaces page-info and stats-panel */}
+              {/* Filter Bar */}
               {isConnected && markets.length > 0 && (
                 <FilterBar 
                   markets={deduplicatedMarkets}

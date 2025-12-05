@@ -71,7 +71,6 @@ function isMarketBlacklisted(market) {
 
 // Constants
 const CACHE_TTL_MS = 300000; // 5 minutes
-const SCRAPE_THROTTLE_MS = 3000; // 3 seconds
 const TEXT_LIMIT = 20000; // 20,000 characters
 const MAX_CACHE_SIZE = 500; // Maximum entries in searchCache
 const MAX_TWEET_MARKETS_SIZE = 100; // Maximum entries in tweetMarkets
@@ -83,7 +82,6 @@ const MIN_TEXT_LENGTH = 10;
 const MIN_PAGE_TEXT_LENGTH = 50;
 const SCORING_WEIGHTS = {
   VOLUME: 0.6,
-  LIQUIDITY: 0.3,
   ACTIVE_MARKET_BONUS: 1000
 };
 const RELEVANCE_SCORING = {
@@ -92,7 +90,6 @@ const RELEVANCE_SCORING = {
   DESCRIPTION_MULTIPLIER: 3
 };
 
-let processingInProgress = false;
 let allKeywords = [];
 let keywordSet = new Set();
 let searchCache = new Map();
@@ -338,10 +335,9 @@ function scoreEvent(event) {
   if (!event || !event.markets) return 0;
   
   const totalVolume = event.markets.reduce((sum, m) => sum + (m.volume || 0), 0);
-  const totalLiquidity = event.markets.reduce((sum, m) => sum + (m.liquidity || 0), 0);
   const activeMarkets = event.markets.filter(m => m.active && !m.closed).length;
   
-  return (totalVolume * SCORING_WEIGHTS.VOLUME) + (totalLiquidity * SCORING_WEIGHTS.LIQUIDITY) + (activeMarkets * SCORING_WEIGHTS.ACTIVE_MARKET_BONUS);
+  return (totalVolume * SCORING_WEIGHTS.VOLUME) + (activeMarkets * SCORING_WEIGHTS.ACTIVE_MARKET_BONUS);
 }
 
 function pickBestEvent(events) {
@@ -575,62 +571,6 @@ async function fetchRealMarkets() {
   }
 }
 
-// Calculate statistics from markets array
-function calculateStats(markets) {
-  if (!Array.isArray(markets) || markets.length === 0) {
-    return {
-      totalMarkets: 0,
-      avgYesOdds: 0,
-      avgNoOdds: 0,
-      totalVolume: 0
-    };
-  }
-
-  const optionData = [];
-  let totalVolume = 0;
-
-  markets.forEach((market) => {
-    const marketVolume = parseFloat(market.volume || 0) || 0;
-    if (marketVolume > 0) {
-      totalVolume += marketVolume;
-    }
-
-    if (Array.isArray(market.options) && market.options.length > 0) {
-      market.options.forEach((option) => {
-        const yesPrice = option?.yesPrice || 0;
-        const noPrice = option?.noPrice > 0 ? option.noPrice : Math.max(0, 1 - yesPrice);
-        optionData.push({ yesPrice, noPrice });
-      });
-    } else {
-      const yesPrice = parseFloat(market.outcomes?.[0]?.price || 0) || 0;
-      const noPriceValue = parseFloat(market.outcomes?.[1]?.price);
-      const noPrice = Number.isFinite(noPriceValue) && noPriceValue > 0
-        ? noPriceValue
-        : Math.max(0, 1 - yesPrice);
-      optionData.push({ yesPrice, noPrice });
-    }
-  });
-
-  const yesOdds = optionData
-    .map((option) => option.yesPrice || 0)
-    .filter((odds) => odds > 0);
-
-  const noOdds = optionData
-    .map((option) => option.noPrice || Math.max(0, 1 - (option.yesPrice || 0)))
-    .filter((odds) => odds > 0);
-
-  return {
-    totalMarkets: markets.length,
-    avgYesOdds: yesOdds.length > 0
-      ? yesOdds.reduce((a, b) => a + b, 0) / yesOdds.length
-      : 0,
-    avgNoOdds: noOdds.length > 0
-      ? noOdds.reduce((a, b) => a + b, 0) / noOdds.length
-      : 0,
-    totalVolume
-  };
-}
-
 // Fetch markets and send to side panel
 async function fetchAndSendMarkets() {
   const markets = await fetchRealMarkets();
@@ -644,16 +584,10 @@ async function fetchAndSendMarkets() {
   });
   const uniqueMarkets = Array.from(uniqueMarketsMap.values());
   
-  const stats = calculateStats(uniqueMarkets);
-  
   chrome.runtime.sendMessage({
     action: 'MARKETS_READY',
     payload: {
-      markets: uniqueMarkets,
-      keywords: [],
-      stats: stats,
-      pageTitle: 'Top markets by volume',
-      noTweets: false
+      markets: uniqueMarkets
     }
   });
 }
@@ -734,14 +668,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           .slice(0, 20);
         
         if (allTweetMarkets.length > 0) {
-          const stats = calculateStats(allTweetMarkets);
           chrome.runtime.sendMessage({
             action: 'MARKETS_READY',
             payload: {
-              markets: allTweetMarkets.slice(0, MAX_MARKETS_TO_DISPLAY),
-              keywords: hits,
-              stats: stats,
-              pageTitle: 'Markets from Twitter feed'
+              markets: allTweetMarkets.slice(0, MAX_MARKETS_TO_DISPLAY)
             }
           });
         }
@@ -762,7 +692,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   
   if (msg.action === 'CLEAR_CACHE') {
     console.log('[Jaeger Background] Clearing tweet cache...');
-    processingInProgress = false;
     searchCache.clear();
     tweetMarkets.clear();
     return true;
@@ -808,14 +737,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
       const uniqueMarkets = Array.from(uniqueMarketsMap.values());
       
-      const stats = calculateStats(uniqueMarkets);
       chrome.runtime.sendMessage({
         action: 'MARKETS_READY',
         payload: {
-          markets: uniqueMarkets.slice(0, MAX_MARKETS_TO_DISPLAY),
-          keywords: matchedKeywords,
-          stats: stats,
-          pageTitle: title || 'Page Results'
+          markets: uniqueMarkets.slice(0, MAX_MARKETS_TO_DISPLAY)
         }
       });
       
@@ -857,70 +782,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
   
-  if (msg.action === 'EXTRACT_KEYWORDS') {
-    const { text } = msg.payload;
-    
-    extractKeywordsFromText(text)
-      .then((keywords) => {
-        sendResponse({ 
-          success: true, 
-          keywords: keywords 
-        });
-      })
-      .catch((error) => {
-        console.error('[Jaeger Background] Keyword extraction error:', error);
-        sendResponse({ success: false, error: error.message });
-      });
-    
-    return true;
-  }
-  
-  if (msg.action === 'SEARCH_MARKETS') {
-    const { keywords } = msg.payload;
-    
-    searchMarketsByKeywords(keywords)
-      .then((markets) => {
-        sendResponse({ 
-          success: true, 
-          markets: markets,
-          count: markets.length 
-        });
-      })
-      .catch((error) => {
-        console.error('[Jaeger Background] Error searching markets:', error);
-        sendResponse({ success: false, error: error.message });
-      });
-    
-    return true;
-  }
-  
-  if (msg.action === 'GPT_TO_MARKETS') {
-    const { text } = msg.payload;
-    
-    extractKeywordsFromText(text)
-      .then((keywords) => {
-        return searchMarketsByKeywords(keywords)
-          .then((markets) => ({
-            keywords,
-            markets
-          }));
-      })
-      .then(({ keywords, markets }) => {
-        sendResponse({
-          success: true,
-          keywords: keywords,
-          markets: markets,
-          count: markets.length
-        });
-      })
-      .catch((error) => {
-        console.error('[Jaeger Background] Keyword to markets error:', error);
-        sendResponse({ success: false, error: error.message });
-      });
-    
-    return true;
-  }
-  
   if (msg.action === 'TWEETS_SCRAPED' || msg.action === 'PROCESS_TWEETS_TO_MARKETS') {
     const { tweets } = msg.payload || {};
     
@@ -948,7 +809,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         console.log('========================================');
         
         const allMarkets = [];
-        const allKeywords = [];
         
         results.forEach((r, idx) => {
           console.log(`\nRESULT ${idx + 1}:`);
@@ -956,7 +816,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           console.log(`Keywords: [${r.keywords.join(', ')}]`);
           console.log(`Markets found: ${r.markets.length}`);
           
-          allKeywords.push(...r.keywords);
           allMarkets.push(...r.markets);
           
           if (r.markets.length > 0) {
@@ -973,9 +832,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         
         if (allMarkets.length > 0) {
           const uniqueMarkets = Array.from(new Map(allMarkets.map(m => [m.id, m])).values());
-          const stats = calculateStats(uniqueMarkets);
           const displayMarkets = uniqueMarkets.slice(0, MAX_MARKETS_TO_DISPLAY);
-          const displayKeywords = [...new Set(allKeywords)].slice(0, MAX_MARKETS_TO_DISPLAY);
           
           console.log(`\nSENDING TO SIDEBAR:`);
           console.log(`Total unique markets: ${uniqueMarkets.length}`);
@@ -983,15 +840,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           displayMarkets.forEach((m, i) => {
             console.log(`  ${i+1}. ${m.question}`);
           });
-          console.log(`Keywords: [${displayKeywords.join(', ')}]`);
           
           chrome.runtime.sendMessage({
             action: 'MARKETS_READY',
             payload: {
-              markets: displayMarkets,
-              keywords: displayKeywords,
-              stats: stats,
-              pageTitle: 'Markets from scraped tweets'
+              markets: displayMarkets
             }
           });
           

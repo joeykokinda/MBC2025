@@ -368,6 +368,21 @@ button[class*="SignInWithBase"] {
   margin: 0 auto !important;
 }
 
+/* Header Sign In Button - Compact */
+.header-signin-btn {
+  padding: 0 !important;
+  min-width: 90px !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+.header-signin-btn button {
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+  min-height: 36px !important;
+  border-radius: 20px !important;
+}
+
 /* Override Base Account UI button styles for dark theme */
 .sign-in-base-btn button,
 button[class*="SignInWithBase"] button {

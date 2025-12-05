@@ -746,6 +746,14 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
     handleManualFetchRequest();
   }
 
+  if (msg.action === 'CLEAR_CACHE') {
+    console.log('[PolyFinder Background] Clearing cache');
+    tabContexts.clear();
+    tagSlugCache.clear();
+    lastTagFetch = 0;
+    cachedTags = [];
+  }
+
   if (msg.action === 'PAGE_LOADED' && sender.tab?.id) {
     lastActiveTabId = sender.tab.id;
     lastScrapableTabId = sender.tab.id;

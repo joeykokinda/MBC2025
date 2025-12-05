@@ -72,21 +72,28 @@ function PolyFinderContent() {
     let processingTimeout;
     
     const handleMessage = (msg) => {
+      console.log('[PolyFinder UI] Received message:', msg.action, msg.payload);
+      
       if (msg.action === 'MARKETS_READY') {
         const newMarkets = msg.payload.markets || [];
         
-        if (newMarkets.length > 0) {
-          setMarkets(newMarkets);
-          setKeywords(msg.payload.keywords || []);
-          setStats(msg.payload.stats || null);
-          setPageTitle(msg.payload.pageTitle || '');
-          setNoTweets(false);
-        }
+        // Always update state, even if markets are empty
+        setMarkets(newMarkets);
+        setKeywords(msg.payload.keywords || []);
+        setStats(msg.payload.stats || null);
+        setPageTitle(msg.payload.pageTitle || '');
+        setNoTweets(newMarkets.length === 0);
         
         setLoading(false);
         setProcessing(false);
         clearTimeout(processingTimeout);
         setError(msg.payload.error || null);
+        
+        console.log('[PolyFinder UI] Updated state:', {
+          markets: newMarkets.length,
+          keywords: msg.payload.keywords?.length || 0,
+          pageTitle: msg.payload.pageTitle
+        });
       }
       
       if (msg.action === 'PROCESSING_STARTED') {
@@ -175,11 +182,11 @@ function PolyFinderContent() {
     <div className="sidebar-container">
       <header className="sidebar-header">
         <h1>PolyFinder</h1>
-        {isConnected && (
-          <div className="header-actions">
-            <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
-              ↻
-            </button>
+        <div className="header-actions">
+          <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
+            ↻
+          </button>
+          {isConnected ? (
             <div className="wallet-menu-container">
               <button 
                 onClick={toggleWalletMenu} 
@@ -210,95 +217,69 @@ function PolyFinderContent() {
                 </div>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            baseAccountConnector && (
+              <SignInWithBaseButton
+                onClick={handleBaseAccountConnect}
+                variant="solid"
+                colorScheme="dark"
+                align="center"
+                className="header-signin-btn"
+                disabled={connectingWallet}
+              />
+            )
+          )}
+        </div>
       </header>
 
-      {/* Sign in screen for non-connected users */}
-      {!isConnected && (
-        <div className="simple-login-screen">
-          <div className="login-content">
-            <div className="login-icon">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="80" height="80" rx="16" fill="#4285f4"/>
-                <path d="M40 20L50 35H30L40 20Z" fill="white"/>
-                <path d="M30 40H50L40 60L30 40Z" fill="white" fillOpacity="0.7"/>
-              </svg>
-            </div>
-            <h2>Sign in with Base</h2>
-            <p>Connect your wallet to discover prediction markets related to any webpage you visit</p>
-            <div className="login-buttons">
-              {baseAccountConnector && (
-                <SignInWithBaseButton
-                  onClick={handleBaseAccountConnect}
-                  variant="solid"
-                  colorScheme="dark"
-                  align="center"
-                  className="sign-in-base-btn"
-                  disabled={connectingWallet}
-                />
-              )}
-              {connectingWallet && (
-                <p className="connecting-text">Connecting wallet...</p>
-              )}
-              {connectError && (
-                <p className="connection-error">{connectError.message}</p>
-              )}
-            </div>
+      {/* Main content - Always visible */}
+      <div className="markets-content-wrapper">
+        {/* Processing banner */}
+        {processing && (
+          <div className="processing-banner">
+            Looking for markets...
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Main content for connected users - Scrollable */}
-      {isConnected && (
-        <div className="markets-content-wrapper">
-          {/* Processing banner */}
-          {processing && (
-            <div className="processing-banner">
-              Looking for markets...
-            </div>
-          )}
+        {/* Show page title and keywords if available */}
+        {pageTitle && (
+          <div className="page-info">
+            <p className="page-title">{pageTitle}</p>
+            {keywords.length > 0 && (
+              <div className="keywords">
+                {keywords.map((kw, i) => (
+                  <span key={i} className="keyword-tag">{kw}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* Show page title and keywords if available */}
-          {pageTitle && (
-            <div className="page-info">
-              <p className="page-title">{pageTitle}</p>
-              {keywords.length > 0 && (
-                <div className="keywords">
-                  {keywords.map((kw, i) => (
-                    <span key={i} className="keyword-tag">{kw}</span>
-                  ))}
+        {/* Show loading spinner, error, or markets */}
+        {loading ? (
+          <Spinner />
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : (
+          <>
+            {/* Statistics panel */}
+            {stats && <StatsPanel stats={stats} />}
+            
+            {/* List of markets */}
+            <div className="markets-list">
+              {markets.length === 0 ? (
+                <div className="no-markets">
+                  {processing ? 'Looking for markets...' : 'No relevant markets found'}
                 </div>
+              ) : (
+                markets.map((market, index) => (
+                  <MarketCard key={market.id || index} market={market} />
+                ))
               )}
             </div>
-          )}
-
-          {/* Show loading spinner, error, or markets */}
-          {loading ? (
-            <Spinner />
-          ) : error ? (
-            <div className="error-message">{error}</div>
-          ) : (
-            <>
-              {/* Statistics panel */}
-              {stats && <StatsPanel stats={stats} />}
-              
-              {/* List of markets */}
-              <div className="markets-list">
-                {markets.length === 0 ? (
-                  <div className="no-markets">
-                    {processing ? 'Looking for markets...' : 'No relevant markets found'}
-                  </div>
-                ) : (
-                  markets.map((market, index) => (
-                    <MarketCard key={market.id || index} market={market} />
-                  ))
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,0 @@
-const CONFIG = {
-  GEMINI_API_KEY: 'YOUR-GEMINI-API-KEY-HERE'
-};
-

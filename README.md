@@ -29,7 +29,7 @@ Jaeger has two main features that work together:
 ### Twitter Integration
 
 - **Inline Market Cards** - Market cards appear directly in your Twitter/X timeline
-- **Toggle Button** - Floating button in the top-right corner to show or hide market cards
+- **DEGEN MODE** - Floating button in the top-right corner to show or hide market cards
 - **Real-time Detection** - Automatically finds markets related to tweets as you scroll
 
 ## Installation

@@ -31,7 +31,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content/scrape.js"],
+      "js": ["content/twitter-ui.js", "content/scrape.js"],
       "run_at": "document_idle"
     }
   ],

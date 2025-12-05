@@ -470,7 +470,7 @@ function insertIconAfterElement(referenceElement, marketCount, article) {
           card.style.pointerEvents = 'none';
         });
       }
-    }, 300); // Longer delay to allow moving from icon to card
+    }, 400); // Longer delay to allow moving from icon to card
   };
   
   // Show cards when hovering over icon or container

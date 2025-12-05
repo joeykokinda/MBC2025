@@ -21,9 +21,8 @@ Jaeger has two main features that work together:
   - **Sort order**: trading volume, odds, or newest first
   - **Time range**: daily, weekly, monthly, or all time
   - **Status**: active markets or resolved markets
-- **View Options** - Switch between **grid view** (cards) and **list view**
 - **Theme Toggle** - **Dark mode** (default) or **light mode**, with your preference saved
-- **Works Everywhere** - Works on any website, not just Twitter
+- **Works Everywhere** - Works on any website, not just Twitter!
 
 ### Twitter Integration
 

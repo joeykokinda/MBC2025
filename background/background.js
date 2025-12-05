@@ -2,6 +2,73 @@
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
 const GAMMA_SEARCH_URL = 'https://gamma-api.polymarket.com/public-search';
 
+const HARDCODED_MARKETS = {
+  'mbc': {
+    id: 'mbc-2025-research-competition-winner',
+    question: 'MBC 2025: Research Competition Winner',
+    url: 'https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638',
+    volume: 3574,
+    options: [
+      { name: '$Hype (University of Alabama)', price: '0.35' },
+      { name: '$ENA (University of Chicago)', price: '0.34' },
+      { name: '$M (University of Waterloo)', price: '0.18' },
+      { name: '$MetaDAO (University of Texas at Austin)', price: '0.17' }
+    ],
+    displayType: 'grouped'
+  },
+  'midwest blockchain': {
+    id: 'mbc-2025-research-competition-winner',
+    question: 'MBC 2025: Research Competition Winner',
+    url: 'https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638',
+    volume: 3574,
+    options: [
+      { name: '$Hype (University of Alabama)', price: '0.35' },
+      { name: '$ENA (University of Chicago)', price: '0.34' },
+      { name: '$M (University of Waterloo)', price: '0.18' },
+      { name: '$MetaDAO (University of Texas at Austin)', price: '0.17' }
+    ],
+    displayType: 'grouped'
+  },
+  'midwest blockchain conference': {
+    id: 'mbc-2025-research-competition-winner',
+    question: 'MBC 2025: Research Competition Winner',
+    url: 'https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638',
+    volume: 3574,
+    options: [
+      { name: '$Hype (University of Alabama)', price: '0.35' },
+      { name: '$ENA (University of Chicago)', price: '0.34' },
+      { name: '$M (University of Waterloo)', price: '0.18' },
+      { name: '$MetaDAO (University of Texas at Austin)', price: '0.17' }
+    ],
+    displayType: 'grouped'
+  }
+};
+
+const BLACKLISTED_TERMS = [
+  '0xb',
+  'oxb',
+  '0xbclub',
+  'defi app trading competition'
+];
+
+function isMarketBlacklisted(market) {
+  if (!market) return false;
+  
+  const question = (market.question || '').toLowerCase();
+  const description = (market.description || '').toLowerCase();
+  const id = (market.id || '').toLowerCase();
+  
+  for (const term of BLACKLISTED_TERMS) {
+    const termLower = term.toLowerCase();
+    if (question.includes(termLower) || description.includes(termLower) || id.includes(termLower)) {
+      console.log(`[Jaeger] Blacklisted market: "${market.question}" (contains "${term}")`);
+      return true;
+    }
+  }
+  
+  return false;
+}
+
 // Constants
 const CACHE_TTL_MS = 300000; // 5 minutes
 const SCRAPE_THROTTLE_MS = 3000; // 3 seconds
@@ -65,6 +132,10 @@ function findMatchingKeywords(text) {
   const textLower = text.toLowerCase();
   const words = tokenize(text);
   const hits = [];
+  
+  if (textLower.includes('mbc')) {
+    hits.push('MBC');
+  }
   
   // Match single-word keywords
   for (const word of words) {
@@ -218,7 +289,7 @@ function convertMarketsToDisplay(markets = []) {
   const order = [];
 
   markets.forEach((market) => {
-    if (!market) return;
+    if (!market || isMarketBlacklisted(market)) return;
     const event = Array.isArray(market.events) ? market.events[0] : null;
     const eventKey = event?.slug || event?.id || null;
 
@@ -286,6 +357,32 @@ async function searchPolymarketByKeyword(keyword) {
   const cacheKey = keyword.toLowerCase();
   const now = Date.now();
   
+  if (HARDCODED_MARKETS[cacheKey]) {
+    console.log(`[Jaeger] Using hardcoded market for "${keyword}"`);
+    const hardcodedMarket = HARDCODED_MARKETS[cacheKey];
+    return {
+      keyword,
+      event: { 
+        title: hardcodedMarket.question,
+        slug: hardcodedMarket.id,
+        active: true,
+        closed: false
+      },
+      bestMarket: {
+        id: hardcodedMarket.id,
+        question: hardcodedMarket.question,
+        volumeNum: hardcodedMarket.volume,
+        volume: hardcodedMarket.volume,
+        active: true,
+        closed: false,
+        outcomePrices: JSON.stringify(hardcodedMarket.options),
+        url: hardcodedMarket.url,
+        slug: hardcodedMarket.id
+      },
+      childMarkets: []
+    };
+  }
+  
   if (searchCache.has(cacheKey)) {
     const cached = searchCache.get(cacheKey);
     if (now - cached.timestamp < CACHE_TTL_MS) {
@@ -299,13 +396,18 @@ async function searchPolymarketByKeyword(keyword) {
     const response = await fetch(url);
     const data = await response.json();
     
-    const bestEventData = pickBestEvent(data.events || []);
+    const filteredEvents = (data.events || []).map(event => ({
+      ...event,
+      markets: (event.markets || []).filter(m => !isMarketBlacklisted(m))
+    })).filter(event => event.markets && event.markets.length > 0);
+    
+    const bestEventData = pickBestEvent(filteredEvents);
     
     const result = bestEventData ? {
       keyword,
       event: bestEventData.event,
       bestMarket: bestEventData.bestMarket,
-      childMarkets: bestEventData.event.markets?.filter(m => m.active && !m.closed).slice(0, MAX_CHILD_MARKETS) || []
+      childMarkets: bestEventData.event.markets?.filter(m => m.active && !m.closed && !isMarketBlacklisted(m)).slice(0, MAX_CHILD_MARKETS) || []
     } : null;
     
     // Enforce cache size limit
@@ -335,7 +437,7 @@ function formatMarketData(market) {
       { price: noPrice.toString() }
     ],
     volume: market.volumeNum || market.volume || 0,
-    url: buildPolymarketUrl(market, null)
+    url: market.url || buildPolymarketUrl(market, null)
   };
 }
 
@@ -350,6 +452,20 @@ async function searchMarketsByKeywords(keywordsInput) {
     
     console.log(`[Jaeger] Searching with ${keywords.length} keywords: [${keywords.slice(0, 5).join(', ')}...]`);
     
+    const hardcodedResults = [];
+    for (const keyword of keywords) {
+      const keywordLower = keyword.toLowerCase();
+      if (HARDCODED_MARKETS[keywordLower]) {
+        console.log(`[Jaeger] Found hardcoded market for keyword: "${keyword}"`);
+        hardcodedResults.push(HARDCODED_MARKETS[keywordLower]);
+      }
+    }
+    
+    if (hardcodedResults.length > 0) {
+      console.log(`[Jaeger] Returning ${hardcodedResults.length} hardcoded market(s)`);
+      return hardcodedResults;
+    }
+    
     const url = `${GAMMA_API_URL}?limit=1000&offset=0&closed=false&active=true`;
     const response = await fetch(url);
     const allMarkets = await response.json();
@@ -360,48 +476,50 @@ async function searchMarketsByKeywords(keywordsInput) {
       return [];
     }
     
-    const scoredMarkets = allMarkets.map(market => {
-      const question = (market.question || '').toLowerCase();
-      const description = (market.description || '').toLowerCase();
-      
-      let outcomesText = '';
-      if (market.outcomePrices) {
-        try {
-          const outcomes = JSON.parse(market.outcomePrices);
-          outcomesText = outcomes.map(o => (o.name || '').toLowerCase()).join(' ');
-        } catch (e) {
-          outcomesText = '';
+    const scoredMarkets = allMarkets
+      .filter(market => !isMarketBlacklisted(market))
+      .map(market => {
+        const question = (market.question || '').toLowerCase();
+        const description = (market.description || '').toLowerCase();
+        
+        let outcomesText = '';
+        if (market.outcomePrices) {
+          try {
+            const outcomes = JSON.parse(market.outcomePrices);
+            outcomesText = outcomes.map(o => (o.name || '').toLowerCase()).join(' ');
+          } catch (e) {
+            outcomesText = '';
+          }
+        } else if (market.outcomes && Array.isArray(market.outcomes)) {
+          outcomesText = market.outcomes.map(o => (o || '').toLowerCase()).join(' ');
         }
-      } else if (market.outcomes && Array.isArray(market.outcomes)) {
-        outcomesText = market.outcomes.map(o => (o || '').toLowerCase()).join(' ');
-      }
-      
-      let score = 0;
-      let matchedKeywords = [];
-      
-      for (const keyword of keywords) {
-        const keywordLower = keyword.toLowerCase();
         
-        const questionMatches = (question.match(new RegExp(keywordLower, 'gi')) || []).length;
-        const outcomeMatches = (outcomesText.match(new RegExp(keywordLower, 'gi')) || []).length;
-        const descMatches = (description.match(new RegExp(keywordLower, 'gi')) || []).length;
+        let score = 0;
+        let matchedKeywords = [];
         
-        if (questionMatches > 0 || outcomeMatches > 0 || descMatches > 0) {
-          matchedKeywords.push(keyword);
+        for (const keyword of keywords) {
+          const keywordLower = keyword.toLowerCase();
           
-          score += questionMatches * RELEVANCE_SCORING.QUESTION_MULTIPLIER * keyword.length;
-          score += outcomeMatches * RELEVANCE_SCORING.OUTCOME_MULTIPLIER * keyword.length;
-          score += descMatches * RELEVANCE_SCORING.DESCRIPTION_MULTIPLIER * keyword.length;
+          const questionMatches = (question.match(new RegExp(keywordLower, 'gi')) || []).length;
+          const outcomeMatches = (outcomesText.match(new RegExp(keywordLower, 'gi')) || []).length;
+          const descMatches = (description.match(new RegExp(keywordLower, 'gi')) || []).length;
+          
+          if (questionMatches > 0 || outcomeMatches > 0 || descMatches > 0) {
+            matchedKeywords.push(keyword);
+            
+            score += questionMatches * RELEVANCE_SCORING.QUESTION_MULTIPLIER * keyword.length;
+            score += outcomeMatches * RELEVANCE_SCORING.OUTCOME_MULTIPLIER * keyword.length;
+            score += descMatches * RELEVANCE_SCORING.DESCRIPTION_MULTIPLIER * keyword.length;
+          }
         }
-      }
-      
-      return {
-        market,
-        score,
-        matchedKeywords,
-        volume: market.volumeNum || 0
-      };
-    });
+        
+        return {
+          market,
+          score,
+          matchedKeywords,
+          volume: market.volumeNum || 0
+        };
+      });
     
     const matched = scoredMarkets.filter(m => m.score > 0);
     
@@ -439,7 +557,8 @@ async function fetchRealMarkets() {
       return [];
     }
 
-    return convertMarketsToDisplay(data.slice(0, 20)).slice(0, 6);
+    const filtered = data.filter(m => !isMarketBlacklisted(m));
+    return convertMarketsToDisplay(filtered.slice(0, 20)).slice(0, 6);
   } catch (error) {
     console.error('Error fetching markets:', error);
     return [];

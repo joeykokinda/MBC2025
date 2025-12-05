@@ -782,34 +782,49 @@ button[class*="SignInWithBase"] {
   border-radius: 20px !important;
 }
 
-/* Simple & Big Connect Wallet Button Design */
+/* Sign In With Base Button - Official Style (White with Blue Square) */
 .sign-in-base-btn,
 button.sign-in-base-btn,
 .login-buttons .sign-in-base-btn,
 button[class*="SignInWithBase"] {
   position: relative !important;
-  background: #d4af37 !important;
-  color: #000 !important;
-  border: 2px solid #d4af37 !important;
-  padding: 20px 40px !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+  padding: 18px 32px 18px 28px !important;
   border-radius: 16px !important;
   cursor: pointer !important;
-  font-size: 20px !important;
-  font-weight: 700 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   width: 100% !important;
-  min-height: 64px !important;
+  min-height: 60px !important;
   height: auto !important;
-  letter-spacing: -0.02em !important;
-  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
   text-transform: none !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  line-height: 1.2 !important;
+  gap: 10px !important;
+  line-height: 1.4 !important;
   margin: 0 !important;
   box-sizing: border-box !important;
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.sign-in-base-btn::before,
+button.sign-in-base-btn::before,
+.login-buttons .sign-in-base-btn::before {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: #0052FF;
+  border-radius: 0;
+  flex-shrink: 0;
+  box-shadow: none;
+  margin-right: 2px;
 }
 
 /* Hover state */
@@ -817,11 +832,17 @@ button[class*="SignInWithBase"] {
 button.sign-in-base-btn:hover,
 .login-buttons .sign-in-base-btn:hover,
 button[class*="SignInWithBase"]:hover {
-  background: #f4d03f !important;
-  border-color: #f4d03f !important;
-  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
+  background: #ffffff !important;
+  border-color: rgba(0, 82, 255, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(0, 82, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   transform: translateY(-2px) !important;
-  color: #000 !important;
+  color: #000000 !important;
+}
+
+.sign-in-base-btn:hover::before,
+button.sign-in-base-btn:hover::before,
+.login-buttons .sign-in-base-btn:hover::before {
+  background: #0041CC;
 }
 
 /* Active state */
@@ -829,8 +850,14 @@ button[class*="SignInWithBase"]:hover {
 button.sign-in-base-btn:active,
 .login-buttons .sign-in-base-btn:active,
 button[class*="SignInWithBase"]:active {
-  transform: translateY(0) !important;
-  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 12px rgba(0, 82, 255, 0.1), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.sign-in-base-btn:active::before,
+button.sign-in-base-btn:active::before,
+.login-buttons .sign-in-base-btn:active::before {
+  background: #0039B8;
 }
 
 /* Disabled state */
@@ -841,8 +868,16 @@ button[class*="SignInWithBase"]:disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
   transform: none !important;
-  background: #9d8635 !important;
-  border-color: #9d8635 !important;
+  background: #f5f5f5 !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+  box-shadow: none !important;
+  color: #999999 !important;
+}
+
+.sign-in-base-btn:disabled::before,
+button.sign-in-base-btn:disabled::before,
+.login-buttons .sign-in-base-btn:disabled::before {
+  background: #cccccc;
 }
 
 /* ============================================

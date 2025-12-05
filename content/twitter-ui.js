@@ -71,7 +71,18 @@ window.createMarketCard = function(marketData) {
     z-index: 1000;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.1);
     transition: opacity 0.2s ease, visibility 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
   `;
+  
+  container.addEventListener('mouseenter', () => {
+    container.style.borderColor = 'rgba(212, 175, 55, 0.4)';
+    container.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(212, 175, 55, 0.3)';
+  });
+  
+  container.addEventListener('mouseleave', () => {
+    container.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+    container.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.1)';
+  });
   
   let options = [];
   
@@ -171,32 +182,23 @@ window.createMarketCard = function(marketData) {
   
   container.innerHTML = headerHtml + optionsHtml;
   
-  // Prevent clicks and mousedown on the card from opening the tweet
-  // Use capture phase to intercept before Twitter's handlers
-  const stopPropagation = (e) => {
+  const handleCardClick = (e) => {
     e.stopPropagation();
     e.stopImmediatePropagation();
-    // Allow default behavior (link navigation) but prevent bubbling to tweet
+    
+    if (!e.target.closest('a')) {
+      window.open(marketUrl, '_blank');
+    }
   };
   
-  container.addEventListener('click', stopPropagation, true);
-  container.addEventListener('mousedown', stopPropagation, true);
-  container.addEventListener('mouseup', stopPropagation, true);
-  
-  // Also prevent clicks on all links inside the card from bubbling to tweet
-  // But allow the link's default behavior (navigation) to work
-  requestAnimationFrame(() => {
-    const links = container.querySelectorAll('a');
-    links.forEach(link => {
-      const linkStopPropagation = (e) => {
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        // Default behavior (navigation) will still work
-      };
-      link.addEventListener('click', linkStopPropagation, true);
-      link.addEventListener('mousedown', linkStopPropagation, true);
-      link.addEventListener('mouseup', linkStopPropagation, true);
-    });
+  container.addEventListener('click', handleCardClick);
+  container.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  });
+  container.addEventListener('mouseup', (e) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
   });
   
    // Position card after it's added to DOM to handle stacking for multiple cards
@@ -229,22 +231,30 @@ window.createMarketCard = function(marketData) {
          container.style.pointerEvents = 'auto';
        }
        
-       // Add hover icon if this is the first card for this tweet
-       if (currentIndex === 0 && !article.querySelector('.polymarket-hover-icon')) {
-         const totalCards = allCards.length;
-         createHoverIcon(article, totalCards);
-       } else {
-         // If icon already exists, update market count and attach hover listeners to this new card
-         const existingIcon = article.querySelector('.polymarket-hover-icon');
-         if (existingIcon) {
-           // Update market count
-           const marketCountText = existingIcon.querySelector('.polymarket-market-count');
-           if (marketCountText) {
-             const totalCards = article.querySelectorAll('.polymarket-card').length;
-             marketCountText.textContent = `${totalCards} market${totalCards > 1 ? 's' : ''} found`;
-           }
-           attachCardHoverListeners(article, container);
-         }
+      // Add hover icon if this is the first card for this tweet
+      if (currentIndex === 0 && !article.querySelector('.polymarket-hover-icon')) {
+        const totalCards = allCards.length;
+        createHoverIcon(article, totalCards, marketUrl);
+      } else {
+        // If icon already exists, update market count and attach hover listeners to this new card
+        const existingIcon = article.querySelector('.polymarket-hover-icon');
+        if (existingIcon) {
+          // Update market count and ensure click handler is attached
+          const marketCountText = existingIcon.querySelector('.polymarket-market-count');
+          if (marketCountText) {
+            const totalCards = article.querySelectorAll('.polymarket-card').length;
+            marketCountText.textContent = `${totalCards} market${totalCards > 1 ? 's' : ''} found`;
+            
+            marketCountText.onclick = (e) => {
+              e.stopPropagation();
+              const firstCard = article.querySelector('.polymarket-card');
+              if (firstCard && marketUrl && marketUrl !== '#') {
+                window.open(marketUrl, '_blank');
+              }
+            };
+          }
+          attachCardHoverListeners(article, container);
+        }
        }
      }
    });
@@ -316,7 +326,7 @@ function attachCardHoverListeners(article, card) {
 /**
  * Creates a hover icon next to the tweet time in the header
  */
-function createHoverIcon(article, marketCount) {
+function createHoverIcon(article, marketCount, marketUrl) {
   // Find the time element in the tweet header
   const timeElement = article.querySelector('time');
   if (!timeElement) {
@@ -327,18 +337,18 @@ function createHoverIcon(article, marketCount) {
       return;
     }
     // Insert after the header content
-    insertIconAfterElement(header, marketCount, article);
+    insertIconAfterElement(header, marketCount, article, marketUrl);
     return;
   }
   
   // Insert icon after the time element
-  insertIconAfterElement(timeElement, marketCount, article);
+  insertIconAfterElement(timeElement, marketCount, article, marketUrl);
 }
 
 /**
  * Inserts the icon container after a given element
  */
-function insertIconAfterElement(referenceElement, marketCount, article) {
+function insertIconAfterElement(referenceElement, marketCount, article, marketUrl) {
   const iconContainer = document.createElement('span');
   iconContainer.className = 'polymarket-hover-icon-container';
   iconContainer.style.cssText = `
@@ -397,8 +407,23 @@ function insertIconAfterElement(referenceElement, marketCount, article) {
     font-size: 13px;
     white-space: nowrap;
     cursor: pointer;
-    transition: text-decoration 0.2s ease;
+    transition: text-decoration 0.2s ease, color 0.2s ease;
   `;
+  
+  marketCountText.onclick = (e) => {
+    e.stopPropagation();
+    if (marketUrl && marketUrl !== '#') {
+      window.open(marketUrl, '_blank');
+    }
+  };
+  
+  marketCountText.addEventListener('mouseenter', () => {
+    marketCountText.style.color = '#d4af37';
+  });
+  
+  marketCountText.addEventListener('mouseleave', () => {
+    marketCountText.style.color = '#71767b';
+  });
   
   iconContainer.appendChild(icon);
   iconContainer.appendChild(marketCountText);
@@ -635,24 +660,28 @@ function createToggleButton() {
 function injectPositioningStyles() {
   if (document.getElementById('polymarket-positioning-styles')) return;
   
-  const style = document.createElement('style');
-  style.id = 'polymarket-positioning-styles';
-  style.textContent = `
-    article[data-testid="tweet"] {
-      position: relative !important;
-      overflow: visible !important;
-    }
-    .polymarket-card a:hover {
-      text-decoration: underline !important;
-    }
-    .polymarket-hover-icon-container {
-      pointer-events: auto !important;
-    }
-    .polymarket-market-count:hover {
-      text-decoration: underline !important;
-    }
-  `;
-  document.head.appendChild(style);
+   const style = document.createElement('style');
+   style.id = 'polymarket-positioning-styles';
+   style.textContent = `
+     article[data-testid="tweet"] {
+       position: relative !important;
+       overflow: visible !important;
+     }
+     .polymarket-card a:hover {
+       text-decoration: underline !important;
+     }
+     .polymarket-card {
+       cursor: pointer !important;
+     }
+     .polymarket-hover-icon-container {
+       pointer-events: auto !important;
+     }
+     .polymarket-market-count:hover {
+       text-decoration: underline !important;
+       color: #d4af37 !important;
+     }
+   `;
+   document.head.appendChild(style);
 }
 
 // Initialize on Twitter

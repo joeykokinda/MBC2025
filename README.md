@@ -17,10 +17,6 @@ Jaeger has two main features that work together:
 
 - **Wallet Connection** - Sign in with **Base Account** (create a new smart wallet or connect an existing one)
 - **Automatic Market Discovery** - Reads the webpage content and finds matching prediction markets
-- **Market Filtering** - Filter markets by:
-  - **Sort order**: trading volume, odds, or newest first
-  - **Time range**: daily, weekly, monthly, or all time
-  - **Status**: active markets or resolved markets
 - **Theme Toggle** - **Dark mode** (default) or **light mode**, with your preference saved
 - **Works Everywhere** - Works on any website, not just Twitter!
 

@@ -1,22 +1,22 @@
 /* ============================================
-   POLYFINDER - GOLD LUXURY THEME
+   JAEGER - GOLD LUXURY THEME
    Elegant Black × Gold × Gray × White Aesthetic
    ============================================ */
 
 /* Design Tokens - Gold Luxury Theme */
 :root {
-  /* Backgrounds - Deep OLED Black */
+  /* Backgrounds - Deep OLED Black (Dark Mode) */
   --c-bg: #0a0a0a;
   --c-surface: #141414;
   --c-surface-hover: #1c1c1c;
   --c-surface-elevated: #222222;
   
-  /* Typography - Crisp White & Gray */
+  /* Typography - Crisp White & Gray (Dark Mode) */
   --c-text: #ffffff;
   --c-text-secondary: #b8b8b8;
   --c-text-muted: #6e6e6e;
   
-  /* Borders - Ultra-subtle */
+  /* Borders - Ultra-subtle (Dark Mode) */
   --c-border: rgba(255, 255, 255, 0.06);
   --c-border-hover: rgba(212, 175, 55, 0.3); /* Gold on hover */
   
@@ -60,6 +60,44 @@
   --ock-text-foreground-muted: var(--c-text-secondary);
   --ock-border: var(--c-border);
   --ock-accent: var(--c-gold);
+}
+
+/* Light Mode Theme - Light Background with Black Accents */
+:root[data-theme="light"],
+.light-mode {
+  /* Backgrounds - Light but with Black Accents */
+  --c-bg: #f5f5f5;
+  --c-surface: #ffffff;
+  --c-surface-hover: #f8f8f8;
+  --c-surface-elevated: #f0f0f0;
+  
+  /* Typography - Black Text for High Contrast */
+  --c-text: #000000;
+  --c-text-secondary: #333333;
+  --c-text-muted: #666666;
+  
+  /* Borders - Black Accents */
+  --c-border: rgba(0, 0, 0, 0.15);
+  --c-border-hover: rgba(212, 175, 55, 0.5);
+  
+  /* Gold stays the same */
+  --c-gold-subtle: rgba(212, 175, 55, 0.15);
+  
+  /* Odds backgrounds */
+  --c-odds-primary-bg: rgba(212, 175, 55, 0.15);
+  --c-odds-secondary-bg: rgba(0, 0, 0, 0.08);
+  
+  /* Shadows - Black shadows for depth */
+  --c-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  --c-shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --c-shadow-gold: 0 4px 16px rgba(212, 175, 55, 0.3);
+  
+  /* Base Account UI Theme - Light */
+  --ock-bg-default: var(--c-surface);
+  --ock-bg-alternate: var(--c-bg);
+  --ock-text-foreground: var(--c-text);
+  --ock-text-foreground-muted: var(--c-text-secondary);
+  --ock-border: var(--c-border);
 }
 
 /* ============================================
@@ -106,13 +144,43 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px var(--space-md);
+  padding: 12px var(--space-md);
   background: rgba(15, 15, 15, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--c-border);
   flex-shrink: 0;
-  min-height: 56px;
+  height: 56px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Light mode header */
+:root[data-theme="light"] .sidebar-header,
+.light-mode .sidebar-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.header-logo-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logo .logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .sidebar-header h1 {
@@ -120,40 +188,95 @@ body {
   font-weight: 600;
   color: var(--c-text);
   letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
 
 .header-actions {
   display: flex;
-  gap: var(--space-sm);
+  gap: 8px;
   align-items: center;
+  height: 100%;
 }
 
-/* Chrome Icon Button */
-.refresh-btn {
+/* Theme Toggle Button - Consistent Size */
+.theme-toggle-btn {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  background: transparent;
+  border-radius: 8px;
+  background: var(--c-surface);
   border: 1px solid var(--c-border);
-  color: var(--c-text-secondary);
+  color: var(--c-text);
   cursor: pointer;
-  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  z-index: 1;
+}
+
+/* Hover effect with gold accent */
+.theme-toggle-btn:hover {
+  background: var(--c-surface-hover);
+  border-color: var(--c-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+}
+
+.theme-toggle-btn:hover svg {
+  color: var(--c-gold);
+  transform: rotate(15deg) scale(1.1);
+}
+
+/* Active state */
+.theme-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+}
+
+.theme-toggle-btn:active svg {
+  transform: rotate(0deg) scale(0.95);
+}
+
+/* Refresh Button - Consistent Size */
+.refresh-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  flex-shrink: 0;
 }
 
 .refresh-btn:hover {
-  background: var(--c-surface);
+  background: var(--c-surface-hover);
   border-color: var(--c-gold);
   color: var(--c-gold);
-  transform: rotate(90deg);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+  transform: translateY(-1px) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .refresh-btn:active {
-  transform: rotate(90deg) scale(0.95);
+  transform: translateY(0) rotate(90deg) scale(0.95);
 }
 
 /* Wallet Menu Container */
@@ -161,33 +284,37 @@ body {
   position: relative;
 }
 
-/* Wallet Address Button - Minimal Display */
+/* Wallet Address Button - Consistent Height */
 .wallet-address-btn {
-  background: transparent;
+  background: var(--c-surface);
   color: var(--c-text);
   border: 1px solid var(--c-border);
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 0 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all var(--transition);
-  min-height: 36px;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  height: 36px;
   letter-spacing: 0;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .wallet-address-btn:hover {
-  background: var(--c-surface);
+  background: var(--c-surface-hover);
   border-color: var(--c-gold);
-  box-shadow: var(--c-shadow-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .wallet-address-btn:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.98);
 }
 
 /* Wallet Dropdown Menu */
@@ -292,6 +419,17 @@ body {
   opacity: 1;
 }
 
+.disconnect-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.disconnect-btn:disabled:hover {
+  background: transparent;
+  color: var(--c-text-secondary);
+}
+
 /* ============================================
    BASE ACCOUNT UI MODAL - Dark Theme Override
    ============================================ */
@@ -317,7 +455,7 @@ body {
 }
 
 /* ============================================
-   SIGN IN SCREEN - Phantom Inspired
+   SIGN IN SCREEN - Enhanced with Animated Background
    ============================================ */
 .simple-login-screen {
   display: flex;
@@ -326,48 +464,254 @@ body {
   flex: 1;
   padding: var(--space-lg);
   background: var(--c-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Background Elements - Abstract Shapes */
+.animated-bg-element {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+  filter: blur(40px);
+}
+
+.bg-element-1 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.4), transparent 70%);
+  top: -100px;
+  left: -100px;
+  animation: floatAround1 25s ease-in-out infinite;
+}
+
+.bg-element-2 {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(244, 208, 63, 0.3), transparent 70%);
+  top: 20%;
+  right: -75px;
+  animation: floatAround2 30s ease-in-out infinite;
+}
+
+.bg-element-3 {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.35), transparent 70%);
+  bottom: -90px;
+  left: 10%;
+  animation: floatAround3 28s ease-in-out infinite;
+}
+
+.bg-element-4 {
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(244, 208, 63, 0.25), transparent 70%);
+  top: 60%;
+  left: -60px;
+  animation: floatAround4 32s ease-in-out infinite;
+}
+
+.bg-element-5 {
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.3), transparent 70%);
+  bottom: 10%;
+  right: -80px;
+  animation: floatAround5 27s ease-in-out infinite;
+}
+
+.bg-element-6 {
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(244, 208, 63, 0.2), transparent 70%);
+  top: -70px;
+  right: 30%;
+  animation: floatAround6 35s ease-in-out infinite;
+}
+
+/* Animation Keyframes - Moving off and on screen */
+@keyframes floatAround1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(400px, 200px) scale(1.2);
+  }
+  50% {
+    transform: translate(200px, 500px) scale(0.8);
+  }
+  75% {
+    transform: translate(-200px, 300px) scale(1.1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes floatAround2 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(-300px, 150px) scale(1.3) rotate(120deg);
+  }
+  66% {
+    transform: translate(200px, -200px) scale(0.7) rotate(240deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
+}
+
+@keyframes floatAround3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(300px, -250px) scale(1.4);
+  }
+  60% {
+    transform: translate(-150px, -400px) scale(0.6);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes floatAround4 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  40% {
+    transform: translate(350px, 300px) scale(1.2) rotate(180deg);
+  }
+  80% {
+    transform: translate(-250px, 200px) scale(0.9) rotate(360deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
+}
+
+@keyframes floatAround5 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  35% {
+    transform: translate(-400px, -300px) scale(1.5);
+  }
+  70% {
+    transform: translate(250px, -150px) scale(0.7);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes floatAround6 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(200px, 400px) scale(1.3) rotate(90deg);
+  }
+  50% {
+    transform: translate(-300px, 200px) scale(0.8) rotate(180deg);
+  }
+  75% {
+    transform: translate(150px, -300px) scale(1.1) rotate(270deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
 }
 
 .login-content {
   text-align: center;
-  max-width: 360px;
+  max-width: 420px;
   width: 100%;
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  animation: contentFadeIn 0.6s ease-out;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-icon {
-  margin: 0 auto var(--space-lg);
-  width: 80px;
-  height: 80px;
+  margin: 0 auto 32px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
-.login-icon svg {
-  filter: drop-shadow(0 8px 24px rgba(212, 175, 55, 0.5));
+.jaeger-logo {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoFadeIn 0.8s ease-out;
+}
+
+.jaeger-logo .logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .login-content h2 {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 36px;
+  font-weight: 700;
   color: var(--c-text);
-  margin-bottom: var(--space-sm);
-  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
 .login-content p {
-  font-size: 14px;
+  font-size: 18px;
   color: var(--c-text-secondary);
-  margin-bottom: var(--space-lg);
-  line-height: 1.6;
+  margin-bottom: 40px;
+  line-height: 1.5;
+  max-width: 100%;
+  font-weight: 400;
 }
+
 
 .connecting-text {
   margin-top: var(--space-md) !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   color: var(--c-gold) !important;
   text-align: center;
-  animation: pulse 1.5s ease-in-out infinite;
+  font-weight: 500;
 }
 
 .connection-error {
@@ -375,18 +719,28 @@ body {
   font-size: 13px !important;
   color: var(--c-text-secondary) !important;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--c-radius);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px var(--space-md);
+  border-radius: 8px;
   border: 1px solid var(--c-border);
+}
+
+/* Login Buttons Container */
+.login-buttons {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  position: relative;
+  z-index: 2;
 }
 
 /* Sign In With Base Button Styles */
 .sign-in-base-btn,
 button[class*="SignInWithBase"] {
   width: 100% !important;
-  max-width: 320px !important;
+  max-width: 100% !important;
   margin: 0 auto !important;
+  position: relative;
 }
 
 /* Header Sign In Button - Compact */
@@ -404,42 +758,67 @@ button[class*="SignInWithBase"] {
   border-radius: 20px !important;
 }
 
-/* Override Base Account UI button styles for dark theme */
-.sign-in-base-btn button,
-button[class*="SignInWithBase"] button {
-  background: linear-gradient(135deg, var(--c-gold) 0%, var(--c-gold-muted) 100%) !important;
+/* Simple & Big Connect Wallet Button Design */
+.sign-in-base-btn,
+button.sign-in-base-btn,
+.login-buttons .sign-in-base-btn,
+button[class*="SignInWithBase"] {
+  position: relative !important;
+  background: #d4af37 !important;
   color: #000 !important;
-  border: none !important;
-  padding: 12px 24px !important;
-  border-radius: var(--c-radius) !important;
+  border: 2px solid #d4af37 !important;
+  padding: 20px 40px !important;
+  border-radius: 16px !important;
   cursor: pointer !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  transition: all var(--transition) !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
   width: 100% !important;
-  min-height: 48px !important;
-  letter-spacing: -0.01em !important;
-  box-shadow: var(--c-shadow-gold) !important;
+  min-height: 64px !important;
+  height: auto !important;
+  letter-spacing: -0.02em !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
+  text-transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
 }
 
-.sign-in-base-btn button:hover,
-button[class*="SignInWithBase"] button:hover {
-  background: linear-gradient(135deg, var(--c-gold-bright) 0%, var(--c-gold) 100%) !important;
+/* Hover state */
+.sign-in-base-btn:hover,
+button.sign-in-base-btn:hover,
+.login-buttons .sign-in-base-btn:hover,
+button[class*="SignInWithBase"]:hover {
+  background: #f4d03f !important;
+  border-color: #f4d03f !important;
   box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
-  transform: translateY(-2px);
+  transform: translateY(-2px) !important;
+  color: #000 !important;
 }
 
-.sign-in-base-btn button:active,
-button[class*="SignInWithBase"] button:active {
-  transform: translateY(0);
-  box-shadow: var(--c-shadow-gold) !important;
+/* Active state */
+.sign-in-base-btn:active,
+button.sign-in-base-btn:active,
+.login-buttons .sign-in-base-btn:active,
+button[class*="SignInWithBase"]:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
 }
 
-.sign-in-base-btn button:disabled,
-button[class*="SignInWithBase"] button:disabled {
-  opacity: 0.6 !important;
+/* Disabled state */
+.sign-in-base-btn:disabled,
+button.sign-in-base-btn:disabled,
+.login-buttons .sign-in-base-btn:disabled,
+button[class*="SignInWithBase"]:disabled {
+  opacity: 0.5 !important;
   cursor: not-allowed !important;
   transform: none !important;
+  background: #9d8635 !important;
+  border-color: #9d8635 !important;
 }
 
 /* ============================================
@@ -482,7 +861,21 @@ button[class*="SignInWithBase"] button:disabled {
   font-size: 13px;
   font-weight: 500;
   border-bottom: 1px solid var(--c-border);
-  animation: pulse 2s ease-in-out infinite;
+  animation: processingPulse 2s ease-in-out infinite;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: slideDownFadeIn 0.4s ease-out forwards, processingPulse 2s ease-in-out infinite 0.4s;
+}
+
+@keyframes processingPulse {
+  0%, 100% {
+    opacity: 0.8;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+  }
+  50% {
+    opacity: 1;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+  }
 }
 
 /* ============================================
@@ -499,10 +892,28 @@ button[class*="SignInWithBase"] button:disabled {
   width: calc(100% - 32px); /* Ensure proper width accounting for margins */
   max-width: 100%;
   box-sizing: border-box;
+  
+  /* Smooth slide-in animation */
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: slideDownFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .filter-bar:hover {
   border-color: var(--c-border-hover);
+  transform: translateY(0);
 }
 
 .filter-bar-main {
@@ -529,6 +940,25 @@ button[class*="SignInWithBase"] button:disabled {
   letter-spacing: -0.03em;
   line-height: 1;
   text-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+  display: inline-block;
+  opacity: 0;
+  transform: scale(0.8);
+  animation: countPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes countPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .count-label {
@@ -567,21 +997,21 @@ button[class*="SignInWithBase"] button:disabled {
   background: var(--c-bg);
   border: 1px solid var(--c-border);
   color: var(--c-text);
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
   outline: none;
-  min-width: 100px;
+  min-width: 110px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 28px;
+  background-position: right 10px center;
+  padding-right: 32px;
 }
 
 .filter-dropdown:hover {
@@ -621,7 +1051,8 @@ button[class*="SignInWithBase"] button:disabled {
   }
   
   .filter-actions {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 6px;
     width: 100%;
   }
@@ -632,9 +1063,11 @@ button[class*="SignInWithBase"] button:disabled {
   
   .filter-dropdown {
     width: 100%;
+    min-width: auto;
     font-size: 11px;
-    padding: 5px 8px;
-    padding-right: 24px;
+    padding: 6px 8px;
+    padding-right: 26px;
+    background-position: right 8px center;
   }
   
   .dropdown-label {
@@ -680,22 +1113,30 @@ button[class*="SignInWithBase"] button:disabled {
   
   .market-count {
     justify-content: center;
-    padding-bottom: 8px;
+    padding-bottom: 6px;
   }
   
   .filter-actions {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    width: 100%;
   }
   
   .filter-dropdown-group {
-    flex: 1;
+    width: 100%;
   }
   
   .filter-dropdown {
     width: 100%;
-    min-width: 90px;
+    min-width: auto;
+    font-size: 12px;
+    padding: 7px 10px;
+    padding-right: 28px;
+  }
+  
+  .dropdown-label {
+    font-size: 8px;
   }
   
   .markets-list.grid-view {
@@ -706,11 +1147,23 @@ button[class*="SignInWithBase"] button:disabled {
 /* Medium Sidebar (400px - 550px) */
 @media (min-width: 401px) and (max-width: 550px) {
   .filter-bar-main {
-    gap: 12px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .market-count {
+    justify-content: center;
   }
   
   .filter-actions {
-    gap: 8px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  
+  .filter-dropdown-group {
+    width: 100%;
   }
   
   .count-number {
@@ -718,7 +1171,15 @@ button[class*="SignInWithBase"] button:disabled {
   }
   
   .filter-dropdown {
-    min-width: 100px;
+    width: 100%;
+    min-width: auto;
+    font-size: 11px;
+    padding: 7px 10px;
+    padding-right: 28px;
+  }
+  
+  .dropdown-label {
+    font-size: 8px;
   }
   
   .markets-list.grid-view {
@@ -728,8 +1189,34 @@ button[class*="SignInWithBase"] button:disabled {
 
 /* Wide Sidebar (> 550px) */
 @media (min-width: 551px) {
+  .filter-actions {
+    gap: 10px;
+  }
+  
+  .filter-dropdown {
+    min-width: 120px;
+  }
+  
   .markets-list.grid-view {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* Extra Wide Sidebar (> 700px) - More spacious layout */
+@media (min-width: 701px) {
+  .filter-bar-main {
+    padding: 14px 18px;
+  }
+  
+  .filter-actions {
+    gap: 12px;
+  }
+  
+  .filter-dropdown {
+    min-width: 130px;
+    font-size: 13px;
+    padding: 9px 14px;
+    padding-right: 36px;
   }
 }
 
@@ -762,7 +1249,7 @@ button[class*="SignInWithBase"] button:disabled {
 @media (max-width: 360px) {
   .sidebar-header {
     padding: 10px 12px;
-    min-height: 48px;
+    height: 52px;
   }
   
   .sidebar-header h1 {
@@ -773,9 +1260,26 @@ button[class*="SignInWithBase"] button:disabled {
     gap: 6px;
   }
   
+  /* Scale all buttons consistently on small screens */
+  .theme-toggle-btn,
   .refresh-btn {
     width: 32px;
     height: 32px;
+  }
+  
+  .theme-toggle-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .refresh-btn {
+    font-size: 14px;
+  }
+  
+  .wallet-address-btn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 }
 
@@ -909,9 +1413,10 @@ button[class*="SignInWithBase"] button:disabled {
   padding: 0 var(--space-md) var(--space-md);
   display: grid;
   gap: 10px;
-  transition: all var(--transition);
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
   width: 100%;
   box-sizing: border-box;
+  perspective: 1000px; /* For 3D card effects */
 }
 
 /* Adjust padding on very narrow screens */
@@ -979,62 +1484,112 @@ button[class*="SignInWithBase"] button:disabled {
 }
 
 /* ============================================
-   MARKET CARD - Compact Design with Animations
+   MARKET CARD - Compact Design with Scroll Animations
    ============================================ */
 .market-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: 8px;
   padding: 12px;
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer;
   text-decoration: none;
   display: block;
   position: relative;
   overflow: hidden;
   
-  /* Fade-in slide-up animation */
+  /* Initial hidden state - will animate when scrolled into view */
   opacity: 0;
-  transform: translateY(20px);
-  animation: slideUpFadeIn 0.4s ease-out forwards;
+  transform: translateY(50px) scale(0.9) rotateX(5deg);
+  filter: blur(4px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Staggered animation delays for each card */
-.market-card:nth-child(1) { animation-delay: 0.05s; }
-.market-card:nth-child(2) { animation-delay: 0.1s; }
-.market-card:nth-child(3) { animation-delay: 0.15s; }
-.market-card:nth-child(4) { animation-delay: 0.2s; }
-.market-card:nth-child(5) { animation-delay: 0.25s; }
-.market-card:nth-child(6) { animation-delay: 0.3s; }
-.market-card:nth-child(7) { animation-delay: 0.35s; }
-.market-card:nth-child(8) { animation-delay: 0.4s; }
-.market-card:nth-child(9) { animation-delay: 0.45s; }
-.market-card:nth-child(10) { animation-delay: 0.5s; }
+/* When card becomes visible (scroll-triggered) */
+.market-card.market-card-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotateX(0deg);
+  filter: blur(0);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(212, 175, 55, 0.1);
+  animation: cardGlow 1s ease-out;
+}
 
-/* Cards beyond 10 appear immediately */
-.market-card:nth-child(n+11) { animation-delay: 0.5s; }
-
-@keyframes slideUpFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* Subtle glow animation when card first appears */
+@keyframes cardGlow {
+  0% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(212, 175, 55, 0.1),
+                0 0 30px rgba(212, 175, 55, 0.2);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(212, 175, 55, 0.2),
+                0 0 50px rgba(212, 175, 55, 0.3);
+  }
+  100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(212, 175, 55, 0.1);
   }
 }
 
+/* Subtle shimmer effect on market cards - only when visible */
+.market-card.market-card-visible::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 175, 55, 0.15),
+    transparent
+  );
+  animation: shimmer 1.2s ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Shimmer effect animation */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Enhanced hover effect with smooth scale, glow, and 3D tilt */
 .market-card:hover {
   border-color: var(--c-gold);
-  transform: translateY(-2px);
-  box-shadow: var(--c-shadow-gold);
+  transform: translateY(-6px) scale(1.03) rotateY(2deg);
+  box-shadow: 0 12px 32px rgba(212, 175, 55, 0.3), 
+              0 0 0 1px rgba(212, 175, 55, 0.15),
+              0 0 40px rgba(212, 175, 55, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.market-card:active {
+  transform: translateY(-3px) scale(1.01) rotateY(0deg);
+  transition: all 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Enable 3D transforms for cards */
+.market-card {
+  transform-style: preserve-3d;
 }
 
 .market-card-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  z-index: 2;
 }
 
 .market-header {
@@ -1043,6 +1598,16 @@ button[class*="SignInWithBase"] button:disabled {
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 4px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s,
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+
+/* Animate header when card becomes visible */
+.market-card.market-card-visible .market-header {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .market-question {
@@ -1055,6 +1620,7 @@ button[class*="SignInWithBase"] button:disabled {
   flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1071,7 +1637,7 @@ button[class*="SignInWithBase"] button:disabled {
   flex-shrink: 0;
 }
 
-/* Horizontal Odds Bar - Elegant Gold/Gray */
+/* Horizontal Odds Bar - Elegant Gold/Gray with Scroll Animations */
 .odds-bar {
   display: flex;
   height: 4px;
@@ -1079,18 +1645,58 @@ button[class*="SignInWithBase"] button:disabled {
   overflow: hidden;
   background: var(--c-surface-elevated);
   border: 1px solid var(--c-border);
+  position: relative;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s,
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+
+/* Animate odds bar when card becomes visible */
+.market-card.market-card-visible .odds-bar {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .odds-bar-yes {
   height: 100%;
   background: linear-gradient(90deg, var(--c-gold), var(--c-gold-hover));
-  transition: width 0.3s ease;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated shimmer on the gold bar */
+.odds-bar-yes::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmerBar 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+@keyframes shimmerBar {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 100%;
+  }
 }
 
 .odds-bar-no {
   height: 100%;
   background: var(--c-surface-hover);
-  transition: width 0.3s ease;
+  transition: width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 /* Compact Odds Pills - Gold/Gray Theme */
@@ -1125,6 +1731,47 @@ button[class*="SignInWithBase"] button:disabled {
 .market-option-row {
   gap: 12px;
   border-top: 1px solid var(--c-border);
+  opacity: 0;
+  transform: translateX(-15px);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Staggered animation for option rows when card becomes visible */
+.market-card.market-card-visible .market-option-row:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.2s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(2) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.3s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(3) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.4s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(4) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.5s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(5) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.6s;
+}
+
+.market-card.market-card-visible .market-option-row:nth-child(n+6) {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.7s;
 }
 
 .market-option-row:first-of-type {
@@ -1135,6 +1782,21 @@ button[class*="SignInWithBase"] button:disabled {
   justify-content: center;
   color: var(--c-text-muted);
   font-size: 12px;
+}
+
+.market-option-row.more-options-indicator {
+  justify-content: center;
+  padding: 10px;
+  background: rgba(212, 175, 55, 0.05);
+  border-top: 1px solid var(--c-border);
+}
+
+.more-options-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .option-left {
@@ -1191,7 +1853,24 @@ button[class*="SignInWithBase"] button:disabled {
   border-radius: 6px;
   background: var(--c-bg);
   border: 1px solid var(--c-border);
-  transition: all var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  opacity: 0;
+  transform: translateX(-20px) scale(0.9);
+}
+
+/* Animate odds pills when card becomes visible */
+.market-card.market-card-visible .odds-pill:nth-child(1) {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+}
+
+.market-card.market-card-visible .odds-pill:nth-child(2) {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
 }
 
 .odds-pill.yes {
@@ -1207,6 +1886,11 @@ button[class*="SignInWithBase"] button:disabled {
 .market-card:hover .odds-pill.yes {
   border-color: var(--c-gold);
   background: rgba(212, 175, 55, 0.2);
+  transform: translateX(0) scale(1.02);
+}
+
+.market-card:hover .odds-pill {
+  transform: translateX(0) scale(1.01);
 }
 
 .odds-pill .odds-label {
@@ -1239,12 +1923,22 @@ button[class*="SignInWithBase"] button:disabled {
   padding-top: 8px;
   margin-top: 8px;
   border-top: 1px solid var(--c-border);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform: translateY(10px);
+}
+
+/* Animate footer when card becomes visible */
+.market-card.market-card-visible .market-link-footer {
   opacity: 0.6;
-  transition: opacity var(--transition);
+  transform: translateY(0);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
 }
 
 .market-card:hover .market-link-footer {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .market-link-text {
@@ -1412,27 +2106,36 @@ button[class*="WalletOption"]:hover {
 
 /* Login Screen Responsive */
 @media (max-width: 400px) {
-  .login-content {
-    padding: var(--space-sm);
+  .simple-login-screen {
+    padding: var(--space-md);
   }
   
   .login-icon {
-    width: 60px;
-    height: 60px;
+    width: 100px;
+    height: 100px;
     margin-bottom: var(--space-md);
   }
   
-  .login-icon svg {
-    width: 60px;
-    height: 60px;
+  .jaeger-logo {
+    width: 100px;
+    height: 100px;
   }
   
   .login-content h2 {
-    font-size: 18px;
+    font-size: 28px;
   }
   
   .login-content p {
-    font-size: 13px;
+    font-size: 16px;
+  }
+  
+  .sign-in-base-btn,
+  button.sign-in-base-btn,
+  .login-buttons .sign-in-base-btn,
+  button[class*="SignInWithBase"] {
+    padding: 18px 32px !important;
+    font-size: 18px !important;
+    min-height: 60px !important;
   }
 }
 

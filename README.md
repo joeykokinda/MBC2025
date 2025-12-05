@@ -1,4 +1,4 @@
-# PolyFinder
+# JAEGER
 
 A beautiful Chrome extension that discovers relevant Polymarket prediction markets for any webpage you visit. Features a clean, Google-styled interface with seamless Base wallet integration.
 

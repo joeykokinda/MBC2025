@@ -80,3 +80,5 @@ The extension uses a clean, Google-inspired design with:
 - **Spacing**: Consistent 4px/8px/16px/24px/32px scale
 - **Shadows**: Subtle Material Design elevation
 - **Animations**: Smooth cubic-bezier transitions
+
+test

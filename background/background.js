@@ -81,31 +81,40 @@ function expandMarket(compact) {
 async function fetchLivePrices(marketIds) {
   if (!marketIds || marketIds.length === 0) return {};
   
-  console.log(`[PolyFinder] Fetching live prices for ${marketIds.length} markets...`);
+  console.log(`[PolyFinder] Fetching live prices for markets:`, marketIds);
   
   const priceMap = {};
   
   try {
-    const url = `https://gamma-api.polymarket.com/markets?id=${marketIds.join(',')}`;
-    const response = await fetch(url);
-    const markets = await response.json();
-    
-    if (Array.isArray(markets)) {
-      for (const market of markets) {
-        if (market.outcomePrices) {
-          try {
-            const prices = JSON.parse(market.outcomePrices);
-            if (Array.isArray(prices) && prices.length >= 2) {
-              priceMap[market.id] = prices.map(p => parseFloat(p) || 0);
-            }
-          } catch (e) {
-            console.error(`Error parsing prices for ${market.id}:`, e);
+    const fetchPromises = marketIds.map(async (id) => {
+      try {
+        const url = `https://gamma-api.polymarket.com/markets/${id}`;
+        const response = await fetch(url);
+        const market = await response.json();
+        
+        if (market && market.outcomePrices) {
+          let prices;
+          if (typeof market.outcomePrices === 'string') {
+            prices = JSON.parse(market.outcomePrices);
+          } else if (Array.isArray(market.outcomePrices)) {
+            prices = market.outcomePrices;
+          }
+          
+          if (Array.isArray(prices) && prices.length >= 2) {
+            const yesPrice = parseFloat(prices[0]) || 0;
+            const noPrice = parseFloat(prices[1]) || 0;
+            priceMap[id] = [yesPrice, noPrice];
+            console.log(`[PolyFinder] Market ${id}: YES=${(yesPrice * 100).toFixed(1)}% NO=${(noPrice * 100).toFixed(1)}%`);
           }
         }
+      } catch (e) {
+        console.warn(`[PolyFinder] Failed to fetch market ${id}:`, e.message);
       }
-    }
+    });
     
-    console.log(`[PolyFinder] Got live prices for ${Object.keys(priceMap).length} markets`);
+    await Promise.all(fetchPromises);
+    
+    console.log(`[PolyFinder] Got live prices for ${Object.keys(priceMap).length}/${marketIds.length} markets`);
   } catch (error) {
     console.error('[PolyFinder] Error fetching live prices:', error);
   }
@@ -209,11 +218,21 @@ function pickBestMarkets(candidates, tweetEntities, tweetGeneric) {
     .map(m => ({
       market: m,
       score: scoreMarket(m, tweetEntities, tweetGeneric),
+      matchedKeywords: [...(m.ke || []).filter(k => tweetEntities.includes(k)), ...(m.kg || []).filter(k => tweetGeneric.includes(k))]
     }))
     .filter(x => x.score > 0)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      if (b.matchedKeywords.length !== a.matchedKeywords.length) {
+        return b.matchedKeywords.length - a.matchedKeywords.length;
+      }
+      return b.score - a.score;
+    });
   
-  return scored.slice(0, 3).map(x => expandMarket(x.market));
+  return scored.slice(0, 2).map(x => {
+    const expanded = expandMarket(x.market);
+    expanded._matchedKeywords = x.matchedKeywords;
+    return expanded;
+  });
 }
 
 function calculateStats(markets) {
@@ -285,12 +304,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           markets.forEach(m => console.log(`  - ${m.question} (${(parseFloat(m.outcomes[0].price) * 100).toFixed(0)}%/${(parseFloat(m.outcomes[1].price) * 100).toFixed(0)}%)`));
         }
         
-        const allMatchedKeywords = [...matchedEntities, ...matchedGeneric];
-        const marketsByKeyword = markets.map(market => ({
-          keyword: allMatchedKeywords[0] || 'match',
-          primaryMarket: market,
-          childMarkets: []
-        }));
+        const marketsByKeyword = markets.map(market => {
+          const matchedKws = market._matchedKeywords || [];
+          const displayKeyword = matchedKws.length > 0 
+            ? matchedKws.slice(0, 3).join(', ') 
+            : ([...matchedEntities, ...matchedGeneric][0] || 'match');
+          
+          return {
+            keyword: displayKeyword,
+            primaryMarket: market,
+            childMarkets: []
+          };
+        });
         
         if (markets.length > 0) {
           const topKeywords = [...matchedEntities.slice(0, 7), ...matchedGeneric.slice(0, 3)];
@@ -305,12 +330,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           }).catch(() => {});
         }
         
-        sendResponse({
+        const response = {
           success: markets.length > 0,
           tweetId,
           keywords: { entities: matchedEntities, generic: matchedGeneric },
           marketsByKeyword
+        };
+        
+        console.log(`[PolyFinder] Sending CHECK_TWEET response:`, {
+          success: response.success,
+          markets: marketsByKeyword.length,
+          tweetId
         });
+        
+        sendResponse(response);
       } catch (error) {
         console.error('[PolyFinder] Error processing CHECK_TWEET:', error);
         sendResponse({ success: false, marketsByKeyword: [] });
@@ -324,69 +357,77 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const { text, title } = msg.payload || {};
     
     if (!text || text.length < 50 || !cacheLoaded) {
-      return true;
+      return false; // Don't need response
     }
     
     (async () => {
-      const { matchedEntities, matchedGeneric } = analyzeTweet(text);
-      
-      if (matchedEntities.length === 0 && matchedGeneric.length === 0) {
-        return;
-      }
-      
-      const candidates = getCandidateMarkets(matchedEntities, matchedGeneric);
-      let markets = pickBestMarkets(candidates, matchedEntities, matchedGeneric);
-      
-      const marketIds = markets.map(m => m.id);
-      const priceMap = await fetchLivePrices(marketIds);
-      markets = updateMarketsWithLivePrices(markets, priceMap);
-      
-      if (markets.length > 0) {
-        const stats = calculateStats(markets);
-        chrome.runtime.sendMessage({
-          action: 'MARKETS_READY',
-          payload: {
-            markets: markets.slice(0, 10),
-            keywords: [...matchedEntities.slice(0, 7), ...matchedGeneric.slice(0, 3)],
-            stats,
-            pageTitle: title || 'Page Results'
-          }
-        }).catch(() => {});
+      try {
+        const { matchedEntities, matchedGeneric } = analyzeTweet(text);
+        
+        if (matchedEntities.length === 0 && matchedGeneric.length === 0) {
+          return;
+        }
+        
+        const candidates = getCandidateMarkets(matchedEntities, matchedGeneric);
+        let markets = pickBestMarkets(candidates, matchedEntities, matchedGeneric);
+        
+        const marketIds = markets.map(m => m.id);
+        const priceMap = await fetchLivePrices(marketIds);
+        markets = updateMarketsWithLivePrices(markets, priceMap);
+        
+        if (markets.length > 0) {
+          const stats = calculateStats(markets);
+          chrome.runtime.sendMessage({
+            action: 'MARKETS_READY',
+            payload: {
+              markets: markets.slice(0, 10),
+              keywords: [...matchedEntities.slice(0, 7), ...matchedGeneric.slice(0, 3)],
+              stats,
+              pageTitle: title || 'Page Results'
+            }
+          }).catch(() => {});
+        }
+      } catch (error) {
+        console.error('[PolyFinder] Error processing PAGE_LOADED:', error);
       }
     })();
     
-    return true;
+    return false; // Fire-and-forget, no response needed
   }
   
   if (msg.action === 'FETCH_MARKETS') {
     if (!cacheLoaded) {
-      return true;
+      return false; // Don't need response
     }
     
     (async () => {
-      let topMarkets = marketsData
-        .sort((a, b) => b.v - a.v)
-        .slice(0, 10)
-        .map(expandMarket);
-      
-      const marketIds = topMarkets.map(m => m.id);
-      const priceMap = await fetchLivePrices(marketIds);
-      topMarkets = updateMarketsWithLivePrices(topMarkets, priceMap);
-      
-      const stats = calculateStats(topMarkets);
-      
-      chrome.runtime.sendMessage({
-        action: 'MARKETS_READY',
-        payload: {
-          markets: topMarkets,
-          keywords: [],
-          stats,
-          pageTitle: 'Top markets by volume'
-        }
-      }).catch(() => {});
+      try {
+        let topMarkets = marketsData
+          .sort((a, b) => b.v - a.v)
+          .slice(0, 10)
+          .map(expandMarket);
+        
+        const marketIds = topMarkets.map(m => m.id);
+        const priceMap = await fetchLivePrices(marketIds);
+        topMarkets = updateMarketsWithLivePrices(topMarkets, priceMap);
+        
+        const stats = calculateStats(topMarkets);
+        
+        chrome.runtime.sendMessage({
+          action: 'MARKETS_READY',
+          payload: {
+            markets: topMarkets,
+            keywords: [],
+            stats,
+            pageTitle: 'Top markets by volume'
+          }
+        }).catch(() => {});
+      } catch (error) {
+        console.error('[PolyFinder] Error processing FETCH_MARKETS:', error);
+      }
     })();
     
-    return true;
+    return false; // Fire-and-forget, no response needed
   }
   
   return false;

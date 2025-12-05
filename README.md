@@ -190,12 +190,8 @@ The extension uses a **gold and black** color scheme:
 - Verify you selected the correct folder when loading unpacked
 - Check `chrome://extensions/` for any error messages
 
-## License
+## Follow the Team
 
-[Add your license information here]
+Stay updated with the latest **Jaeger** news and updates:
 
-## Contributing
-
-[Add contribution guidelines here if applicable]
-
-Follow us on Twitter: [@bomJAEGER](https://x.com/bomJAEGER)
+- **Twitter/X**: [@bomJAEGER](https://x.com/bomJAEGER)

@@ -1428,7 +1428,6 @@ button[class*="SignInWithBase"]:disabled {
   transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
   width: 100%;
   box-sizing: border-box;
-  perspective: 1000px; /* For 3D card effects */
 }
 
 /* Adjust padding on very narrow screens */
@@ -1512,7 +1511,7 @@ button[class*="SignInWithBase"]:disabled {
   
   /* Initial hidden state - will animate when scrolled into view */
   opacity: 0;
-  transform: translateY(50px) scale(0.9) rotateX(5deg);
+  transform: translateY(18px) scale(0.98);
   filter: blur(4px);
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1522,7 +1521,7 @@ button[class*="SignInWithBase"]:disabled {
 /* When card becomes visible (scroll-triggered) */
 .market-card.market-card-visible {
   opacity: 1;
-  transform: translateY(0) scale(1) rotateX(0deg);
+  transform: translateY(0) scale(1);
   filter: blur(0);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
               0 0 0 1px rgba(212, 175, 55, 0.1);
@@ -1579,7 +1578,7 @@ button[class*="SignInWithBase"]:disabled {
 /* Enhanced hover effect with smooth scale, glow, and 3D tilt */
 .market-card:hover {
   border-color: var(--c-gold);
-  transform: translateY(-6px) scale(1.03) rotateY(2deg);
+  transform: translateY(-6px) scale(1.03);
   box-shadow: 0 12px 32px rgba(212, 175, 55, 0.3), 
               0 0 0 1px rgba(212, 175, 55, 0.15),
               0 0 40px rgba(212, 175, 55, 0.1);
@@ -1587,14 +1586,11 @@ button[class*="SignInWithBase"]:disabled {
 }
 
 .market-card:active {
-  transform: translateY(-3px) scale(1.01) rotateY(0deg);
+  transform: translateY(-3px) scale(1.01);
   transition: all 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Enable 3D transforms for cards */
-.market-card {
-  transform-style: preserve-3d;
-}
+/* Disable 3D transforms to keep cards flat */
 
 .market-card-content {
   display: flex;

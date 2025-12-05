@@ -10,6 +10,43 @@ window.polymarketVisible = localStorage.getItem('polymarketVisible') !== 'false'
 /**
  * Creates the Polymarket market card UI
  */
+function buildPolymarketUrl(market = {}, event = null, isMultiOption = false) {
+  const conditionId = market.conditionId || market.condition_id || '';
+  const marketId = market.id || '';
+  const marketSlug = market.slug || '';
+  const eventSlug = event?.slug || market.events?.[0]?.slug || event?.ticker || '';
+
+  if (isMultiOption && eventSlug && marketId) {
+    return `https://polymarket.com/event/${eventSlug}?tid=${marketId}`;
+  }
+
+  if (eventSlug && marketSlug && marketId) {
+    return `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
+  }
+
+  if (eventSlug && conditionId) {
+    return `https://polymarket.com/event/${eventSlug}?_c=${conditionId}`;
+  }
+
+  if (eventSlug && marketId) {
+    return `https://polymarket.com/event/${eventSlug}?tid=${marketId}`;
+  }
+
+  if (marketSlug && marketId) {
+    return `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
+  }
+
+  if (eventSlug) {
+    return `https://polymarket.com/event/${eventSlug}`;
+  }
+
+  if (conditionId) {
+    return `https://polymarket.com/?_c=${conditionId}`;
+  }
+
+  return '#';
+}
+
 window.createMarketCard = function(marketData) {
   const { keyword, primaryMarket, childMarkets, event } = marketData;
   
@@ -42,9 +79,7 @@ window.createMarketCard = function(marketData) {
   const hasChildMarkets = Array.isArray(childMarkets) && childMarkets.length > 1;
   const isMultiOption = (Array.isArray(options) && options.length > 2 && options[0]?.name) || hasChildMarkets;
   
-  const marketUrl = primaryMarket.url || (primaryMarket.slug 
-    ? `https://polymarket.com/event/${primaryMarket.slug}`
-    : `https://polymarket.com`);
+  const marketUrl = buildPolymarketUrl(primaryMarket, event, isMultiOption);
   
   const headerHtml = `
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">

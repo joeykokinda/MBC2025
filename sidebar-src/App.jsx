@@ -5,18 +5,18 @@
 import { useState, useEffect, useMemo } from 'react';
 import { http, createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { baseAccount } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import MarketCard from './components/MarketCard';
 import Spinner from './components/Spinner';
 import FilterBar from './components/FilterBar';
+import silentBaseAccount from './connectors/silentBaseAccount';
 
 // Wagmi configuration with Base Account connector
 const config = createConfig({
   chains: [base],
   connectors: [
-    baseAccount({
+    silentBaseAccount({
       appName: 'JAEGER',
     }),
   ],

@@ -1,4 +1,3 @@
-importScripts('config.js');
 
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
 const GAMMA_SEARCH_URL = 'https://gamma-api.polymarket.com/public-search';

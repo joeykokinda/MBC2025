@@ -2,6 +2,8 @@
 // This file is injected into every page you visit
 // Purpose: Extract text content from the page for analysis
 
+// UI now handled by twitter-ui.js
+
 // Scrape the current page and extract:
 // - Page title
 // - Meta description
@@ -150,55 +152,9 @@ function extractTweetText(article) {
   return tweetTextElement ? tweetTextElement.innerText : '';
 }
 
+// Use UI from twitter-ui.js
 function createMarketUI(marketData) {
-  const { keyword, primaryMarket, childMarkets } = marketData;
-  
-  if (!primaryMarket) return null;
-  
-  const container = document.createElement('div');
-  container.className = 'polyfinder-market-widget';
-  container.style.cssText = `
-    margin: 12px 0;
-    padding: 12px;
-    background: #1a1a1a;
-    border: 1px solid #2f3336;
-    border-radius: 12px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  `;
-  
-  const yesPrice = (parseFloat(primaryMarket.outcomePrices?.[0]) || 0);
-  const noPrice = (parseFloat(primaryMarket.outcomePrices?.[1]) || 0);
-  
-  const marketUrl = primaryMarket.slug 
-    ? `https://polymarket.com/event/${primaryMarket.slug}`
-    : `https://polymarket.com`;
-  
-  container.innerHTML = `
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-      <span style="color: #1d9bf0; font-weight: bold; font-size: 12px;">📊 POLYMARKET</span>
-      <span style="color: #71767b; font-size: 11px;">keyword: ${keyword}</span>
-    </div>
-    <a href="${marketUrl}" target="_blank" style="color: #e7e9ea; text-decoration: none; display: block; margin-bottom: 10px; font-size: 14px; font-weight: 500; line-height: 1.4;">
-      ${primaryMarket.question || 'Unknown Market'}
-    </a>
-    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-      <div style="flex: 1; padding: 8px; background: #0a3a1f; border: 1px solid #00ba7c; border-radius: 8px; text-align: center;">
-        <div style="color: #00ba7c; font-size: 11px; font-weight: 600; margin-bottom: 2px;">YES</div>
-        <div style="color: #00ba7c; font-size: 16px; font-weight: bold;">${(yesPrice * 100).toFixed(0)}¢</div>
-      </div>
-      <div style="flex: 1; padding: 8px; background: #3a0a0a; border: 1px solid #f91880; border-radius: 8px; text-align: center;">
-        <div style="color: #f91880; font-size: 11px; font-weight: 600; margin-bottom: 2px;">NO</div>
-        <div style="color: #f91880; font-size: 16px; font-weight: bold;">${(noPrice * 100).toFixed(0)}¢</div>
-      </div>
-    </div>
-    ${childMarkets && childMarkets.length > 1 ? `
-      <div style="font-size: 11px; color: #71767b; margin-top: 8px;">
-        +${childMarkets.length - 1} more market${childMarkets.length > 2 ? 's' : ''} in this event
-      </div>
-    ` : ''}
-  `;
-  
-  return container;
+  return window.createMarketCard ? window.createMarketCard(marketData) : null;
 }
 
 function injectMarketsIntoTweet(article, marketsByKeyword) {
@@ -255,6 +211,7 @@ function scanTwitterFeed() {
   });
 }
 
+// Twitter-specific initialization
 if (window.location.href.includes('twitter.com') || window.location.href.includes('x.com')) {
   window.addEventListener('scroll', handleTwitterScroll, { passive: true });
   

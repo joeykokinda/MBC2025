@@ -3,16 +3,97 @@
 
 export default function MarketCard({ market }) {
   const question = market.question || market.title || 'Unknown Market';
-  const yesPrice = market.outcomes?.[0]?.price || 0;
-  const noPrice = market.outcomes?.[1]?.price || 0;
-  const volume = market.volume || 0;
+  const volume = parseFloat(market.volume) || 0;
   const url = market.url || '#';
+  const options = Array.isArray(market.options) ? market.options : [];
+  const marketType = market.displayType || (options.length > 1 ? 'grouped' : 'binary');
 
-  const yesPercent = parseFloat(yesPrice) * 100;
-  const noPercent = parseFloat(noPrice) * 100;
+  const yesPrice = parseFloat(market.outcomes?.[0]?.price) || 0;
+  const noPriceValue = parseFloat(market.outcomes?.[1]?.price);
+  const noPrice = Number.isFinite(noPriceValue) && noPriceValue > 0
+    ? noPriceValue
+    : Math.max(0, 1 - yesPrice);
 
-  // Debug: Log market URL
-  console.log('[MarketCard] Market:', question.substring(0, 50), '| URL:', url);
+  const yesPercent = yesPrice * 100;
+  const noPercent = noPrice * 100;
+
+  const formatPercent = (value) => {
+    const numeric = typeof value === 'number' ? value : parseFloat(value) || 0;
+    const percent = numeric * 100;
+    if (percent > 0 && percent < 1) {
+      return '<1%';
+    }
+    return `${Math.round(percent)}%`;
+  };
+
+  const formatVolume = (value) => {
+    const numeric = Number(value) || 0;
+    if (numeric >= 1000000) {
+      return `$${(numeric / 1000000).toFixed(1)}M`;
+    }
+    if (numeric >= 1000) {
+      return `$${(numeric / 1000).toFixed(0)}k`;
+    }
+    if (numeric > 0) {
+      return `$${numeric.toFixed(0)}`;
+    }
+    return null;
+  };
+
+  const renderGroupedOptions = () => (
+    <div className="market-options-table">
+      <div className="options-header">
+        <span>Outcome</span>
+        <span>% Chance</span>
+      </div>
+      {options.length === 0 ? (
+        <div className="market-option-row no-options">
+          <span>No outcomes available</span>
+        </div>
+      ) : (
+        options.map((option, index) => {
+          const label = option.label || option.question;
+          const volumeLabel = formatVolume(option.volume);
+          return (
+            <div
+              className="market-option-row"
+              key={option.id || option.slug || `${market.id || 'market'}-${index}`}
+            >
+              <div className="option-left">
+                <div className="option-title">{label}</div>
+                {volumeLabel && (
+                  <div className="option-volume">{volumeLabel} Vol.</div>
+                )}
+              </div>
+              <div className="option-percent">{formatPercent(option.yesPrice)}</div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+
+  const renderBinaryOdds = () => (
+    <>
+      <div className="odds-bar">
+        <div className="odds-bar-yes" style={{ width: `${yesPercent}%` }}></div>
+        <div className="odds-bar-no" style={{ width: `${noPercent}%` }}></div>
+      </div>
+
+      <div className="market-odds">
+        <div className="odds-pill yes">
+          <span className="odds-label">Yes</span>
+          <span className="odds-value">{Math.round(yesPercent)}%</span>
+        </div>
+        <div className="odds-pill no">
+          <span className="odds-label">No</span>
+          <span className="odds-value">{Math.round(noPercent)}%</span>
+        </div>
+      </div>
+    </>
+  );
+
+  const parentVolumeLabel = formatVolume(volume);
 
   return (
     <a 
@@ -20,38 +101,17 @@ export default function MarketCard({ market }) {
       target="_blank" 
       rel="noopener noreferrer"
       className="market-card"
-      onClick={(e) => {
-        console.log('[MarketCard] Clicked! Opening:', url);
-        // Let the browser handle the link naturally
-      }}
     >
       <div className="market-card-content">
         <div className="market-header">
           <h3 className="market-question">{question}</h3>
-          {volume > 0 && (
-            <span className="market-volume">${(parseFloat(volume) / 1000).toFixed(0)}k</span>
+          {parentVolumeLabel && (
+            <span className="market-volume">{parentVolumeLabel} Vol.</span>
           )}
         </div>
-        
-        {/* Horizontal Odds Bar - Visual Progress */}
-        <div className="odds-bar">
-          <div className="odds-bar-yes" style={{ width: `${yesPercent}%` }}></div>
-          <div className="odds-bar-no" style={{ width: `${noPercent}%` }}></div>
-        </div>
-        
-        {/* Compact Odds Display */}
-        <div className="market-odds">
-          <div className="odds-pill yes">
-            <span className="odds-label">Yes</span>
-            <span className="odds-value">{yesPercent.toFixed(0)}%</span>
-          </div>
-          <div className="odds-pill no">
-            <span className="odds-label">No</span>
-            <span className="odds-value">{noPercent.toFixed(0)}%</span>
-          </div>
-        </div>
-        
-        {/* Polymarket Link Indicator */}
+
+        {marketType === 'grouped' ? renderGroupedOptions() : renderBinaryOdds()}
+
         <div className="market-link-footer">
           <span className="market-link-text">View on Polymarket</span>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">

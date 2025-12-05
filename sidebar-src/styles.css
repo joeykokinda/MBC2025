@@ -1099,6 +1099,70 @@ button[class*="SignInWithBase"] button:disabled {
   gap: 6px;
 }
 
+.market-options-table {
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.options-header,
+.market-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+}
+
+.options-header {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-muted);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.market-option-row {
+  gap: 12px;
+  border-top: 1px solid var(--c-border);
+}
+
+.market-option-row:first-of-type {
+  border-top: none;
+}
+
+.market-option-row.no-options {
+  justify-content: center;
+  color: var(--c-text-muted);
+  font-size: 12px;
+}
+
+.option-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.option-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.option-volume {
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.option-percent {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-gold);
+  min-width: 48px;
+  text-align: right;
+}
+
 .odds-pill {
   flex: 1;
   display: flex;

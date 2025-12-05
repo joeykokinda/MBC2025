@@ -7,7 +7,6 @@ import { http, createConfig, WagmiProvider, useAccount, useConnect, useDisconnec
 import { base } from 'wagmi/chains';
 import { baseAccount } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SignInWithBaseButton } from '@base-org/account-ui/react';
 
 import MarketCard from './components/MarketCard';
 import StatsPanel from './components/StatsPanel';
@@ -199,27 +198,31 @@ function PolyFinderContent() {
   // Sort markets based on selected sort option
   const sortedMarkets = useMemo(() => {
     const marketsCopy = [...markets];
-    
+
+    const getMarketVolume = (market) => {
+      return parseFloat(market?.volume) || 0;
+    };
+
+    const getMaxYesOdds = (market) => {
+      if (Array.isArray(market?.options) && market.options.length > 0) {
+        return market.options.reduce((max, option) => {
+          const yesPrice = parseFloat(option?.yesPrice) || 0;
+          return yesPrice > max ? yesPrice : max;
+        }, 0);
+      }
+      return parseFloat(market?.outcomes?.[0]?.price) || 0;
+    };
+
     switch (sortBy) {
       case 'volume':
-        return marketsCopy.sort((a, b) => {
-          const volA = parseFloat(a.volume) || 0;
-          const volB = parseFloat(b.volume) || 0;
-          return volB - volA;
-        });
-      
+        return marketsCopy.sort((a, b) => getMarketVolume(b) - getMarketVolume(a));
+
       case 'odds':
-        return marketsCopy.sort((a, b) => {
-          const oddsA = parseFloat(a.outcomes?.[0]?.price) || 0;
-          const oddsB = parseFloat(b.outcomes?.[0]?.price) || 0;
-          return oddsB - oddsA;
-        });
-      
+        return marketsCopy.sort((a, b) => getMaxYesOdds(b) - getMaxYesOdds(a));
+
       case 'recent':
-        // Assuming markets are already in recent order from API
-        return marketsCopy;
-      
       default:
+        // Assuming markets are already in recent order from API
         return marketsCopy;
     }
   }, [markets, sortBy]);
@@ -330,14 +333,14 @@ function PolyFinderContent() {
             <p>Connect your wallet to discover prediction markets related to any webpage you visit</p>
             <div className="login-buttons">
               {baseAccountConnector && (
-                <SignInWithBaseButton
+                <button
+                  type="button"
                   onClick={handleBaseAccountConnect}
-                  variant="solid"
-                  colorScheme="dark"
-                  align="center"
                   className="sign-in-base-btn"
                   disabled={connectingWallet}
-                />
+                >
+                  {connectingWallet ? 'Connecting…' : 'Sign in with Base'}
+                </button>
               )}
               {connectingWallet && (
                 <p className="connecting-text">Connecting wallet...</p>

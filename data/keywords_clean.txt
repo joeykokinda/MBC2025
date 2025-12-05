@@ -1,16 +1,87 @@
+$1 Million
+$1 trillion
+$100b-$200b
+$100k
+$100M
+$123M
+$150k
+$175B-$200B
+$2 Billion
+$200 billion
+$200M
+$2500-$2600
+$250B
+$2700-2800
+$3000-3100
+$300k
+$3300-$3400
+$3600-$3700
+$3700-$3800
+$3800-$3900
+$4100-$4200
+$4700-$4800
+$500B
+$500B-$1T
+$500M
+$600B
+$700M
+$750M
+$800M
+0-10%
+0.5%-1.0%
+2.0-2.5%
+20-30% margin
+26-27%
+3.0-3.5%
+33-35.9%
+40-41.9%
+70% Score
+<1.0%
+A House of Dynamite
 AAPL
+Abelardo de la Espriella
 Abolish
+abolished
+abolition
 Abraham Accords
 Abstract Project
+AC Milan
 Academy Awards
+ACC Championship
+accusation
+acquire
+acquired
+acquisition
 Acquisition
 Activated
+activation
+active users
 Adam Schiff
 Administration
+advertisements
 Advertising
+aerospace
+AFC Championship
+AFC North
+AFC South
+AFC West
 Afghanistan
 Ahmed Aboutaleb
+Ahmed al-Sharaa
+AI benchmark
+AI company
+AI Company
+AI competition
+AI Competition
+AI industry
+AI Industry
+AI model
+AI Model
+AI Performance
+AI ranking
+AI safety bill
 Air Force One
+airdrop
 Airdrop
 Airdrops
 Alabama
@@ -19,21 +90,30 @@ Alan Keating
 Alaves
 Alberta
 Album
+Album release
+album release
 Albuquerque
 Alcatraz
 Aleksandr Lukashenko
+Alexandre de Moraes
+Alexandria Ocasio-Cortez
 Ali Khamenei
 Alibaba
 Alien Existence
+aliens
 Aliens
 Alive
+alive
 All Time High
+all time high
 Alliance Membership
 Alphabet
 Amazon
 America Party
+American football
 American Football
 Amy Madigan
+Ana-Maria Ciceală
 Anaheim Ducks
 Anca Alexandrescu
 Andrej Babiš
@@ -48,41 +128,62 @@ Andy Beshear
 Andy Jassy
 Anemone
 Angers
+annexation
 Annexation
+announce
 Announcement
+announcement
 Announces
+Announces run
+Annual inflation
+annual inflation
 Anthony Albanese
 Anthony Davis
 Anthony Edwards
 Anthony Joshua
 Anthropic
+Anti-cartel
+antitrust
 Antoine Massey
 António Filipe
 António José Seguro
+apology
 Apology
 App Store
+appeal
 Appearance
 Apple
 Apple App Store
+Apple CEO
 Appointment
+appointment
 Appointments
 Approval Rating
+approval rating
+AR/VR
+archaeology
 Argentina
+Argentina election
 Argentina Election
 Ariana Grande
 Aristides Teixeira
 Arizona State
 Arrest
+arrest
+arrested
 Arrested
 Arsenal
 Arthur Laffer
 Artificial General Intelligence
+artificial intelligence
 Artificial Intelligence
 Aryna Sabalenka
 Ashen One
 Assad
+assassination
 Aster
 Aston Villa
+astronomy
 Atalanta
 Athletic Bilbao
 Athletic Club
@@ -97,33 +198,52 @@ Australia
 Austria
 Authorization
 Automotive
+automotive
 Autonomous
 Autonomous Vehicles
 Auxerre
 Avalanche
 Avatar
+Avatar: Fire and Ash
+AVS Futebol
 Award
+award
 Awards
+awards
 Azerbaijan
 Aztec
 Backpack
 Bad Bunny
+Bagram base
 Bailout
 Baker Mayfield
 Balance
+Balance of Power
+Ballon d'Or
+ballot measure
 Baltimore Ravens
+Bank of America
+Bank of Canada
+Bank of England
+Bank of Japan
+bankruptcy
 Bankruptcy
+banned
 Bantamweight
 Barack Obama
 Barcelona
 Barron Trump
 Barstool
 Basketball
+basketball
+Battle of Sexes
 Bayern Munich
 Baylor
 Bears
 Belarus
 Belgium
+Below 1.0%
+benchmark
 Benfica
 Bengals
 Benjamin Netanyahu
@@ -133,6 +253,7 @@ Bernie Sanders
 Best Actor
 Best Actor - Drama
 Best Actress
+Best AI
 Best Cinematography
 Best Costume Design
 Best Director
@@ -142,6 +263,7 @@ Best Supporting Actor
 Best Supporting Actress
 Betis
 Beto O’Rourke
+betting
 Betting
 Beyoncé
 Bezos
@@ -152,7 +274,9 @@ Billionaires
 Bills
 Binance
 Biography
+Bird flu
 Bitcoin
+Bitcoin creator
 Bitcoin Dominance
 Bitcoin Price
 Bitcoin Reserve
@@ -160,10 +284,13 @@ Blachowicz
 Blackhawks
 BLACKPINK
 Blake Lively
+blockade
+blockchain
 Blockchain
 Blue Jackets
 Blues
 BNB
+Board of Peace
 Bob Menendez
 Bodo Glimt
 Bologna
@@ -172,12 +299,20 @@ Borussia Dortmund
 Boston Bruins
 Boston Celtics
 Boston Rob Mariano
+Botafogo FR
 Bournemouth
 Box Office
+Box office
+box office
+boxing
 Boxing
 Boy Names
+Boy names
+boyfriend
 Brazil
 Brazil God
+Brazil politics
+Brazilian election
 Brendan Fraser
 Brentford
 Brest
@@ -187,31 +322,40 @@ Brian Rast
 Brighton
 Brigitte Macron
 British
+broken
 Brooklyn Nets
 Browns
 Bruins
 Bryce Hall
 Bryn Kenney
 BTC
+BTC purchase
 Buccaneers
 Bucharest
 Bucks
 Budapest
 Budapest Major
 Budget
+budget
 Budget Cut
+budget cut
+budget cuts
 Buffalo Bills
 Buffalo Sabres
 Bugonia
 Bulls
 Bundesliga
 Burnley
+buses
 Business
+business
 Buyout
+by-election
 Bybit
 Byron Donalds
 Cabinet
 Cabinet Meeting
+Cabinet member
 Cade Cunningham
 Cagliari
 Calgary Flames
@@ -222,29 +366,44 @@ Cambodia
 Cameron Ward
 Canada
 Cancelled
+cancelled
 Cape Verde
+capital city
+capital gains tax
 Capitals
 Captain America: Brave New World
 Capture
+capture
 Card Games
 Cardano
 Carlos Roberto Massa Júnior
 Carole Delga
 Carolina Panthers
+Caroline van der Plas
 Cary Katz
 Catalin Drula
 Catarina Martins
 Cavaliers
 Ceasefire
+ceasefire
+cede territory
+CeeDee Lamb
+celebrity
 Celebrity
 Celta Vigo
 Celtics
+central bank
 Cessation
+CF Monterrey
 Chamath Palihapitiya
+Chamber of Deputies
+champion
 Champions League
+championship
 Championship
 Championship Game
 Chancellor
+Chancellor of the Exchequer
 Changpeng Zhao
 Channing Tatum
 Charges
@@ -268,7 +427,9 @@ Chile Politics
 Chile President
 Chilean Election
 China
+Chinese AI
 Chino Rheem
+Choo Kyung-ho
 Chris Moneymaker
 Chris Waller
 Christopher Waller
@@ -276,6 +437,8 @@ Chrome
 Cincinnati Bengals
 Ciprian Ciucu
 Circuit Breaker
+citizenship
+city-owned
 Civil War
 Clarity Act
 Claudiu Târziu
@@ -283,18 +446,30 @@ Clemency
 Clemson
 Cleveland Browns
 Cleveland Cavaliers
+client list
+climate
 Climate
 Climate Change
+close
 Close
+Close price
+closing price
 Club Brugge
 Cluely
 Coalition
+coalition
 Coding
+coding
+Coding AI
+coding AI
 Coin Launch
 Coinbase
 Colin Farrell
 Collectibles
+collectibles
+collective defense
 College Football
+college football
 College National Championship
 College Sports
 Colombia
@@ -305,25 +480,40 @@ Colts
 Columbus Blue Jackets
 Commanders
 Commitment
+commitment
 Commodities
+commodities
 Commodity
+commodity
+company
+company ranking
 Company Ranking
 Confirmation
+confirmation
+confirmed
 Conflict
+conflict
 Conflict Resolution
 Congress
 Consensys
 Conservative Party
+conspiracy
 Conspiracy
+Conspiracy theory
 Constructors' Championship
 Consumer Hardware
 Consumer Price Index
+contraction
+control
 Cooper Flagg
 Corey Booker
 Coronavirus
 Corporate
 Corporate Finance
+Corporate taxes
 Costa Rica
+country
+Coup attempt
 Court
 Cowboys
 Cracker Barrel
@@ -331,25 +521,42 @@ Credit Rating
 Cremonese
 Crime
 Crimea
+criminal
 Crin Antonescu
 Cristian Popescu Piedone
 Croatia
+Cruzeiro EC
+crypto
 Crypto
 Crypto Competition
 Crypto Forecast
+crypto investment
+Crypto launch
+crypto launch
 Crypto Launch
 Crypto Market
+Crypto tax exemption
 Crypto Token Launch
 Crypto Valuation
 Cryptocurrency
+cryptocurrency
 Cryptocurrency Exchange
 Crystal Palace
 CS:GO
 Cultural Recognition
 Currency Forecast
+current events
+custody
+cut taxes
+Cut-Cut-Pause
+Cut-Pause-Cut
+Cut-Pause-Pause
+Czech election
+Czech politics
 Czech Republic
 Călin Georgescu
 Cătălin Cîrstoiu
+daily revenue
 Dak Prescott
 Dallas Cowboys
 Dallas Mavericks
@@ -366,26 +573,48 @@ David Baszucki
 David Malpass
 David Williams
 David Zervos
+De minimis
 Death
+death
+deaths
+December meeting
 December Meeting
+decentralized finance
 Decisions
 Declassify
+decrease
 DeepSeek
+default
+Defensive Player of the Year
+DeFi
 Defi App
+DeFi Trading
+deficit
+deliveries
 Delroy Lindo
+democracy
 Democrat
 Democratic
 Democratic Nomination
+Democratic nomination
+Democratic nominee
 Democratic Nominee
 Democratic Party
 Democrats
 Denver Broncos
 Denver Nuggets
+Department of Education
+departure
 Departure
+depeg
 Depeg
+deport
 Deportation
+deportation
+Deportivo Toluca FC
 Derek Chauvin
 Derivative
+desktop app
 Detonation
 Detroit Lions
 Detroit Pistons
@@ -396,18 +625,30 @@ Dick Schoof
 Diddy
 Diego Pavia
 Digital Assets
+Dilan Yeşilgöz-Zegerius
+diplomacy
 Diplomacy
 Diplomatic Recognition
 Diplomatic Relations
+Direct talks
 Disarmament
 Discord
+disease
+Disease outbreak
+dissolution
+divestiture
+dividend
 Division
 Division Title
+divorce
 Divorce
 Do Kwon
 DOGE
 Dogecoin
+dogwifhat
 Dolphins
+domestic
+domestic opening
 Domestic Opening
 Donald Trump
 Donald Trump Jr.
@@ -418,33 +659,46 @@ Dortmund
 Doug Polk
 Downgrade
 Downturn
+downturn
+DraftKings
 Drake
 Drake Maye
 Drew Baglino
 Drivers Champion
 Drivers Championship
+Drug boat strike
 Ducks
+Dutch government
 Dutch Government
 Dutch Politics
+Dutch politics
 Dvalishvili
 Dwayne Johnson
 Dylan Flashner
 Eagles
 Earth
+earthquake
 Earthquake
 Earthquakes
 Economic Forecast
+economic growth
 Economic Growth
 Economic Indicator
+economy
 Economy
 Ecuador
+EdgeX
+edgeX
 Edmonton Oilers
 Eduardo Bolsonaro
 Edward Snowden
 Eintracht Frankfurt
 Elche
+Elche CF
+election
 Election
 Election Win
+elections
 Elections
 Elijah
 Elise Stefanik
@@ -452,17 +706,26 @@ Elizabeth Holmes
 Elle Fanning
 Elon
 Elon Musk
+emergency
+emergency cut
 Emmanuel Grégoire
 Emmanuel Macron
 Employee Cuts
+employee cuts
+employees
+enacts
 End Result
+endorsement
 Endorsement
 Energy
 England
 English Football
 English Premier League
 Epstein
+Epstein disclosure bill
 Epstein Files
+Epstein files
+equity
 Erdoğan
 Eric Adams
 Erick Lindgren
@@ -470,61 +733,110 @@ Erik Seidel
 Erika Kirk
 Erling Haaland
 Espanyol
+esports
 Esports
 Esther Taylor
 ETH
 Ethan Hawke
 Ethereum
+Ethereum price
 Ethereum Price
+EU Commission
+EU Country
 European Union
+evacuation
 Event Prediction
 Events
+events
 Everton
 Exchange Rate
+executive action
+Executive order
+executive power
 Extended
 Extradition
 Eyal Zamir
 Falcons
+FanDuel
 Fantastic Four: First Steps
 Fartcoin
+FaZe Clan
+FC Augsburg
+FC Famalicão
+FC Heidenheim
+FC Koln
+FC Nantes
 Fed Chair
+Fed chair
+Fed chairman
 Fed Governor
 Federal
 Federal Budget
+federal budget
+federal charges
 Federal Charges
 Federal Income Tax
 Federal Reserve
+federal spending
+Federal spending
+Federally charged
 Fee Switch
 Fernando Haddad
 Ferreira
 Fetterman
+FIFA World Cup
 Fifth Place
+fight
 Fight
 Files
+filibuster
+film award
 Film Award
 Film Awards
 Film Editing
+film industry
 Film Industry
+film ranking
+finance
 Finance
+financial
+Financial crisis
 Financial Market
+financial market
+financial markets
 Financial Markets
 Financial Target
 Financial Trading
 Finland
+FinTech
 Fiorentina
+firing
+first place
 First Place
+first round
+FIT-U
+FK Spartak Moskva
 Flames
+flat earth
+flipped
 Florida
 Florida Panthers
 Flyweight
 Flávio Bolsonaro
 Football
+football
 Football Award
 Football Team
 Football.Fun
 Forecast
+forecast
+foreign agent
+Foreign intervention
+foreign policy
+Foreign soil
 Fort Knox
 Foul Play
+foul play
 France
 France Politics
 Franco Parisi
@@ -534,11 +846,18 @@ Frankenstein
 Frans Timmermans
 François Asselineau
 Free App
+free public transit
+freeze rents
 Freiburg
+French election
 French Election
+French football
 French Football
+French PM
 French Politics
 Friedrich Merz
+FrontierMath
+FrontierMath Benchmark
 Fulham
 FURIA
 Future Events
@@ -548,14 +867,21 @@ Gabriela Firea
 Galatasaray
 Gambling
 Game Awards
+Game of the Year
 Gaming
+gaming
 Garrett Adelstein
 Gavin Newsom
 Gay Marriage
 Gaza Strip
+Gaza territory
+GDP Growth
 Geert Wilders
+general election
+generators
 Genesis Cup
 Genoa
+geopolitics
 Geopolitics
 George Clooney
 George Russell
@@ -564,34 +890,49 @@ Georgescu
 Georgia
 Georgia Tech
 German Football
+German football
+German government
+German soccer
 Germany
 Getafe
 Ghislaine Maxwell
 Giannis Antetokounmpo
 Gina Raimondo
+girlfriend
 Girona
 Giza Pyramid
+GL/PvdA
 Glenn Close
 Glenn Youngkin
 Global Companies
 Global Economy
+global ranking
 Global Ranking
+global temperature
 Global Temperature
+global warming
 Global Warming
 Gold Cards
 Gold Medal
 Gold Price
+Gold price
 Golden Globes
 Golden Knights
 Golden State Warriors
+golfing
 GOOGL
 Google
 Google Gemini
+Google search
 Google Trends
 Government
+government
 Government Formation
 Government Holdings
+government purchase
 Government Revenue
+Government revenue
+Governor election
 Graham Platner
 Grand Theft Auto
 Green Alliance
@@ -601,64 +942,104 @@ Greenland
 Greg Abbott
 Greta Thunberg
 Gretchen Whitmer
+grocery store
 Grossing
+grossing
+grossing movie
+Ground offensive
 Ground Offensive
 Growth
+growth
 GTA VI
 Gubernatorial
 Guidance Clarity Act
+Guillermo del Toro
 Guilty
+guilty
+Guinea-Bissau
 Gunner Stockton
 Guskov
 Gustavo Bolívar
 Guyana
 Gwynne Shotwell
 Gävle Goat
+Hades II
 Hailey Bieber
+Halftime show
 Halftime Show
 Hamas
+Hamburger SV
 Hamnet
+Han Duck-soo
 Handicap
 Hanks
 Harmonix
 Harry
 Hayden Davis
+Head of Product
+Heads-Up
+Heads-Up Championship
+Heads-Up Poker
+Heads-Up Poker Championship
+Health crisis
+healthcare policy
 Heisman Trophy
 Henri Bontenbal
+Henrique Gouveia e Melo
 Hepatitis B
 Hezbollah
+high earners
+highest grossing
 Hikari
 Hillary Clinton
 Hockey
+hockey
 Hockey Championship
 Hoffenheim
 Hollow Knight: Silksong
+HomePod mini
 Honduran Election
+Honduran election
 Honduran General Election
 Honduras
 Honduras Election
+Honduras election
 Honduras Politics
+Honduras politics
 Hornets
 Hottest
+hottest
+hottest year
 Hottest Year
+Hottest year
 House
+House of Representatives
 Houston Rockets
 Houston Texans
 Howard Lutnick
+HPV vaccine
 Hryshyne
 Hugh Jackman
 Huliaipole
+human trafficking
+Human vs AI
+Humanity's Last Exam
 Hungary
 Hunter Biden
 Hurricanes
 Hyperbeat
 Hyperliquid
 Ice Hockey
+identity
+IDF Chief
 Igor Kurganov
 Illinois
 Immigration
+immigration
 Impeachment
+impeachment
 Imperial Esports
+import tax
 Imprisonment
 Income Tax
 Independence
@@ -667,9 +1048,13 @@ Indiana
 Indiana Pacers
 Indianapolis Colts
 Infinex
+inflation
 Inflation
+initial public offering
 Initial Public Offering
+Insider trading
 Insolvent
+insolvent
 Instability
 Instagram
 Insurrection Act
@@ -677,16 +1062,27 @@ Inter
 Inter Milan
 Interest Rate
 Interest Rates
+interest rates
+Interest rates
 International Relations
+international relations
+international trade
 International Travel
+Interstellar object
+invade
+invasion
 Invasion
 Investigation
 Iranian Regime
+iShowSpeed
 Island
 Islanders
 Israel
 Israel Politics
+Israel-Palestine
+Israeli parliament
 Israeli Troops
+It Was Just an Accident
 Italian Football
 Italian League
 Italy
@@ -710,6 +1106,7 @@ James Madison
 Janet Mills
 Janet Yellen
 Japan
+Japanese PM
 Jared Polis
 Jason Calacanis
 Jason Koon
@@ -718,9 +1115,14 @@ Jawan Pitts
 Jaxson Dart
 Jay Feely
 Jay Kelly
+Jay-Z
 Jaylen Brown
+JB Pritzker
+JB Straubel
+JD Vance
 Jeanette Jara
 Jeannette Jara
+jeans ad
 Jeff Bezos
 Jeffrey Epstein
 Jennifer Lopez
@@ -730,6 +1132,7 @@ Jerome Powell
 Jesse Lonis
 Jesse Pollak
 Jesus Christ
+jewels
 Jim Farley
 Joachim Trier
 Joana Amaral Dias
@@ -740,10 +1143,12 @@ John Cornyn
 John Fetterman
 John Legere
 John Mateer
+John McAfee
 John Nitti
 John Smith
 John Thune
 Johnnie Vibes
+joins
 Jon M. Chu
 Jon Ossoff
 Jon Stewart
@@ -771,6 +1176,7 @@ Justin Fields
 Justin Gavri
 Justin Young
 Juventus
+K-pop
 Kabuto Card
 Kamala Harris
 Kansas City Chiefs
@@ -797,57 +1203,89 @@ Khaman Maluach
 Khamenei
 Kim Jong Un
 Kim Kardashian
+Kingdom Come Deliverance II
 Kings
 Klaas Dijkhoff
 Kleber Mendonça Filho
 Klára Dobrev
 Knesset
 Knicks
+KongBTC
 Kostyantynivka
 Kraken
 Kristen Foxen
 Kristi Noem
 Kupiansk
+Kupiansk-Vuzlovyi
 Kursk
 Kuwait
 Kyler Murray
 Kylian Mbappé
+LA Clippers
 La Liga
 Labour Party
+Lack of Event
 Lakers
 Lando Norris
+Largest company
 Largest Company
+largest company
 Larry Ellison
 Larry Kudlow
 Larry Lindsey
 Las Vegas
+launches
 Launches
 Laura Virginia Fernández Delgado
+layoffs
 Lazio
 Le Havre
+Leader out
 Leadership
+leadership
+leadership change
+Leadership change
 Leadership Change
 Leadership Exit
+league
 League
 League Phase
+league phase
+League winner
+league winner
+leave
+leaves
 Lebanon
+LeBron James
 Lecce
 Lecornu
+Lee Jae-myung
+Lee Jun-seok
 Leeds
+Legal action
 Legal Documents
+legal ruling
 Legal Scandal
+legal status
 Legal Status
+legislation
 Legislation
+legislative assembly
 Legislative Assembly
+legislative seats
 Lei Jun
+Leonardo DiCaprio
+less than 0.5%
 Levante
 Leverkusen
 Liberals
 License
 Light Heavyweight
+lighter
 Lighter
 Lightning
 Lilo & Stitch
+Lilo and Stitch
 Lions
 Liquidation
 Lisa Cook
@@ -856,6 +1294,7 @@ Listing
 Liv Boeree
 Liverpool
 Liz Cheney
+LMArena
 Local Election
 Local Politics
 London
@@ -869,11 +1308,15 @@ Los Angeles Rams
 Loss Deductions
 Louisville Football
 Louvre
+Luiz Inácio Lula da Silva
 Luka Doncic
+Lula da Silva
 Luís Marques Mendes
 Lyman
 László Toroczkai
+MacOS
 Macroeconomics
+macroeconomics
 Macron
 Maduro
 Magic
@@ -883,6 +1326,7 @@ Maid Crypto
 Main Card
 Maine
 Mainz
+Major meteor strike
 Mallorca
 Mamdani
 Man City
@@ -894,7 +1338,10 @@ Marc Sumerlin
 Marcel Reed
 Marco Rubio
 Margin
+margin
 Margin Call
+margin of victory
+Margin of Victory
 Mari Yamamoto
 Maria Konnikova
 Marian Vanghelie
@@ -905,14 +1352,26 @@ Mark Carney
 Mark Cuban
 Mark Kelly
 Mark Zuckerberg
+market close
 Market Crash
+market price
+Market share
 Marriage
 Marseille
 Marty Supreme
 Match
+match
 Match Outcome
 Match Result
+match result
+Match result
+match win
+matchup
 Matchup
+math AI
+Math AI
+math capabilities
+Math performance
 Mathematics
 Matt Berkey
 Matt Gaetz
@@ -923,10 +1382,16 @@ Mavericks
 Max Verstappen
 Maxwell
 Mayor
+mayor election
+Mayoral by-election
 Mayoral Election
+mayoral election
 Measles
+measles
 Meek Mill
+meeting
 Meeting
+MegaETH
 Megaquake
 Meghan
 Meituan
@@ -935,9 +1400,12 @@ Membership
 Meme Coin
 Memphis Grizzlies
 Mercedes
+merchandise
 Merchandise
 Meta
+MetaMask
 Metamask
+meteor strike
 Mexico
 Mgladbach
 Miami Dolphins
@@ -952,8 +1420,8 @@ Michelle Bowman
 Michelle Obama
 Michigan
 Microsoft
-Microstrategy
 MicroStrategy
+Microstrategy
 Middle East
 Middleweight
 Midterm Elections
@@ -962,13 +1430,27 @@ Mike Matusow
 Mike Pence
 Milei
 Military
+military
+military action
 Military Aid
 Military Clash
+military clash
+Military clash
+military conflict
 Military Conflict
+Military engagement
+military engagement
 Military Engagement
 Military Force
+Military intelligence
+military invasion
+military presence
 Military Strike
+Military strike
+military strike
+military strikes
 Milwaukee Bucks
+mindshare
 Minecraft Movie
 Minnesota Timberwolves
 Minnesota Vikings
@@ -976,10 +1458,15 @@ Minnesota Wild
 Missing Gold
 Missouri
 Mistral
+Mistral AI
 Mobile App Ranking
 Mobile Innovation
+Mohammed bin Salman
 Monaco
+monetary policy
+Monetary policy
 Monetary Policy
+monthly inflation
 Montreal Canadiens
 Moon Landing
 Moonshot
@@ -990,10 +1477,16 @@ Mossad
 Most Searched
 Motorsport
 Motorsports
+motorsports
 Movie
+movie
 Movie Earnings
+MrBeast
+muddyrc
 Municipal Bond
+music
 Music
+music hit
 Myrnohrad
 Nacho Barbero
 Nancy Pelosi
@@ -1003,23 +1496,38 @@ Narendra Modi
 Nashville Predators
 Nasry Juan Asfura Zablah
 Nate Moore
+national championship
 National Championship
+National Heads-Up
+National Heads-Up Championship
 National Reserve
 National Security Advisor
+nationality
 Natural Disaster
+natural disaster
 Natus Vincere
+NBA Cup
 NBA Finals
 NBA MVP
+NBA Playoffs
+NCAA basketball
+NCAA Football
 NCAAF
 Nebraska
+Negative GDP growth
+net worth
 Netanyahu
 Netflix
 Netherlands
+Neutron rocket
+New aircraft
 New Album
 New Country
 New England Patriots
 New Jersey Devils
 New Orleans Pelicans
+New pandemic
+new product line
 New York City
 New York Islanders
 New York Jets
@@ -1028,43 +1536,74 @@ New York Rangers
 New Zealand
 Newcastle
 Newcastle United
+NewJeans
+NFC Championship
+NFC East
+NFC North
+NFC South
+NFC West
 NFL MVP
+NFL Rookie
 NFLX
+NFT
+NFT marketplace
+NFT Marketplace
+NHL Stanley Cup
 Nick Kyrgios
 Nick Wright
 Nicolas Claxton
 Nicolas Sarkozy
+Nicolien van Vroonhoven-Kok
 Nicolás Maduro
 Nigeria
 Nikita Bier
 Nikki Haley
 Nikola Jokic
+No candidate
+no CEO
 No Change
+No change
 No Cuts
 No Other Choice
+no winner
 Nobel Peace Prize
+nominate
 Nomination
+nomination
 Nominations
 Nord Stream
 Normalize Relations
+Normalize relations
+normalize relations
 North Korea
 Norway
 Nothing
 Notre Dame
 Nottingham Forest
 Nottm Forest
+nuclear deal
+Nuclear deal
 Nuclear Negotiations
 Nuclear Option
 Nuclear Proliferation
+Nuclear reactor
+nuclear test
 Nuclear Test
+Nuclear weapon
 Nuclear Weapon
+nuclear weapon
+nuclear weapons
 Nuremberg
 NVDA
-Nvidia
 NVIDIA
+Nvidia
+NYC Mayor
 Obama
+occurrence
+Oct-Dec-Jan
 Octavian Berceanu
 Odell Beckham Jr.
+Offensive Rookie of the Year
 Ohio State
 Oil & Gas
 Oilers
@@ -1077,8 +1616,11 @@ One Battle After Another
 OP_CAT
 OP_CTV
 OpenAI
+Opening weekend
 Opening Weekend
+opening weekend
 Opensea
+operatives
 Oprah Winfrey
 Oracle
 Oregon
@@ -1091,49 +1633,73 @@ Oscars
 Ostium
 Ottawa Senators
 Ousted
+Out of office
+out of office
+outperform
+outright win
+Over/Under
+over/under
 Overturn
 Oviedo
 Pacers
 Packers
+paiN Gaming
 Pakistan
 Palestine
+Palestine recognition
 Pam Bondi
 Panama Canal
+pandemic
+panic
 Panthers
 Pantoja
 Paolo Banchero
 Paradex
 Paraguay
 Pardon
+pardon
 Paris
+Paris FC
 Paris Mayor
 PARIVISION
+Park Chan-wook
+parliament
 Parliamentary Election
 Parma
 Pass Margin
+passes
+Passion UA
 Patrick Mahomes
 Patriots
 Paul Finebaum
 Paul Mescal
 Paul Thomas Anderson
 Paulo Portas
+pause
+Payroll data
 Peace
+peace deal
 Peace Deal
 Peace Prize
 Peace Talks
 Peacekeeping Force
 Pedro Passos Coelho
 Pedro Sánchez
+Pedro Tinoco de Faria
 Pelicans
 Pengu
 Penguins
 Penn State
 Percentage Rate
 Perplexity
+perps revenue
+Person of the Year
+personal life
 Pete Buttigieg
 Pete Hegseth
 Petr Fiala
 Phantom
+Phase II
 Phil Galfond
 Phil Laak
 Phil Murphy
@@ -1148,72 +1714,124 @@ Pittsburgh Penguins
 Pittsburgh Steelers
 Playboi Carti
 Player Award
+playoffs
 Podcast
 Poilievre
 Point Spread
 Points Leader
 Poker
+poker
 Poker Championship
 Pokrovsk
 Pokémon
 Poland
+policy
 Policy
+political change
+political departure
 Political Forecast
+political future
 Political Instability
 Political Leader
+political leadership
 Political Leadership
+political office
 Political Party
+political party
+political stability
+politics
 Politics
 Polling
 Polls
 Polymarket
+Polymarket US
 Pop Culture
 Pope Francis
+Pope Leo XIV
 Popularity
 Population Relocation
 Portland Trail Blazers
 Portnoy
 Portugal
 Portugal Election
+Portugal election
+Portuguese election
+Post-Launch Performance
 Posting
+Posting frequency
+posting volume
 Powell
 Precious Metals
 Predators
 Pregnancy
 Premier League
 Presidency
+presidency
+president
 President
+President of Chile
+presidential
 Presidential
+presidential election
 Presidential Election
+Presidential election
 Presidential Endorsement
+Presidential nomination
+presidential nomination
 Presidential Nomination
 Presidential Politics
+presidential primary
 Presidential Race
+presidential race
+presidential run
+Presidential run
 Presidential Visit
+press conference
 Price Dip
+price dip
+price direction
 Price Forecast
+price movement
+price range
 Price Target
+Price target
+price target
+price threshold
 Prime Minister
+prime minister
+prison
+prison sentence
+probability
 Product Launch
 Product Release
+product release
 Proliferation
+proliferation
 Prophecy
 Protocol
+protocol activation
 Protocol Fee Switch
 Province
 Public Figure
 Public Health
+public health
+Public offering
 Public Offering
+public sale
 Public Sale
+Public sale
 Pudgy Penguins
+Pump.fun
 Putin
 Péter Magyar
 Qarabağ
 Qatar
 Quantity
+quantity
 Quarterback
 Rabby
 Rachel Reeves
+racing
 Rahm Emanuel
 Rainbow
 Rand Paul
@@ -1221,62 +1839,99 @@ Rangers
 Rankings
 Raphael Warnock
 Raptors
+rate cut
 Rate Cut
+rate cuts
 Rate Cuts
+Rate cuts
+rate decisions
 Rate Hike
 Raul Perestrello
 Ravens
 Rayo Vallecano
+RB Leipzig
 Real Madrid
 Real Sociedad
+reality TV
 Rebecca Ferguson
+rebounds
 Recep Tayyip Erdoğan
+recession
 Recession
 Recognition
+recommendation
 Recommendation
+recount
 Red Bull
 Red Bull Racing
 Red Wings
+redistricting
 Redistricting
+referendum
 Referendum
 Refund
+regime
+register
 Rejoin
+relaunch
 Release
+release
+Release date
 Release Date
+release date
+released
 Released
+relegated
 Religion
 Removal
 Ren Lin
 Renan Santos
 Rennes
 Rental Family
+reopening
 Repealed
 Replace
+replacement
 Reporting
 Republican
+Republican nomination
 Republican Nomination
+Republican nominee
 Republican Party
 Republican Primary
 Republicans
+rescheduled
 Reserve
 Reserve Act
 Resign
+resign
 Resignation
+resignation
+retail
+returned
+reusability
 Revenue
+revenue
 Review
+revoked
 Revolut
 Richard Seymour
+Richest person
 Richest Person
+richest person
 Rick Rieder
 Rihanna
+Rio Ave FC
 Ripple Labs
 Rixi Moncada Godoy
 Rixi Ramona Moncada Godoy
+RJ Harvey
 Rob Jetten
 Rob Riggle
 Robert F. Kennedy Jr.
 Robert Morris Colonials
 Robert Negoiță
+Roblox CEO
 Robotaxi
 Rocket Lab
 Rockets
@@ -1285,13 +1940,18 @@ Roger Ver
 Roger W. Ferguson Jr.
 Romania
 Romanian Politician
+Ron DeSantis
 Ron Paul
+Rookie of the Year
 Roy Cooper
 Roy Lee
 Rui Moreira
 Russell Crowe
 Russia
 Russia Visit
+Russia-Ukraine
+Russia-Ukraine war
+Russia-Ukraine War
 Russian Sovereignty
 Ryan Coogler
 Ryan Feldman
@@ -1301,12 +1961,14 @@ Sacramento Kings
 Saints
 Salvador Nasralla
 Sam Altman
+Sam Bankman-Fried
 Sam Leavitt
 Sam Soverel
 Samsung
 San Antonio Spurs
 San Jose Sharks
 Sanae Takaichi
+sanctions
 Sarah Huckabee Sanders
 Sarah Knafo
 Sassuolo
@@ -1315,7 +1977,10 @@ Satoshi Nakamoto
 Saudi Arabia
 Saudi Aramco
 Savannah Louie
+SBF
 Scandal
+science
+Score total
 Scott Bessent
 Scott Seiver
 Seahawks
@@ -1326,9 +1991,20 @@ Seattle Seahawks
 Sebastian Burduja
 Secession
 Second Best
+second highest
 Second Place
+Second place
+second place
+second-largest
+Second-largest company
+second-largest company
+security agreement
 Security Guarantee
+seismic
 Sejong
+Self-Driving
+Self-driving
+Self-pardon
 Senate
 Senate Election
 Senators
@@ -1338,21 +2014,32 @@ Sentimental Value
 Serie A
 Sever
 Sevilla
+sexual misconduct
+Shai Gilgeous-Alexander
+shake hands
 Sharks
 Shaun Deeb
 Shiba Inu
+shooting
+shutdown
+Signed into law
 Sinners
 Siversk
 Skye Valadez
 Slavia Prague
 Slovainsk
 Sloviansk
+Snap election
+snap election
 Snap Election
 Snow White
 Soccer
+soccer
 Soccer Championship
 Soccer Match
 Social Media
+social media
+software upgrade
 SOL
 Solana
 Solstice
@@ -1362,30 +2049,47 @@ South Carolina
 South Florida Bulls
 South Korea
 Sovereignty
+sovereignty
 Space
+space
 Space Program
+spaceflight
 SpaceX
+SpaceX Starship
 Spain
 Spanish League
 Speaker
+specific date range
 Sporting
 Sports
+sports
 Sports Award
 Sports Betting
 Sports Championship
 Sports Matchup
 Spread
+spread
+Springsteen: Deliver Me from Nowhere
 Spurs
 Sriram Krishnan
+SS Lazio
+SSA list
 St Pauli
 St. Louis Blues
 Stability
+stability
 Stable
+stablecoin
 Stablecoin
 Stagflation
+StandX
 Stanley Cup
+StarLadder
+StarLadder Budapest Major
+StarLadder Major
 Stars
 Starship
+Starship launches
 Statement
 Status
 Steam Awards
@@ -1399,37 +2103,59 @@ Stephen Miller
 Stephen Miran
 Stephen Smith
 Steve Bannon
+Stock market
+stock market
 Stock Market
 Stock Price
+Stock price
+stock price
+stock trading
 Stocks
+stolen
+Strait of Hormuz
 Strasbourg
 Strike
+strike
 Stripe
 Stuttgart
+subscribers
 Subscribers
 Success
+successful launches
 Succession
 Successor
+Suit and tie
+summit
 Sundar Pichai
 Sunderland
 Super Bowl
+Super Bowl LX
 Superman
 Supreme Court
 Supreme Leader
+survival
 Survivor
 Suwayda
+Sviato-Pokrovske
 Sweden
 Switzerland
+sworn in
 Sydney Sweeney
 Syria
 Sébastien Lecornu
 T.J. Lavin
 Taira
 Taiwan
+Take over
 Tampa Bay Buccaneers
 Tampa Bay Lightning
+Tarcisio de Freitas
+tariff
 Tariff Dividend
+tariffs
 Tariffs
+tax credits
+Tax cuts
 Tax Exemption
 Tax Policy
 Tax Reform
@@ -1441,19 +2167,27 @@ Team Wins
 Team Yandex
 Tech Business
 Tech Company
+tech leadership
+tech merger
+tech ranking
 Technology Ranking
 Ted Cruz
 Tehran
+temperature
 Temperature
 Temperature Forecast
 Temperature Record
+Temperature record
 Tencent
 Tennessee
 Tennis
+term end
+territory
 Territory
 Territory Capture
 Tesla
 Tesla Stock
+testify
 Tether
 Texans
 Texas
@@ -1461,28 +2195,51 @@ Texas A&M
 Texas Tech
 Texas Tech Red Raiders
 Thailand
+The MongolZ
 The Rock
+TheDev
+third-largest
+third-largest company
+this year
+This year
+ThreadGuy
 Thunder
 Thunderbolts
 Tiger King
+TikTok
 Tim Cook
 Tim Keller
 Tim Vieira
 Tim Walz
 Timberwolves
+TIME magazine
+TIME Person of the Year
 Timothée Chalamet
 Titans
 Token
+token
+Token distribution
 Token Launch
+token launch
+Token launch
+token price
 Tom Brady
 Tom Zhu
 Tomahawk
+Tomahawk missile
 Tomio Okamura
 Tonga
+top AI
+top grossing
 Top Grossing
+Top grossing movie
 Top Grossing Movie
 Top Model
+top model
+Top model
 Top Rank
+top ranking
+Top ranking
 Top Scorer
 Torino
 Toronto Maple Leafs
@@ -1491,20 +2248,29 @@ Total Score
 Tottenham
 Tottenham Hotspur
 Toulouse
+trade deal
 Trade Deal
+trade policy
 Trade Policy
 Trading Competition
+trading competition
+Trading competition
 Trae Young
 Trail Blazers
 Trailer
+transactions
 Travis Kelce
+Treasury yield
 Treasury Yield
 Treaty
+trial
 Trifold Phone
+trillionaire
 Troops
 Troy Jackson
 Trump
 Trump Administration
+Trump administration
 Trump Cabinet
 Trump Media
 TSLA
@@ -1512,59 +2278,125 @@ Tucker Carlson
 Tulsi Gabbard
 Tunisia
 Turkey
+Turkey politics
+TurkXBT
+turnout
 Tweet Count
+tweet count
 Tweets
+tweets
 Twitch
 Twitter
 Twitter Activity
+Twitter/X
+TX-Sen
 Ty Simpson
 Tyler Montoya
 Tyrese Maxey
+U.S. bank
+U.S. government
 U.S. Military
+U.S. military strikes
+U.S. revenue
 U.S. Visit
 Udinese
+UFO Confirmation
+UK election
+UK Politics
+UK politics
 Ukraine
 Ukraine Politics
+Ukraine president
 Ukraine Territory
 Ukraine War
+Ukraine war
 Umaro Sissoco Embaló
+unchanged
+underground structures
+unemployment
 Union Berlin
+Union Saint-Gilloise
 Uniswap
 United Kingdom
 Unsupervised
+Up or Down
+up or down
+Up/Down
+UpOnly podcast
+Ursula von der Leyen
 Uruguay
+US aid
+US Ally
+US Congress
+US Custody
+US Debt
+US Economy
+US economy
+US forces
+US Foreign Policy
 US GDP
+US government
+US Government
+US House
+US Iran Relations
+US legislation
+US military
+US Military
+US National
+US Politics
+US politics
+US President
+US Presidential
+US Presidential Election
+US Recognition
+US revenue
+US Revenue
+US Senate
+US Treasury
+US visit
+US-Iran
 USD ARS
 USD.AI
 USDC
 USDT
+User base
 Utah Jazz
 Utah Mammoth
 Utah State Aggies
 Uzbekistan
+vacancy
 Vaccine
+vaccine
+vaccines
 Valencia
 Valuation
+valuation
 Valve
 Van Epps
 Vancouver Canucks
 Vatican
 Vegas Golden Knights
 Vegas Sphere
+vehicles
 Venezuela
+Verified users
 Verona
 Vettori
+VfL Wolfsburg
 Victor Ponta
 Victor Wembanyama
 Victoria Livschitz
 Victory Margin
 Video Game
+video game
+Video game
 Vikings
 Viktor Orbán
 Villarreal
 Vinny Lingham
 Virgil Alexandru Zidaru
 Virginia
+VirtualBacon
 Vitality
 Vitorino Silva
 Vivek Ramaswamy
@@ -1572,47 +2404,62 @@ Vlad Gheorghe
 Vlad Voiculescu
 Vladimir Putin
 Volodymyr Zelenskyy
+VOOI Token
 Vote Margin
 Voter Turnout
+voter turnout
 Voting
 Vovchansk
 Vít Rakušan
 Wagner Moura
 Wake Forest
 Walker Kessler
+war declaration
 Warren Buffett
 Warriors
 Washington Capitals
 Washington Commanders
 Washington Wizards
 Waymo
+wealth
 Wealth
 Weaponry
+weather
 Weather
 Werder Bremen
 Wes Moore
 West Bank
 West Ham
 West Indies
+WhatsApp
 White House
 Wicked
 Wicked For Good
 Wicked: For Good
-Will Howard
+WikiLeaks
 Win Margin
+win margin
+Win margin
+winner
 Winner
 Winnipeg Jets
 Withdrawal
+withdrawal
+withdraws
 Wizards
 Wolves
 Workforce Reduction
+world leader
 World Network
+worldwide
 Worldwide
 Wunmi Mosaku
+X (platform)
 X (Platform)
 X (Twitter)
 X CEO
 X Money
+X platform
 xAI
 Xi Jinping
 XRP
@@ -1620,10 +2467,12 @@ Xuan Liu
 Yemen
 Yoon Suk Yeol
 Yorgos Lanthimos
+YouTube
 Zcash
 Zdeněk Hřib
 Zelensky
 Zelenskyy
+Zhipu AI
 Zohran Mamdani
 Zuckerberg
 Ângela Maryah

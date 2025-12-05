@@ -1,40 +1,123 @@
 importScripts('config.js');
 
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
-const GEMINI_API_KEY = CONFIG.GEMINI_API_KEY;
+const GAMMA_SEARCH_URL = 'https://gamma-api.polymarket.com/public-search';
 
 let lastProcessedTweets = new Set();
 let processingInProgress = false;
 let allKeywords = [];
+let keywordSet = new Set();
+let searchCache = new Map();
 
 async function loadKeywords() {
   try {
     const response = await fetch(chrome.runtime.getURL('data/keywords.txt'));
     const text = await response.text();
     allKeywords = text.split('\n').filter(k => k.trim().length > 0);
+    keywordSet = new Set(allKeywords.map(k => k.toLowerCase()));
     console.log(`[PolyFinder] Loaded ${allKeywords.length} keywords`);
   } catch (error) {
     console.error('[PolyFinder] Error loading keywords:', error);
     allKeywords = [];
+    keywordSet = new Set();
   }
+}
+
+function tokenize(text) {
+  return text.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 0);
 }
 
 function findMatchingKeywords(text) {
   const textLower = text.toLowerCase();
-  const matches = [];
-
-  for (const keyword of allKeywords) {
-    const keywordLower = keyword.toLowerCase();
-    if (textLower.includes(keywordLower)) {
-      matches.push(keyword);
+  const words = tokenize(text);
+  const hits = [];
+  
+  for (const word of words) {
+    if (keywordSet.has(word)) {
+      hits.push(word);
     }
   }
-
-  console.log(`[PolyFinder] Matched ${matches.length} keywords from text`);
-  return matches;
+  
+  for (const keyword of allKeywords) {
+    const keywordLower = keyword.toLowerCase();
+    if (keywordLower.includes(' ') && textLower.includes(keywordLower)) {
+      hits.push(keyword);
+    }
+  }
+  
+  const uniqueHits = [...new Set(hits)];
+  console.log(`[PolyFinder] Matched ${uniqueHits.length} keywords from text`);
+  return uniqueHits;
 }
 
 loadKeywords();
+
+function scoreEvent(event) {
+  if (!event || !event.markets) return 0;
+  
+  const totalVolume = event.markets.reduce((sum, m) => sum + (m.volume || 0), 0);
+  const totalLiquidity = event.markets.reduce((sum, m) => sum + (m.liquidity || 0), 0);
+  const activeMarkets = event.markets.filter(m => m.active && !m.closed).length;
+  
+  return (totalVolume * 0.6) + (totalLiquidity * 0.3) + (activeMarkets * 1000);
+}
+
+function pickBestEvent(events) {
+  if (!events || events.length === 0) return null;
+  
+  const activeEvents = events.filter(e => e.active && !e.closed);
+  if (activeEvents.length === 0) return null;
+  
+  const scored = activeEvents.map(event => ({
+    event,
+    score: scoreEvent(event),
+    bestMarket: event.markets
+      ?.filter(m => m.active && !m.closed)
+      .sort((a, b) => (b.volume || 0) - (a.volume || 0))[0]
+  }));
+  
+  scored.sort((a, b) => b.score - a.score);
+  
+  return scored[0] || null;
+}
+
+async function searchPolymarketByKeyword(keyword) {
+  const cacheKey = keyword.toLowerCase();
+  const now = Date.now();
+  
+  if (searchCache.has(cacheKey)) {
+    const cached = searchCache.get(cacheKey);
+    if (now - cached.timestamp < 300000) {
+      console.log(`[PolyFinder] Using cached results for "${keyword}"`);
+      return cached.result;
+    }
+  }
+  
+  try {
+    const url = `${GAMMA_SEARCH_URL}?q=${encodeURIComponent(keyword)}&events_status=active&limit_per_type=5&keep_closed_markets=0&optimized=true`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const bestEventData = pickBestEvent(data.events || []);
+    
+    const result = bestEventData ? {
+      keyword,
+      event: bestEventData.event,
+      bestMarket: bestEventData.bestMarket,
+      childMarkets: bestEventData.event.markets?.filter(m => m.active && !m.closed).slice(0, 5) || []
+    } : null;
+    
+    searchCache.set(cacheKey, { result, timestamp: now });
+    
+    return result;
+  } catch (error) {
+    console.error(`[PolyFinder] Error searching for "${keyword}":`, error);
+    return null;
+  }
+}
 
 function buildPolymarketUrl(market) {
   const marketId = market.id || '';
@@ -85,35 +168,80 @@ async function searchMarketsByKeywords(keywordsInput) {
       return [];
     }
     
-    console.log(`[PolyFinder] Searching Polymarket with ${keywords.length} matched keywords`);
-    console.log(`[PolyFinder] Keywords: [${keywords.join(', ')}]`);
+    console.log(`[PolyFinder] Searching with ${keywords.length} keywords: [${keywords.slice(0, 5).join(', ')}...]`);
     
-    const searchKeyword = keywords[0];
-    const url = `${GAMMA_API_URL}?limit=50&offset=0&closed=false&active=true&tag=${encodeURIComponent(searchKeyword)}`;
-    
-    console.log(`[PolyFinder API] Calling API with tag: "${searchKeyword}"`);
-    
+    const url = `${GAMMA_API_URL}?limit=1000&offset=0&closed=false&active=true`;
     const response = await fetch(url);
-    const data = await response.json();
+    const allMarkets = await response.json();
     
-    console.log(`[PolyFinder API] Received ${data.length} markets`);
+    console.log(`[PolyFinder] Fetched ${allMarkets.length} active markets, scoring relevance...`);
     
-    if (!Array.isArray(data) || data.length === 0) {
+    if (!Array.isArray(allMarkets) || allMarkets.length === 0) {
       return [];
     }
-
-    const sorted = data.sort((a, b) => (b.volumeNum || 0) - (a.volumeNum || 0));
     
-    console.log(`[PolyFinder] Found ${sorted.length} markets for tag "${searchKeyword}"`);
+    const scoredMarkets = allMarkets.map(market => {
+      const question = (market.question || '').toLowerCase();
+      const description = (market.description || '').toLowerCase();
+      
+      let outcomesText = '';
+      if (market.outcomePrices) {
+        try {
+          const outcomes = JSON.parse(market.outcomePrices);
+          outcomesText = outcomes.map(o => (o.name || '').toLowerCase()).join(' ');
+        } catch (e) {
+          outcomesText = '';
+        }
+      } else if (market.outcomes && Array.isArray(market.outcomes)) {
+        outcomesText = market.outcomes.map(o => (o || '').toLowerCase()).join(' ');
+      }
+      
+      let score = 0;
+      let matchedKeywords = [];
+      
+      for (const keyword of keywords) {
+        const keywordLower = keyword.toLowerCase();
+        
+        const questionMatches = (question.match(new RegExp(keywordLower, 'gi')) || []).length;
+        const outcomeMatches = (outcomesText.match(new RegExp(keywordLower, 'gi')) || []).length;
+        const descMatches = (description.match(new RegExp(keywordLower, 'gi')) || []).length;
+        
+        if (questionMatches > 0 || outcomeMatches > 0 || descMatches > 0) {
+          matchedKeywords.push(keyword);
+          
+          score += questionMatches * 10 * keyword.length;
+          score += outcomeMatches * 7 * keyword.length;
+          score += descMatches * 3 * keyword.length;
+        }
+      }
+      
+      return {
+        market,
+        score,
+        matchedKeywords,
+        volume: market.volumeNum || 0
+      };
+    });
+    
+    const matched = scoredMarkets.filter(m => m.score > 0);
+    
+    console.log(`[PolyFinder] Found ${matched.length} markets matching keywords`);
+    
+    const sorted = matched.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.volume - a.volume;
+    });
     
     if (sorted.length > 0) {
-      console.log(`[PolyFinder] Top matches:`);
+      console.log(`[PolyFinder] Top ${Math.min(5, sorted.length)} matches (by relevance):`);
       sorted.slice(0, 5).forEach((m, i) => {
-        console.log(`  ${i+1}. ${m.question}`);
+        console.log(`  ${i+1}. [Score: ${m.score}] ${m.market.question} (matched: ${m.matchedKeywords.slice(0, 3).join(', ')})`);
       });
+    } else {
+      console.log(`[PolyFinder] No markets found matching any keywords`);
     }
 
-    return sorted.slice(0, 10).map(formatMarketData);
+    return sorted.slice(0, 10).map(m => formatMarketData(m.market));
   } catch (error) {
     console.error('[PolyFinder API] Error searching markets:', error);
     return [];
@@ -232,10 +360,53 @@ async function processScrapedTweets(tweets, url, timestamp) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.action === 'CHECK_TWEET') {
+    const { text, tweetId } = msg;
+    
+    if (!text || text.length < 10) {
+      sendResponse({ markets: [] });
+      return true;
+    }
+    
+    const hits = findMatchingKeywords(text);
+    
+    if (hits.length === 0) {
+      sendResponse({ markets: [] });
+      return true;
+    }
+    
+    console.log(`[PolyFinder] Tweet matched keywords: [${hits.join(', ')}]`);
+    
+    Promise.all(hits.slice(0, 3).map(keyword => searchPolymarketByKeyword(keyword)))
+      .then(results => {
+        const validResults = results.filter(r => r !== null);
+        
+        const marketsByKeyword = validResults.map(r => ({
+          keyword: r.keyword,
+          event: r.event,
+          primaryMarket: r.bestMarket,
+          childMarkets: r.childMarkets
+        }));
+        
+        sendResponse({ 
+          success: true,
+          keywords: hits,
+          marketsByKeyword 
+        });
+      })
+      .catch(error => {
+        console.error('[PolyFinder] Error processing CHECK_TWEET:', error);
+        sendResponse({ success: false, markets: [] });
+      });
+    
+    return true;
+  }
+  
   if (msg.action === 'CLEAR_CACHE') {
     console.log('[PolyFinder Background] Clearing tweet cache...');
     lastProcessedTweets.clear();
     processingInProgress = false;
+    searchCache.clear();
     return true;
   }
   

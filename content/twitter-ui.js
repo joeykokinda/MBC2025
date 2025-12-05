@@ -62,7 +62,7 @@ window.createMarketCard = function(marketData) {
     let displayOptions = [];
     
     if (hasChildMarkets) {
-      displayOptions = childMarkets.slice(0, 4).map(child => {
+      displayOptions = childMarkets.map(child => {
         let childOptions = [];
         try {
           childOptions = child.outcomePrices ? 
@@ -75,9 +75,13 @@ window.createMarketCard = function(marketData) {
           name: child.question || 'Unknown',
           price: price
         };
-      });
+      })
+      .sort((a, b) => b.price - a.price)
+      .slice(0, 4);
     } else if (options.length > 2 && options[0]?.name) {
-      displayOptions = options.slice(0, 4);
+      displayOptions = [...options]
+        .sort((a, b) => parseFloat(b.price || 0) - parseFloat(a.price || 0))
+        .slice(0, 4);
     }
     
     optionsHtml = displayOptions.map(option => {
@@ -141,7 +145,7 @@ function toggleMarkets() {
   // Update button
   const btn = document.getElementById('polymarket-toggle');
   if (btn) {
-    btn.textContent = window.polymarketVisible ? '📊' : '📊';
+    btn.textContent = window.polymarketVisible ? 'Show' : 'Hide';
     btn.style.opacity = window.polymarketVisible ? '1' : '0.5';
     btn.title = window.polymarketVisible ? 'Hide Polymarket' : 'Show Polymarket';
   }

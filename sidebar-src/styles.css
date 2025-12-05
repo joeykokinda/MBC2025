@@ -202,9 +202,14 @@ body {
 }
 
 /* Theme Toggle Button - Consistent Size */
+.theme-toggle-btn,
+.refresh-btn,
+.wallet-address-btn {
+  height: 40px;
+}
+
 .theme-toggle-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
   border-radius: 8px;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -231,7 +236,6 @@ body {
 .theme-toggle-btn:hover {
   background: var(--c-surface-hover);
   border-color: var(--c-gold);
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
@@ -242,7 +246,6 @@ body {
 
 /* Active state */
 .theme-toggle-btn:active {
-  transform: translateY(0);
   box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
 }
 
@@ -252,8 +255,7 @@ body {
 
 /* Refresh Button - Consistent Size */
 .refresh-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
   border-radius: 8px;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -271,12 +273,24 @@ body {
   background: var(--c-surface-hover);
   border-color: var(--c-gold);
   color: var(--c-gold);
-  transform: translateY(-1px) rotate(90deg);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .refresh-btn:active {
-  transform: translateY(0) rotate(90deg) scale(0.95);
+  color: var(--c-gold);
+}
+
+.refresh-btn .refresh-icon {
+  display: inline-flex;
+  transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.refresh-btn:hover .refresh-icon {
+  transform: rotate(140deg);
+}
+
+.refresh-btn:active .refresh-icon {
+  transform: rotate(200deg) scale(0.95);
 }
 
 /* Wallet Menu Container */
@@ -300,7 +314,6 @@ body {
   justify-content: center;
   gap: 4px;
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  height: 36px;
   letter-spacing: 0;
   flex-shrink: 0;
   white-space: nowrap;
@@ -309,12 +322,11 @@ body {
 .wallet-address-btn:hover {
   background: var(--c-surface-hover);
   border-color: var(--c-gold);
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
 }
 
 .wallet-address-btn:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.98);
 }
 
 /* Wallet Dropdown Menu */

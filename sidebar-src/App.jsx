@@ -409,7 +409,7 @@ function JaegerContent() {
           {isConnected && (
             <>
               <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
-                ↻
+                <span className="refresh-icon" aria-hidden="true">↻</span>
               </button>
             <div className="wallet-menu-container">
               <button 

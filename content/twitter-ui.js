@@ -18,13 +18,18 @@ window.createMarketCard = function(marketData) {
   const container = document.createElement('div');
   container.className = 'polymarket-card';
   container.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: calc(100% + 12px);
+    width: 320px;
     display: ${window.polymarketVisible ? 'block' : 'none'};
-    margin: 12px 0;
     padding: 12px;
     background: #1a1a1a;
     border: 1px solid #2f3336;
     border-radius: 12px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   `;
   
   let options = [];
@@ -127,6 +132,31 @@ window.createMarketCard = function(marketData) {
   
   container.innerHTML = headerHtml + optionsHtml;
   
+  // Position card after it's added to DOM to handle stacking for multiple cards
+  requestAnimationFrame(() => {
+    const article = container.closest('article[data-testid="tweet"]');
+    if (article) {
+      // Ensure article has position relative for absolute positioning to work
+      article.style.position = 'relative';
+      article.style.overflow = 'visible';
+      
+      // Stack multiple cards vertically if there are more than one
+      const allCards = Array.from(article.querySelectorAll('.polymarket-card'));
+      const currentIndex = allCards.indexOf(container);
+      if (currentIndex > 0) {
+        // Calculate cumulative height of previous cards
+        let totalHeight = 0;
+        for (let i = 0; i < currentIndex; i++) {
+          const prevCard = allCards[i];
+          if (prevCard.offsetHeight > 0) {
+            totalHeight += prevCard.offsetHeight + 8; // 8px gap between cards
+          }
+        }
+        container.style.top = `${totalHeight}px`;
+      }
+    }
+  });
+  
   return container;
 };
 
@@ -194,8 +224,24 @@ function createToggleButton() {
   console.log('[Polymarket] ✓ Toggle button added');
 }
 
+// Inject CSS to ensure proper positioning context
+function injectPositioningStyles() {
+  if (document.getElementById('polymarket-positioning-styles')) return;
+  
+  const style = document.createElement('style');
+  style.id = 'polymarket-positioning-styles';
+  style.textContent = `
+    article[data-testid="tweet"] {
+      position: relative !important;
+      overflow: visible !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // Initialize on Twitter
 if (window.location.href.includes('twitter.com') || window.location.href.includes('x.com')) {
+  injectPositioningStyles();
   setTimeout(createToggleButton, 2000);
   console.log('[Polymarket UI] Loaded');
 }

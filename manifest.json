@@ -48,7 +48,11 @@
   
   "web_accessible_resources": [
     {
-      "resources": ["data/keywords.txt"],
+      "resources": [
+        "data/entity_keywords.txt",
+        "data/generic_keywords.txt",
+        "data/market_index.json"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

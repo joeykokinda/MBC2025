@@ -1,14 +1,25 @@
-// CONTENT SCRIPT - Runs on every webpage
-// This file is injected into every page you visit
-// Purpose: Extract text content from the page for analysis
+function safeSendMessage(message, callback) {
+  if (!chrome.runtime || !chrome.runtime.id) {
+    console.log('[PolyFinder] Extension context invalidated - please refresh page');
+    if (callback) callback(null);
+    return;
+  }
+  
+  try {
+    chrome.runtime.sendMessage(message, (response) => {
+      if (chrome.runtime.lastError) {
+        console.log('[PolyFinder] Message send error (extension may have reloaded)');
+        if (callback) callback(null);
+        return;
+      }
+      if (callback) callback(response);
+    });
+  } catch (error) {
+    console.log('[PolyFinder] Extension context error:', error.message);
+    if (callback) callback(null);
+  }
+}
 
-// Scrape the current page and extract:
-// - Page title
-// - Meta description
-// - Headings (h1, h2, h3)
-// - Paragraphs
-// - Main content
-// Returns object with: { title, text, url, timestamp }
 function scrapeTwitterPage() {
   const title = document.title;
   const articles = Array.from(document.querySelectorAll('article'));
@@ -101,20 +112,26 @@ function scrapePage() {
   return scrapeGenericPage();
 }
 
-// Listen for messages from background script
-// When background asks to scrape, send back the scraped data
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'SCRAPE_PAGE') {
     const scraped = scrapePage();
     sendResponse(scraped);
   }
+  
+  if (msg.action === 'CACHE_READY') {
+    console.log('[PolyFinder Content] Cache is ready, scanning tweets now');
+    if (window.location.href.includes('twitter.com') || window.location.href.includes('x.com')) {
+      setTimeout(() => scanTwitterFeed(), 500);
+    }
+  }
+  
   return true;
 });
 
 // Auto-scrape page 2 seconds after it loads
 // Sends data to background script automatically
 setTimeout(() => {
-  chrome.runtime.sendMessage({
+  safeSendMessage({
     action: 'PAGE_LOADED',
     payload: scrapePage()
   });
@@ -134,7 +151,7 @@ if (isTwitter) {
   setInterval(() => {
     const now = Date.now();
     if (now - lastScrapeTime > 3000) {
-      chrome.runtime.sendMessage({
+      safeSendMessage({
         action: 'PAGE_LOADED',
         payload: scrapePage()
       });
@@ -145,7 +162,7 @@ if (isTwitter) {
   window.addEventListener('scroll', () => {
     const now = Date.now();
     if (now - lastScrapeTime > 3000) {
-      chrome.runtime.sendMessage({
+      safeSendMessage({
         action: 'PAGE_LOADED',
         payload: scrapePage()
       });
@@ -170,7 +187,7 @@ function handleTwitterScroll() {
   lastScrapeTime = now;
   console.log('[PolyFinder] Re-scraping Twitter due to scroll...');
   
-  chrome.runtime.sendMessage({
+  safeSendMessage({
     action: 'PAGE_LOADED',
     payload: scrapePage()
   });
@@ -200,17 +217,15 @@ function createMarketUI(marketData) {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   `;
   
-  const yesPrice = (parseFloat(primaryMarket.outcomePrices?.[0]) || 0);
-  const noPrice = (parseFloat(primaryMarket.outcomePrices?.[1]) || 0);
+  const yesPrice = parseFloat(primaryMarket.outcomes?.[0]?.price || 0);
+  const noPrice = parseFloat(primaryMarket.outcomes?.[1]?.price || 0);
   
-  const marketUrl = primaryMarket.slug 
-    ? `https://polymarket.com/event/${primaryMarket.slug}`
-    : `https://polymarket.com`;
+  const marketUrl = primaryMarket.url || 'https://polymarket.com';
   
   container.innerHTML = `
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
       <span style="color: #1d9bf0; font-weight: bold; font-size: 12px;">📊 POLYMARKET</span>
-      <span style="color: #71767b; font-size: 11px;">keyword: ${keyword}</span>
+      <span style="color: #71767b; font-size: 11px;">keyword: ${keyword || 'match'}</span>
     </div>
     <a href="${marketUrl}" target="_blank" style="color: #e7e9ea; text-decoration: none; display: block; margin-bottom: 10px; font-size: 14px; font-weight: 500; line-height: 1.4;">
       ${primaryMarket.question || 'Unknown Market'}
@@ -239,23 +254,33 @@ function injectMarketsIntoTweet(article, marketsByKeyword) {
   if (processedTweets.has(article)) return;
   processedTweets.add(article);
   
+  console.log(`[PolyFinder Content] Injecting markets into tweet...`);
+  
   const existingWidget = article.querySelector('.polyfinder-market-widget');
   if (existingWidget) {
     existingWidget.remove();
   }
   
-  const tweetContent = article.querySelector('[data-testid="tweetText"]');
-  if (!tweetContent) return;
+  const tweetContent = article.querySelector('[data-testid="tweetText"]') || 
+                       article.querySelector('[class*="css-1rynq56"]') ||
+                       article.querySelector('div[lang]');
   
-  const insertPoint = tweetContent.closest('[data-testid="tweet"]') || tweetContent.parentElement;
-  if (!insertPoint) return;
+  if (!tweetContent) {
+    console.log('[PolyFinder Content] Could not find tweet text element in article');
+    return;
+  }
+  
+  const insertPoint = article;
   
   marketsByKeyword.slice(0, 2).forEach(marketData => {
     const widget = createMarketUI(marketData);
     if (widget) {
+      console.log(`[PolyFinder Content] Appending widget for keyword: ${marketData.keyword}`);
       insertPoint.appendChild(widget);
     }
   });
+  
+  console.log(`[PolyFinder Content] Successfully injected ${marketsByKeyword.slice(0, 2).length} market widget(s)`);
 }
 
 async function checkTweetForMarkets(article) {
@@ -264,16 +289,30 @@ async function checkTweetForMarkets(article) {
   const tweetText = extractTweetText(article);
   if (!tweetText || tweetText.length < 10) return;
   
+  if (!chrome.runtime || !chrome.runtime.id) {
+    return;
+  }
+  
   try {
-    const response = await chrome.runtime.sendMessage({
-      action: 'CHECK_TWEET',
-      text: tweetText,
-      tweetId: article.id || Math.random().toString()
+    const response = await new Promise((resolve) => {
+      safeSendMessage({
+        action: 'CHECK_TWEET',
+        text: tweetText,
+        tweetId: article.id || Math.random().toString()
+      }, resolve);
     });
     
+    console.log('[PolyFinder Content] CHECK_TWEET response:', response);
+    
     if (response && response.success && response.marketsByKeyword && response.marketsByKeyword.length > 0) {
-      console.log(`[PolyFinder] Found ${response.marketsByKeyword.length} market(s) for tweet`);
+      console.log(`[PolyFinder Content] Injecting ${response.marketsByKeyword.length} market(s) into tweet`);
       injectMarketsIntoTweet(article, response.marketsByKeyword);
+    } else {
+      console.log('[PolyFinder Content] No markets to inject:', {
+        hasResponse: !!response,
+        success: response?.success,
+        marketsLength: response?.marketsByKeyword?.length
+      });
     }
   } catch (error) {
     console.error('[PolyFinder] Error checking tweet:', error);
@@ -281,12 +320,16 @@ async function checkTweetForMarkets(article) {
 }
 
 function scanTwitterFeed() {
-  const articles = document.querySelectorAll('article[data-testid="tweet"]');
+  const articles = document.querySelectorAll('article');
+  console.log(`[PolyFinder Content] Scanning ${articles.length} tweets on page`);
+  let checked = 0;
   articles.forEach(article => {
     if (!processedTweets.has(article)) {
       checkTweetForMarkets(article);
+      checked++;
     }
   });
+  console.log(`[PolyFinder Content] Checked ${checked} new tweets`);
 }
 
 if (window.location.href.includes('twitter.com') || window.location.href.includes('x.com')) {

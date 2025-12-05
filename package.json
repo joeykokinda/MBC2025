@@ -6,7 +6,9 @@
     "dev": "vite build --watch --mode development",
     "build": "vite build",
     "preview": "vite preview",
-    "generate-icons": "node generate-icons.js"
+    "generate-icons": "node generate-icons.js",
+    "build-index": "node scripts/build_market_index.js",
+    "split-keywords": "node scripts/split_keywords.js"
   },
   "dependencies": {
     "@base-org/account-ui": "^1.0.1",

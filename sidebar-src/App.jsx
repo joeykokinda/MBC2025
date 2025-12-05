@@ -43,6 +43,8 @@ function PolyFinderContent() {
   const [error, setError] = useState(null);
   const [connectingWallet, setConnectingWallet] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [noTweets, setNoTweets] = useState(false);
 
   // Get the Base Account connector
   const baseAccountConnector = connectors.find(
@@ -67,15 +69,33 @@ function PolyFinderContent() {
 
   // SETUP: When side panel opens, request data from background script
   useEffect(() => {
-    // Listen for market data from background script
+    let processingTimeout;
+    
     const handleMessage = (msg) => {
       if (msg.action === 'MARKETS_READY') {
-        setMarkets(msg.payload.markets || []);
-        setKeywords(msg.payload.keywords || []);
-        setStats(msg.payload.stats || null);
-        setPageTitle(msg.payload.pageTitle || '');
+        const newMarkets = msg.payload.markets || [];
+        
+        if (newMarkets.length > 0) {
+          setMarkets(newMarkets);
+          setKeywords(msg.payload.keywords || []);
+          setStats(msg.payload.stats || null);
+          setPageTitle(msg.payload.pageTitle || '');
+          setNoTweets(false);
+        }
+        
         setLoading(false);
+        setProcessing(false);
+        clearTimeout(processingTimeout);
         setError(msg.payload.error || null);
+      }
+      
+      if (msg.action === 'PROCESSING_STARTED') {
+        setProcessing(true);
+        setLoading(false);
+        
+        processingTimeout = setTimeout(() => {
+          setProcessing(false);
+        }, 15000);
       }
     };
 
@@ -86,12 +106,14 @@ function PolyFinderContent() {
 
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
+      clearTimeout(processingTimeout);
     };
   }, []);
 
   // Refresh button handler - fetch markets again
   const handleRefresh = () => {
     setLoading(true);
+    chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   };
 
@@ -230,6 +252,13 @@ function PolyFinderContent() {
       {/* Main content for connected users - Scrollable */}
       {isConnected && (
         <div className="markets-content-wrapper">
+          {/* Processing banner */}
+          {processing && (
+            <div className="processing-banner">
+              Looking for markets...
+            </div>
+          )}
+
           {/* Show page title and keywords if available */}
           {pageTitle && (
             <div className="page-info">
@@ -257,7 +286,9 @@ function PolyFinderContent() {
               {/* List of markets */}
               <div className="markets-list">
                 {markets.length === 0 ? (
-                  <div className="no-markets">No relevant markets found</div>
+                  <div className="no-markets">
+                    {processing ? 'Looking for markets...' : 'No relevant markets found'}
+                  </div>
                 ) : (
                   markets.map((market, index) => (
                     <MarketCard key={market.id || index} market={market} />

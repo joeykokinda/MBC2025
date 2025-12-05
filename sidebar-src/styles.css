@@ -161,6 +161,28 @@ body {
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
+.header-logo-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logo .logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
 .sidebar-header h1 {
   font-size: 18px;
   font-weight: 600;
@@ -487,16 +509,39 @@ body {
 
 .login-icon {
   margin: 0 auto var(--space-lg);
-  width: 72px;
-  height: 72px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
 
-.login-icon svg {
-  filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.3));
+.jaeger-logo {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoFadeIn 0.8s ease-out;
+}
+
+.jaeger-logo .logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .login-content h2 {
@@ -1888,14 +1933,14 @@ button[class*="WalletOption"]:hover {
   }
   
   .login-icon {
-    width: 64px;
-    height: 64px;
+    width: 100px;
+    height: 100px;
     margin-bottom: var(--space-md);
   }
   
-  .login-icon svg {
-    width: 64px;
-    height: 64px;
+  .jaeger-logo {
+    width: 100px;
+    height: 100px;
   }
   
   .login-content h2 {

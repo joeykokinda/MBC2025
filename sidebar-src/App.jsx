@@ -369,7 +369,20 @@ function JaegerContent() {
   return (
     <div className="sidebar-container">
       <header className="sidebar-header">
-        <h1>JAEGER</h1>
+        <div className="header-logo-title">
+          <div className="header-logo">
+            <img 
+              src={typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('assets/jaeger_animal.png') : '/assets/jaeger_animal.png'} 
+              alt="JAEGER Logo" 
+              className="logo-image"
+              onError={(e) => {
+                console.error('Failed to load logo image');
+                e.target.style.display = 'none';
+              }}
+            />
+          </div>
+          <h1>JAEGER</h1>
+        </div>
         <div className="header-actions">
           {/* Theme Toggle - Always visible */}
           <button 
@@ -438,18 +451,17 @@ function JaegerContent() {
         <div className="simple-login-screen">
           <div className="login-content">
             <div className="login-icon">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-                <rect width="80" height="80" rx="16" fill="url(#goldGradient)"/>
-                <defs>
-                  <linearGradient id="goldGradient" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#f4d03f"/>
-                    <stop offset="100%" stopColor="#d4af37"/>
-                  </linearGradient>
-                </defs>
-                <path d="M40 20L50 35H30L40 20Z" fill="#000" opacity="0.9"/>
-                <path d="M30 40H50L40 60L30 40Z" fill="#000" opacity="0.6"/>
-              </svg>
+              <div className="jaeger-logo">
+                <img 
+                  src={typeof chrome !== 'undefined' && chrome.runtime ? chrome.runtime.getURL('assets/jaeger_animal.png') : '/assets/jaeger_animal.png'} 
+                  alt="JAEGER Logo" 
+                  className="logo-image"
+                  onError={(e) => {
+                    console.error('Failed to load logo image');
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
             </div>
             <h2>Sign in with Base</h2>
             <p>Connect your wallet to discover prediction markets related to any webpage you visit</p>

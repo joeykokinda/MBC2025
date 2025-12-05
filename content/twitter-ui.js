@@ -170,6 +170,34 @@ window.createMarketCard = function(marketData) {
   
   container.innerHTML = headerHtml + optionsHtml;
   
+  // Prevent clicks and mousedown on the card from opening the tweet
+  // Use capture phase to intercept before Twitter's handlers
+  const stopPropagation = (e) => {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    // Allow default behavior (link navigation) but prevent bubbling to tweet
+  };
+  
+  container.addEventListener('click', stopPropagation, true);
+  container.addEventListener('mousedown', stopPropagation, true);
+  container.addEventListener('mouseup', stopPropagation, true);
+  
+  // Also prevent clicks on all links inside the card from bubbling to tweet
+  // But allow the link's default behavior (navigation) to work
+  requestAnimationFrame(() => {
+    const links = container.querySelectorAll('a');
+    links.forEach(link => {
+      const linkStopPropagation = (e) => {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        // Default behavior (navigation) will still work
+      };
+      link.addEventListener('click', linkStopPropagation, true);
+      link.addEventListener('mousedown', linkStopPropagation, true);
+      link.addEventListener('mouseup', linkStopPropagation, true);
+    });
+  });
+  
   // Position card after it's added to DOM to handle stacking for multiple cards
   requestAnimationFrame(() => {
     const article = container.closest('article[data-testid="tweet"]');
@@ -195,11 +223,18 @@ window.createMarketCard = function(marketData) {
       
       // Add hover icon if this is the first card for this tweet
       if (currentIndex === 0 && !article.querySelector('.polymarket-hover-icon')) {
-        createHoverIcon(article);
+        const totalCards = allCards.length;
+        createHoverIcon(article, totalCards);
       } else {
-        // If icon already exists, attach hover listeners to this new card
+        // If icon already exists, update market count and attach hover listeners to this new card
         const existingIcon = article.querySelector('.polymarket-hover-icon');
         if (existingIcon) {
+          // Update market count
+          const marketCountText = existingIcon.querySelector('.polymarket-market-count');
+          if (marketCountText) {
+            const totalCards = article.querySelectorAll('.polymarket-card').length;
+            marketCountText.textContent = `${totalCards} market${totalCards > 1 ? 's' : ''} found`;
+          }
           attachCardHoverListeners(article, container);
         }
       }
@@ -268,9 +303,51 @@ function attachCardHoverListeners(article, card) {
 }
 
 /**
- * Creates a hover icon at the top right of a tweet
+ * Creates a hover icon next to the tweet time in the header
  */
-function createHoverIcon(article) {
+function createHoverIcon(article, marketCount) {
+  // Find the time element in the tweet header
+  const timeElement = article.querySelector('time');
+  if (!timeElement) {
+    // Fallback: try to find the header area
+    const header = article.querySelector('[data-testid="User-Name"]')?.parentElement;
+    if (!header) {
+      console.warn('[Polymarket] Could not find tweet header for icon placement');
+      return;
+    }
+    // Insert after the header content
+    insertIconAfterElement(header, marketCount, article);
+    return;
+  }
+  
+  // Insert icon after the time element
+  insertIconAfterElement(timeElement, marketCount, article);
+}
+
+/**
+ * Inserts the icon container after a given element
+ */
+function insertIconAfterElement(referenceElement, marketCount, article) {
+  const iconContainer = document.createElement('span');
+  iconContainer.className = 'polymarket-hover-icon-container';
+  iconContainer.style.cssText = `
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    position: relative;
+    z-index: 10;
+  `;
+  
+  // Prevent hover events from bubbling to parent elements (like the time element)
+  iconContainer.addEventListener('mouseenter', (e) => {
+    e.stopPropagation();
+  });
+  iconContainer.addEventListener('mouseleave', (e) => {
+    e.stopPropagation();
+  });
+  
   const icon = document.createElement('div');
   icon.className = 'polymarket-hover-icon';
   
@@ -282,29 +359,82 @@ function createHoverIcon(article) {
   logoImg.src = logoUrl;
   logoImg.alt = 'Polymarket';
   logoImg.style.cssText = `
-    width: 100%;
-    height: 100%;
+    width: 16px;
+    height: 16px;
     object-fit: contain;
   `;
   icon.appendChild(logoImg);
   
   icon.style.cssText = `
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    display: flex;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 4px;
     cursor: pointer;
-    z-index: 1001;
-    transition: background 0.2s ease, transform 0.2s ease;
+    transition: transform 0.2s ease;
     pointer-events: auto;
-    padding: 2px;
+    flex-shrink: 0;
   `;
+  
+  // Create market count text
+  const marketCountText = document.createElement('span');
+  marketCountText.className = 'polymarket-market-count';
+  marketCountText.textContent = `${marketCount} market${marketCount > 1 ? 's' : ''} found`;
+  marketCountText.style.cssText = `
+    color: #71767b;
+    font-size: 13px;
+    white-space: nowrap;
+  `;
+  
+  iconContainer.appendChild(icon);
+  iconContainer.appendChild(marketCountText);
+  
+  // Insert the container after the reference element
+  // If it's a time element, insert after its parent to avoid triggering time hover
+  if (referenceElement.tagName === 'TIME') {
+    const timeParent = referenceElement.parentElement;
+    if (timeParent && timeParent !== article) {
+      // Insert after the time's parent container
+      if (timeParent.nextSibling) {
+        timeParent.parentNode.insertBefore(iconContainer, timeParent.nextSibling);
+      } else {
+        timeParent.parentNode.appendChild(iconContainer);
+      }
+    } else {
+      // Fallback: insert after time element but add isolation
+      if (referenceElement.nextSibling) {
+        referenceElement.parentNode.insertBefore(iconContainer, referenceElement.nextSibling);
+      } else {
+        referenceElement.parentNode.appendChild(iconContainer);
+      }
+    }
+  } else {
+    // For non-time elements, insert normally
+    if (referenceElement.nextSibling) {
+      referenceElement.parentNode.insertBefore(iconContainer, referenceElement.nextSibling);
+    } else {
+      referenceElement.parentNode.appendChild(iconContainer);
+    }
+  }
+  
+  // Disable pointer events on the time element when hovering over our icon
+  const disableTimeHover = () => {
+    const timeEl = article.querySelector('time');
+    if (timeEl) {
+      timeEl.style.pointerEvents = 'none';
+    }
+  };
+  
+  const enableTimeHover = () => {
+    const timeEl = article.querySelector('time');
+    if (timeEl) {
+      timeEl.style.pointerEvents = '';
+    }
+  };
+  
+  iconContainer.addEventListener('mouseenter', disableTimeHover);
+  iconContainer.addEventListener('mouseleave', enableTimeHover);
   
   // Create shared hover state for this article
   article._polymarketHoverState = {
@@ -341,9 +471,21 @@ function createHoverIcon(article) {
     }, 300); // Longer delay to allow moving from icon to card
   };
   
-  // Show cards when hovering over icon
-  icon.addEventListener('mouseenter', showCards);
-  icon.addEventListener('mouseleave', hideCards);
+  // Show cards when hovering over icon or container
+  // Stop propagation to prevent triggering time element hover
+  const iconEnter = (e) => {
+    e.stopPropagation();
+    showCards();
+  };
+  const iconLeave = (e) => {
+    e.stopPropagation();
+    hideCards();
+  };
+  
+  icon.addEventListener('mouseenter', iconEnter);
+  iconContainer.addEventListener('mouseenter', iconEnter);
+  icon.addEventListener('mouseleave', iconLeave);
+  iconContainer.addEventListener('mouseleave', iconLeave);
   
   // Keep cards visible when hovering over them
   cards.forEach(card => {
@@ -352,16 +494,12 @@ function createHoverIcon(article) {
   
   // Hover effect on icon
   icon.addEventListener('mouseenter', () => {
-    icon.style.background = 'rgba(0, 0, 0, 0.8)';
     icon.style.transform = 'scale(1.1)';
   });
   
   icon.addEventListener('mouseleave', () => {
-    icon.style.background = 'rgba(0, 0, 0, 0.6)';
     icon.style.transform = 'scale(1)';
   });
-  
-  article.appendChild(icon);
 }
 
 /**
@@ -438,6 +576,12 @@ function injectPositioningStyles() {
     article[data-testid="tweet"] {
       position: relative !important;
       overflow: visible !important;
+    }
+    .polymarket-card a:hover {
+      text-decoration: underline !important;
+    }
+    .polymarket-hover-icon-container {
+      pointer-events: auto !important;
     }
   `;
   document.head.appendChild(style);

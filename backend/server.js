@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cron from 'node-cron';
 import marketRoutes from './routes/markets.js';
 import keywordRoutes from './routes/keywords.js';
+import searchRoutes from './routes/search.js';
 import { updateMarketsCache } from './services/marketService.js';
 import { initDatabase } from './services/database.js';
 
@@ -19,6 +20,7 @@ app.use(express.json());
 
 app.use('/api/markets', marketRoutes);
 app.use('/api/keywords', keywordRoutes);
+app.use('/api/search', searchRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ 

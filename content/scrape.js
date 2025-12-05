@@ -119,3 +119,36 @@ setTimeout(() => {
     payload: scrapePage()
   });
 }, 2000);
+
+// For Twitter/X: Re-scrape when user scrolls and new content loads
+let lastScrapeTime = 0;
+const SCRAPE_THROTTLE = 3000;
+
+function handleTwitterScroll() {
+  const now = Date.now();
+  if (now - lastScrapeTime < SCRAPE_THROTTLE) {
+    return;
+  }
+  
+  const isTwitter = window.location.href.includes('twitter.com') || window.location.href.includes('x.com');
+  if (!isTwitter) return;
+  
+  lastScrapeTime = now;
+  console.log('[PolyFinder] Re-scraping Twitter due to scroll...');
+  
+  chrome.runtime.sendMessage({
+    action: 'PAGE_LOADED',
+    payload: scrapePage()
+  });
+}
+
+// Listen for scroll events on Twitter
+if (window.location.href.includes('twitter.com') || window.location.href.includes('x.com')) {
+  window.addEventListener('scroll', handleTwitterScroll, { passive: true });
+  
+  // Also listen for new content via mutation observer
+  const observer = new MutationObserver(() => handleTwitterScroll());
+  observer.observe(document.body, { childList: true, subtree: true });
+  
+  console.log('[PolyFinder] Twitter continuous scraping enabled');
+}

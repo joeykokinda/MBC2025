@@ -94,7 +94,7 @@ Output format:
   }
 }
 
-export async function updateKeywordsFile() {
+export export async function updateKeywordsFile() {
   // Fetch ALL keywords from ALL markets
   const result = await pool.query(
     'SELECT unnest(keywords) as keyword FROM markets WHERE keywords IS NOT NULL'
@@ -185,4 +185,4 @@ export async function getAllKeywords() {
   }
 }
 
-export { extractKeywordsFromMarkets, updateKeywordsFile };
+export { extractKeywordsFromMarkets };

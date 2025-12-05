@@ -8,4 +8,5 @@ sidebar/
 *.pem
 config.js
 background/config.js
+backend/
 

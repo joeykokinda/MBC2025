@@ -455,7 +455,7 @@ body {
 }
 
 /* ============================================
-   SIGN IN SCREEN - Clean & Simple Design
+   SIGN IN SCREEN - Enhanced with Animated Background
    ============================================ */
 .simple-login-screen {
   display: flex;
@@ -465,30 +465,173 @@ body {
   padding: var(--space-lg);
   background: var(--c-bg);
   position: relative;
+  overflow: hidden;
 }
 
-/* Subtle background accent - very minimal */
-.simple-login-screen::before {
-  content: '';
+/* Animated Background Elements - Abstract Shapes */
+.animated-bg-element {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
-  z-index: 0;
+  border-radius: 50%;
   pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+  filter: blur(40px);
 }
 
-/* Light mode - even more subtle */
-:root[data-theme="light"] .simple-login-screen::before,
-.light-mode .simple-login-screen::before {
-  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.02) 0%, transparent 60%);
+.bg-element-1 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.4), transparent 70%);
+  top: -100px;
+  left: -100px;
+  animation: floatAround1 25s ease-in-out infinite;
+}
+
+.bg-element-2 {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(244, 208, 63, 0.3), transparent 70%);
+  top: 20%;
+  right: -75px;
+  animation: floatAround2 30s ease-in-out infinite;
+}
+
+.bg-element-3 {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.35), transparent 70%);
+  bottom: -90px;
+  left: 10%;
+  animation: floatAround3 28s ease-in-out infinite;
+}
+
+.bg-element-4 {
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(244, 208, 63, 0.25), transparent 70%);
+  top: 60%;
+  left: -60px;
+  animation: floatAround4 32s ease-in-out infinite;
+}
+
+.bg-element-5 {
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.3), transparent 70%);
+  bottom: 10%;
+  right: -80px;
+  animation: floatAround5 27s ease-in-out infinite;
+}
+
+.bg-element-6 {
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(244, 208, 63, 0.2), transparent 70%);
+  top: -70px;
+  right: 30%;
+  animation: floatAround6 35s ease-in-out infinite;
+}
+
+/* Animation Keyframes - Moving off and on screen */
+@keyframes floatAround1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(400px, 200px) scale(1.2);
+  }
+  50% {
+    transform: translate(200px, 500px) scale(0.8);
+  }
+  75% {
+    transform: translate(-200px, 300px) scale(1.1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes floatAround2 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(-300px, 150px) scale(1.3) rotate(120deg);
+  }
+  66% {
+    transform: translate(200px, -200px) scale(0.7) rotate(240deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
+}
+
+@keyframes floatAround3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(300px, -250px) scale(1.4);
+  }
+  60% {
+    transform: translate(-150px, -400px) scale(0.6);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes floatAround4 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  40% {
+    transform: translate(350px, 300px) scale(1.2) rotate(180deg);
+  }
+  80% {
+    transform: translate(-250px, 200px) scale(0.9) rotate(360deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
+}
+
+@keyframes floatAround5 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  35% {
+    transform: translate(-400px, -300px) scale(1.5);
+  }
+  70% {
+    transform: translate(250px, -150px) scale(0.7);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes floatAround6 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(200px, 400px) scale(1.3) rotate(90deg);
+  }
+  50% {
+    transform: translate(-300px, 200px) scale(0.8) rotate(180deg);
+  }
+  75% {
+    transform: translate(150px, -300px) scale(1.1) rotate(270deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
 }
 
 .login-content {
   text-align: center;
-  max-width: 360px;
+  max-width: 420px;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -508,9 +651,9 @@ body {
 }
 
 .login-icon {
-  margin: 0 auto var(--space-lg);
-  width: 120px;
-  height: 120px;
+  margin: 0 auto 32px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -518,8 +661,8 @@ body {
 }
 
 .jaeger-logo {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -545,20 +688,21 @@ body {
 }
 
 .login-content h2 {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 36px;
+  font-weight: 700;
   color: var(--c-text);
-  margin-bottom: var(--space-sm);
-  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
   line-height: 1.2;
 }
 
 .login-content p {
-  font-size: 15px;
+  font-size: 18px;
   color: var(--c-text-secondary);
-  margin-bottom: var(--space-lg);
-  line-height: 1.6;
+  margin-bottom: 40px;
+  line-height: 1.5;
   max-width: 100%;
+  font-weight: 400;
 }
 
 
@@ -614,7 +758,7 @@ button[class*="SignInWithBase"] {
   border-radius: 20px !important;
 }
 
-/* Clean Connect Wallet Button Design */
+/* Simple & Big Connect Wallet Button Design */
 .sign-in-base-btn,
 button[class*="SignInWithBase"] {
   position: relative;
@@ -623,26 +767,28 @@ button[class*="SignInWithBase"] {
 .sign-in-base-btn button,
 button[class*="SignInWithBase"] button {
   position: relative;
-  background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%) !important;
+  background: #d4af37 !important;
   color: #000 !important;
-  border: none !important;
-  padding: 14px 28px !important;
-  border-radius: 12px !important;
+  border: 2px solid #d4af37 !important;
+  padding: 20px 40px !important;
+  border-radius: 16px !important;
   cursor: pointer !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
   width: 100% !important;
-  min-height: 52px !important;
-  letter-spacing: -0.01em !important;
+  min-height: 64px !important;
+  letter-spacing: -0.02em !important;
   box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3) !important;
+  text-transform: none !important;
 }
 
 /* Hover state */
 .sign-in-base-btn button:hover,
 button[class*="SignInWithBase"] button:hover {
-  background: linear-gradient(135deg, #f4d03f 0%, #d4af37 100%) !important;
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4) !important;
+  background: #f4d03f !important;
+  border-color: #f4d03f !important;
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
   transform: translateY(-2px);
 }
 
@@ -656,10 +802,11 @@ button[class*="SignInWithBase"] button:active {
 /* Disabled state */
 .sign-in-base-btn button:disabled,
 button[class*="SignInWithBase"] button:disabled {
-  opacity: 0.6 !important;
+  opacity: 0.5 !important;
   cursor: not-allowed !important;
   transform: none !important;
-  background: linear-gradient(135deg, #9d8635 0%, #7a6a28 100%) !important;
+  background: #9d8635 !important;
+  border-color: #9d8635 !important;
 }
 
 /* ============================================
@@ -1944,18 +2091,18 @@ button[class*="WalletOption"]:hover {
   }
   
   .login-content h2 {
-    font-size: 24px;
+    font-size: 28px;
   }
   
   .login-content p {
-    font-size: 14px;
+    font-size: 16px;
   }
   
   .sign-in-base-btn button,
   button[class*="SignInWithBase"] button {
-    padding: 12px 24px !important;
-    font-size: 14px !important;
-    min-height: 48px !important;
+    padding: 18px 32px !important;
+    font-size: 18px !important;
+    min-height: 60px !important;
   }
 }
 

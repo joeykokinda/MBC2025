@@ -449,6 +449,14 @@ function JaegerContent() {
       {/* Sign in screen for non-connected users */}
       {!isConnected && (
         <div className="simple-login-screen">
+          {/* Animated Background Elements */}
+          <div className="animated-bg-element bg-element-1"></div>
+          <div className="animated-bg-element bg-element-2"></div>
+          <div className="animated-bg-element bg-element-3"></div>
+          <div className="animated-bg-element bg-element-4"></div>
+          <div className="animated-bg-element bg-element-5"></div>
+          <div className="animated-bg-element bg-element-6"></div>
+          
           <div className="login-content">
             <div className="login-icon">
               <div className="jaeger-logo">
@@ -464,7 +472,7 @@ function JaegerContent() {
               </div>
             </div>
             <h2>Sign in with Base</h2>
-            <p>Connect your wallet to discover prediction markets related to any webpage you visit</p>
+            <p>Connect your wallet to discover prediction markets</p>
             <div className="login-buttons">
               {baseAccountConnector && (
                 <button

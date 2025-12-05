@@ -13,7 +13,12 @@ async function loadKeywords() {
   try {
     const response = await fetch(chrome.runtime.getURL('data/keywords.txt'));
     const text = await response.text();
-    allKeywords = text.split('\n').filter(k => k.trim().length > 0);
+    // CRITICAL FIX: Handle Windows (\r\n) and Unix (\n) line endings
+    // On Windows, split('\n') leaves \r at the end of keywords, breaking matching
+    allKeywords = text
+      .split(/\r?\n/)  // Split on \n OR \r\n (Windows line endings)
+      .map(k => k.trim())  // Remove \r and any whitespace
+      .filter(k => k.length > 0);  // Remove empty lines
     keywordSet = new Set(allKeywords.map(k => k.toLowerCase()));
     console.log(`[Jaeger] Loaded ${allKeywords.length} keywords`);
   } catch (error) {
@@ -31,20 +36,26 @@ function tokenize(text) {
 }
 
 function findMatchingKeywords(text) {
+  if (!text || text.length === 0) {
+    return [];
+  }
+  
   const textLower = text.toLowerCase();
   const words = tokenize(text);
   const hits = [];
   
+  // Match single-word keywords
   for (const word of words) {
     if (keywordSet.has(word)) {
       hits.push(word);
     }
   }
   
+  // Match multi-word keywords (phrases) - ensure trimmed
   for (const keyword of allKeywords) {
-    const keywordLower = keyword.toLowerCase();
+    const keywordLower = keyword.toLowerCase().trim();  // Ensure trimmed
     if (keywordLower.includes(' ') && textLower.includes(keywordLower)) {
-      hits.push(keyword);
+      hits.push(keyword.trim());  // Ensure trimmed when adding
     }
   }
   

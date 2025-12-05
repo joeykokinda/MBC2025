@@ -9,4 +9,4 @@ sidebar/
 config.js
 background/config.js
 backend/
-
+.vscode/

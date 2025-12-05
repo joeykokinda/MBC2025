@@ -15,9 +15,9 @@ async function loadKeywords() {
     const text = await response.text();
     allKeywords = text.split('\n').filter(k => k.trim().length > 0);
     keywordSet = new Set(allKeywords.map(k => k.toLowerCase()));
-    console.log(`[PolyFinder] Loaded ${allKeywords.length} keywords`);
+    console.log(`[Jaeger] Loaded ${allKeywords.length} keywords`);
   } catch (error) {
-    console.error('[PolyFinder] Error loading keywords:', error);
+    console.error('[Jaeger] Error loading keywords:', error);
     allKeywords = [];
     keywordSet = new Set();
   }
@@ -49,7 +49,7 @@ function findMatchingKeywords(text) {
   }
   
   const uniqueHits = [...new Set(hits)];
-  console.log(`[PolyFinder] Matched ${uniqueHits.length} keywords from text`);
+  console.log(`[Jaeger] Matched ${uniqueHits.length} keywords from text`);
   return uniqueHits;
 }
 
@@ -244,7 +244,7 @@ async function searchPolymarketByKeyword(keyword) {
   if (searchCache.has(cacheKey)) {
     const cached = searchCache.get(cacheKey);
     if (now - cached.timestamp < 300000) {
-      console.log(`[PolyFinder] Using cached results for "${keyword}"`);
+      console.log(`[Jaeger] Using cached results for "${keyword}"`);
       return cached.result;
     }
   }
@@ -267,7 +267,7 @@ async function searchPolymarketByKeyword(keyword) {
     
     return result;
   } catch (error) {
-    console.error(`[PolyFinder] Error searching for "${keyword}":`, error);
+    console.error(`[Jaeger] Error searching for "${keyword}":`, error);
     return null;
   }
 }
@@ -307,17 +307,17 @@ async function searchMarketsByKeywords(keywordsInput) {
     const keywords = Array.isArray(keywordsInput) ? keywordsInput : [keywordsInput];
     
     if (keywords.length === 0) {
-      console.log(`[PolyFinder] No keywords to search`);
+      console.log(`[Jaeger] No keywords to search`);
       return [];
     }
     
-    console.log(`[PolyFinder] Searching with ${keywords.length} keywords: [${keywords.slice(0, 5).join(', ')}...]`);
+    console.log(`[Jaeger] Searching with ${keywords.length} keywords: [${keywords.slice(0, 5).join(', ')}...]`);
     
     const url = `${GAMMA_API_URL}?limit=1000&offset=0&closed=false&active=true`;
     const response = await fetch(url);
     const allMarkets = await response.json();
     
-    console.log(`[PolyFinder] Fetched ${allMarkets.length} active markets, scoring relevance...`);
+    console.log(`[Jaeger] Fetched ${allMarkets.length} active markets, scoring relevance...`);
     
     if (!Array.isArray(allMarkets) || allMarkets.length === 0) {
       return [];
@@ -368,7 +368,7 @@ async function searchMarketsByKeywords(keywordsInput) {
     
     const matched = scoredMarkets.filter(m => m.score > 0);
     
-    console.log(`[PolyFinder] Found ${matched.length} markets matching keywords`);
+    console.log(`[Jaeger] Found ${matched.length} markets matching keywords`);
     
     const sorted = matched.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
@@ -376,18 +376,18 @@ async function searchMarketsByKeywords(keywordsInput) {
     });
     
     if (sorted.length > 0) {
-      console.log(`[PolyFinder] Top ${Math.min(5, sorted.length)} matches (by relevance):`);
+      console.log(`[Jaeger] Top ${Math.min(5, sorted.length)} matches (by relevance):`);
       sorted.slice(0, 5).forEach((m, i) => {
         console.log(`  ${i+1}. [Score: ${m.score}] ${m.market.question} (matched: ${m.matchedKeywords.slice(0, 3).join(', ')})`);
       });
     } else {
-      console.log(`[PolyFinder] No markets found matching any keywords`);
+      console.log(`[Jaeger] No markets found matching any keywords`);
     }
 
     const topMarkets = sorted.slice(0, 50).map((m) => m.market);
     return convertMarketsToDisplay(topMarkets).slice(0, 10);
   } catch (error) {
-    console.error('[PolyFinder API] Error searching markets:', error);
+    console.error('[Jaeger API] Error searching markets:', error);
     return [];
   }
 }
@@ -484,7 +484,7 @@ async function fetchAndSendMarkets() {
 
 // SETUP: Runs when extension is first installed
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('PolyFinder Extension installed');
+  console.log('Jaeger Extension installed');
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
 
@@ -494,13 +494,13 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 async function extractKeywordsFromText(text) {
-  console.log(`[PolyFinder Keywords] Matching text against ${allKeywords.length} keywords`);
+  console.log(`[Jaeger Keywords] Matching text against ${allKeywords.length} keywords`);
   const matches = findMatchingKeywords(text);
   
   if (matches.length > 0) {
-    console.log(`[PolyFinder Keywords] Found matches: [${matches.join(', ')}]`);
+    console.log(`[Jaeger Keywords] Found matches: [${matches.join(', ')}]`);
   } else {
-    console.log(`[PolyFinder Keywords] No keyword matches found`);
+    console.log(`[Jaeger Keywords] No keyword matches found`);
   }
   
   return matches;
@@ -508,8 +508,8 @@ async function extractKeywordsFromText(text) {
 
 async function processScrapedTweets(tweets, url, timestamp) {
   console.log('========================================');
-  console.log(`[PolyFinder Background] RECEIVED ${tweets.length} TWEETS`);
-  console.log(`[PolyFinder Background] From URL: ${url}`);
+  console.log(`[Jaeger Background] RECEIVED ${tweets.length} TWEETS`);
+  console.log(`[Jaeger Background] From URL: ${url}`);
   console.log('========================================');
   
   const tweetTexts = tweets.map(tweet => ({
@@ -519,7 +519,7 @@ async function processScrapedTweets(tweets, url, timestamp) {
     timestamp: timestamp
   }));
   
-  console.log('[PolyFinder Background] Tweet data structure ready for API:');
+  console.log('[Jaeger Background] Tweet data structure ready for API:');
   console.log(`  - Total tweets: ${tweetTexts.length}`);
   console.log('  - Sample data (first 2 tweets):');
   console.log(JSON.stringify(tweetTexts.slice(0, 2), null, 4));
@@ -544,7 +544,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return true;
     }
     
-    console.log(`[PolyFinder] Tweet matched keywords: [${hits.join(', ')}]`);
+    console.log(`[Jaeger] Tweet matched keywords: [${hits.join(', ')}]`);
     
     Promise.all(hits.slice(0, 3).map(keyword => searchPolymarketByKeyword(keyword)))
       .then(results => {
@@ -593,7 +593,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         });
       })
       .catch(error => {
-        console.error('[PolyFinder] Error processing CHECK_TWEET:', error);
+        console.error('[Jaeger] Error processing CHECK_TWEET:', error);
         sendResponse({ success: false, markets: [] });
       });
     
@@ -601,7 +601,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   
   if (msg.action === 'CLEAR_CACHE') {
-    console.log('[PolyFinder Background] Clearing tweet cache...');
+    console.log('[Jaeger Background] Clearing tweet cache...');
     lastProcessedTweets.clear();
     processingInProgress = false;
     searchCache.clear();
@@ -613,21 +613,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const { text, title, url } = msg.payload || {};
     
     if (!text || text.length < 50) {
-      console.log('[PolyFinder] PAGE_LOADED ignored - insufficient text');
+      console.log('[Jaeger] PAGE_LOADED ignored - insufficient text');
       return true;
     }
     
-    console.log(`[PolyFinder] PAGE_LOADED from: ${url}`);
-    console.log(`[PolyFinder] Processing ${text.length} characters of text...`);
+    console.log(`[Jaeger] PAGE_LOADED from: ${url}`);
+    console.log(`[Jaeger] Processing ${text.length} characters of text...`);
     
     let matchedKeywords = [];
     
     extractKeywordsFromText(text).then(keywords => {
       matchedKeywords = keywords;
-      console.log(`[PolyFinder] Matched keywords: [${keywords.join(', ')}]`);
+      console.log(`[Jaeger] Matched keywords: [${keywords.join(', ')}]`);
       
       if (keywords.length === 0) {
-        console.log('[PolyFinder] No keywords matched - showing default markets');
+        console.log('[Jaeger] No keywords matched - showing default markets');
         fetchAndSendMarkets();
         return null;
       }
@@ -635,7 +635,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return searchMarketsByKeywords(keywords);
     }).then(markets => {
       if (!markets || markets.length === 0) {
-        console.log('[PolyFinder] No markets found - showing default');
+        console.log('[Jaeger] No markets found - showing default');
         fetchAndSendMarkets();
         return;
       }
@@ -651,9 +651,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
       });
       
-      console.log(`[PolyFinder] Sent ${markets.length} markets to sidebar`);
+      console.log(`[Jaeger] Sent ${markets.length} markets to sidebar`);
     }).catch(error => {
-      console.error('[PolyFinder] Error processing PAGE_LOADED:', error);
+      console.error('[Jaeger] Error processing PAGE_LOADED:', error);
       fetchAndSendMarkets();
     });
     
@@ -663,26 +663,26 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'FETCH_MARKETS') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0] && (tabs[0].url.includes('twitter.com') || tabs[0].url.includes('x.com'))) {
-        console.log('[PolyFinder] On Twitter, triggering scrape...');
+        console.log('[Jaeger] On Twitter, triggering scrape...');
         
         chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
         
         let fallbackTimeout = setTimeout(() => {
-          console.log('[PolyFinder] Scrape took too long, showing default markets');
+          console.log('[Jaeger] Scrape took too long, showing default markets');
           fetchAndSendMarkets();
         }, 5000);
         
         chrome.tabs.sendMessage(tabs[0].id, { action: 'SCRAPE_PAGE' }, (response) => {
           if (chrome.runtime.lastError) {
             clearTimeout(fallbackTimeout);
-            console.log('[PolyFinder] Error triggering scrape, showing default markets');
+            console.log('[Jaeger] Error triggering scrape, showing default markets');
             fetchAndSendMarkets();
           } else if (response && response.success) {
             clearTimeout(fallbackTimeout);
           }
         });
       } else {
-        console.log('[PolyFinder] Not on Twitter, showing default markets');
+        console.log('[Jaeger] Not on Twitter, showing default markets');
         fetchAndSendMarkets();
       }
     });
@@ -700,7 +700,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         });
       })
       .catch((error) => {
-        console.error('[PolyFinder Background] Keyword extraction error:', error);
+        console.error('[Jaeger Background] Keyword extraction error:', error);
         sendResponse({ success: false, error: error.message });
       });
     
@@ -719,7 +719,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         });
       })
       .catch((error) => {
-        console.error('[PolyFinder Background] Error searching markets:', error);
+        console.error('[Jaeger Background] Error searching markets:', error);
         sendResponse({ success: false, error: error.message });
       });
     
@@ -746,7 +746,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         });
       })
       .catch((error) => {
-        console.error('[PolyFinder Background] Keyword to markets error:', error);
+        console.error('[Jaeger Background] Keyword to markets error:', error);
         sendResponse({ success: false, error: error.message });
       });
     
@@ -754,7 +754,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   
   if (msg.action === 'TWEETS_SCRAPED') {
-    console.log('[PolyFinder Background] Message received: TWEETS_SCRAPED');
+    console.log('[Jaeger Background] Message received: TWEETS_SCRAPED');
     
     const { tweets, url, timestamp } = msg.payload;
     
@@ -763,17 +763,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ success: true, processed: tweets.length });
       })
       .catch((error) => {
-        console.error('[PolyFinder Background] Error processing tweets:', error);
+        console.error('[Jaeger Background] Error processing tweets:', error);
         sendResponse({ success: false, error: error.message });
       });
     
     if (processingInProgress) {
-      console.log('[PolyFinder Background] Already processing tweets, skipping...');
+      console.log('[Jaeger Background] Already processing tweets, skipping...');
       return true;
     }
     
     if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('YOUR-API-KEY')) {
-      console.error('[PolyFinder Background] No API key configured! Add your Gemini key to config.js');
+      console.error('[Jaeger Background] No API key configured! Add your Gemini key to config.js');
       return true;
     }
     
@@ -781,27 +781,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const isDuplicate = tweetHashes.every(hash => lastProcessedTweets.has(hash));
     
     if (isDuplicate) {
-      console.log('[PolyFinder Background] These tweets were already processed, skipping...');
+      console.log('[Jaeger Background] These tweets were already processed, skipping...');
       return true;
     }
     
     tweetHashes.forEach(hash => lastProcessedTweets.add(hash));
     
     const tweetsToProcess = tweets.slice(0, 3);
-    console.log(`[PolyFinder Background] Auto-processing ${tweetsToProcess.length} NEW tweets...`);
+    console.log(`[Jaeger Background] Auto-processing ${tweetsToProcess.length} NEW tweets...`);
     
     processingInProgress = true;
     
     chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
     
     Promise.all(tweetsToProcess.map(async (tweet) => {
-      console.log(`\n[PolyFinder] Processing tweet: "${tweet.text.substring(0, 80)}..."`);
+      console.log(`\n[Jaeger] Processing tweet: "${tweet.text.substring(0, 80)}..."`);
       
       const keywords = await extractKeywordsFromText(tweet.text);
-      console.log(`[PolyFinder] Keywords for this tweet:`, keywords);
+      console.log(`[Jaeger] Keywords for this tweet:`, keywords);
         
       const markets = await searchMarketsByKeywords(keywords);
-      console.log(`[PolyFinder] Found ${markets.length} markets for this tweet\n`);
+      console.log(`[Jaeger] Found ${markets.length} markets for this tweet\n`);
       
       return {
         tweet: tweet.text,
@@ -812,7 +812,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }))
     .then((results) => {
       console.log('\n========================================');
-      console.log(`[PolyFinder] COMPLETED: Processed ${results.length} tweets`);
+      console.log(`[Jaeger] COMPLETED: Processed ${results.length} tweets`);
       console.log('========================================');
       
       const allMarkets = [];
@@ -871,7 +871,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       processingInProgress = false;
     })
     .catch((error) => {
-      console.error('[PolyFinder Background] Error processing tweets to markets:', error);
+      console.error('[Jaeger Background] Error processing tweets to markets:', error);
       processingInProgress = false;
     });
     
@@ -884,13 +884,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.runtime.sendMessage({ action: 'PROCESSING_STARTED' });
     
     Promise.all(tweets.map(async (tweet) => {
-      console.log(`\n[PolyFinder] Processing tweet: "${tweet.text.substring(0, 80)}..."`);
+      console.log(`\n[Jaeger] Processing tweet: "${tweet.text.substring(0, 80)}..."`);
       
       const keywords = await extractKeywordsFromText(tweet.text);
-      console.log(`[PolyFinder] Keywords for this tweet:`, keywords);
+      console.log(`[Jaeger] Keywords for this tweet:`, keywords);
       
       const markets = await searchMarketsByKeywords(keywords);
-      console.log(`[PolyFinder] Found ${markets.length} markets for this tweet\n`);
+      console.log(`[Jaeger] Found ${markets.length} markets for this tweet\n`);
       
       return {
         tweet: tweet.text,
@@ -901,7 +901,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }))
       .then((results) => {
         console.log('\n========================================');
-        console.log(`[PolyFinder] COMPLETED: Processed ${results.length} tweets`);
+        console.log(`[Jaeger] COMPLETED: Processed ${results.length} tweets`);
         console.log('========================================');
         
         const allMarkets = [];
@@ -960,7 +960,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ success: true, results: results, totalMarkets: allMarkets.length });
       })
       .catch((error) => {
-        console.error('[PolyFinder Background] Error processing tweets to markets:', error);
+        console.error('[Jaeger Background] Error processing tweets to markets:', error);
         sendResponse({ success: false, error: error.message });
       });
     

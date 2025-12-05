@@ -33,7 +33,7 @@ function scrapeTwitterPage() {
     timestamp: Date.now()
   };
 
-  console.debug('[PolyFinder] Twitter scrape', {
+  console.debug('[Jaeger] Twitter scrape', {
     title,
     textPreview: payload.text.slice(0, 280),
     totalLength: payload.text.length,
@@ -73,7 +73,7 @@ function scrapeGenericPage() {
     timestamp: Date.now()
   };
 
-  console.debug('[PolyFinder] Generic scrape', {
+  console.debug('[Jaeger] Generic scrape', {
     title,
     textPreview: payload.text.slice(0, 280),
     totalLength: payload.text.length
@@ -168,7 +168,7 @@ function handleTwitterScroll() {
   if (!isTwitter) return;
   
   lastScrapeTime = now;
-  console.log('[PolyFinder] Re-scraping Twitter due to scroll...');
+  console.log('[Jaeger] Re-scraping Twitter due to scroll...');
   
   chrome.runtime.sendMessage({
     action: 'PAGE_LOADED',
@@ -272,11 +272,11 @@ async function checkTweetForMarkets(article) {
     });
     
     if (response && response.success && response.marketsByKeyword && response.marketsByKeyword.length > 0) {
-      console.log(`[PolyFinder] Found ${response.marketsByKeyword.length} market(s) for tweet`);
+      console.log(`[Jaeger] Found ${response.marketsByKeyword.length} market(s) for tweet`);
       injectMarketsIntoTweet(article, response.marketsByKeyword);
     }
   } catch (error) {
-    console.error('[PolyFinder] Error checking tweet:', error);
+    console.error('[Jaeger] Error checking tweet:', error);
   }
 }
 
@@ -300,5 +300,5 @@ if (window.location.href.includes('twitter.com') || window.location.href.include
   
   setTimeout(() => scanTwitterFeed(), 2000);
   
-  console.log('[PolyFinder] Twitter continuous scraping + injection enabled');
+  console.log('[Jaeger] Twitter continuous scraping + injection enabled');
 }

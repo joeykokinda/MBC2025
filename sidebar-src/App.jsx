@@ -19,7 +19,7 @@ const config = createConfig({
   chains: [base],
   connectors: [
     baseAccount({
-      appName: 'PolyFinder',
+      appName: 'Jaeger',
     }),
   ],
   transports: {
@@ -29,7 +29,7 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
-function PolyFinderContent() {
+function JaegerContent() {
   // Get wallet connection status and connector
   const { isConnected, address } = useAccount();
   const { connectors, connect, status, error: connectError } = useConnect();
@@ -94,13 +94,10 @@ function PolyFinderContent() {
     let processingTimeout;
     
     const handleMessage = (msg) => {
-      console.log('[PolyFinder UI] Received message:', msg.action, msg.payload);
-      
-      // Only process messages if user is connected
-      if (!isConnected) {
-        console.log('[PolyFinder UI] Ignoring message - user not connected');
-        return;
-      }
+      console.log('[Jaeger UI] Received message:', msg.action, {
+        isConnected,
+        payload: msg.payload
+      });
       
       if (msg.action === 'MARKETS_READY') {
         const newMarkets = msg.payload.markets || [];
@@ -117,7 +114,7 @@ function PolyFinderContent() {
         clearTimeout(processingTimeout);
         setError(msg.payload.error || null);
         
-        console.log('[PolyFinder UI] Updated state:', {
+        console.log('[Jaeger UI] Updated state:', {
           markets: newMarkets.length,
           keywords: msg.payload.keywords?.length || 0,
           pageTitle: msg.payload.pageTitle
@@ -125,7 +122,7 @@ function PolyFinderContent() {
         
         // Log first market with full URL for debugging
         if (newMarkets.length > 0) {
-          console.log('[PolyFinder UI] First market:', {
+          console.log('[Jaeger UI] First market:', {
             question: newMarkets[0].question,
             url: newMarkets[0].url,
             id: newMarkets[0].id
@@ -145,14 +142,8 @@ function PolyFinderContent() {
 
     chrome.runtime.onMessage.addListener(handleMessage);
 
-    // Only fetch markets if user is connected
-    if (isConnected) {
-      console.log('[PolyFinder UI] User connected - fetching markets');
-      chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
-    } else {
-      console.log('[PolyFinder UI] User not connected - skipping market fetch');
-      setLoading(false);
-    }
+    console.log('[Jaeger UI] Requesting markets', { isConnected });
+    chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
 
     return () => {
       chrome.runtime.onMessage.removeListener(handleMessage);
@@ -160,13 +151,10 @@ function PolyFinderContent() {
     };
   }, [isConnected]);
 
-  // Refresh button handler - fetch markets again (only when connected)
+  // Refresh button handler - fetch markets again
   const handleRefresh = () => {
-    if (!isConnected) {
-      console.log('Cannot refresh - user not connected');
-      return;
-    }
     setLoading(true);
+    console.log('[Jaeger UI] Refreshing markets');
     chrome.runtime.sendMessage({ action: 'CLEAR_CACHE' });
     chrome.runtime.sendMessage({ action: 'FETCH_MARKETS' });
   };
@@ -273,12 +261,12 @@ function PolyFinderContent() {
   return (
     <div className="sidebar-container">
       <header className="sidebar-header">
-        <h1>PolyFinder</h1>
-        {isConnected && (
-          <div className="header-actions">
-            <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
-              ↻
-            </button>
+        <h1>Jaeger</h1>
+        <div className="header-actions">
+          <button onClick={handleRefresh} className="refresh-btn" title="Refresh markets">
+            ↻
+          </button>
+          {isConnected && (
             <div className="wallet-menu-container">
               <button 
                 onClick={toggleWalletMenu} 
@@ -309,13 +297,13 @@ function PolyFinderContent() {
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       {/* Sign in screen for non-connected users */}
       {!isConnected && (
-        <div className="simple-login-screen">
+        <div className="simple-login-screen compact">
           <div className="login-content">
             <div className="login-icon">
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -355,9 +343,8 @@ function PolyFinderContent() {
         </div>
       )}
 
-      {/* Main content - Only visible when connected */}
-      {isConnected && (
-        <div className="markets-content-wrapper">
+      {/* Main content */}
+      <div className="markets-content-wrapper">
           {/* Processing banner */}
           {processing && (
             <div className="processing-banner">
@@ -401,7 +388,6 @@ function PolyFinderContent() {
             </>
           )}
         </div>
-      )}
     </div>
   );
 }
@@ -411,7 +397,7 @@ export default function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <PolyFinderContent />
+        <JaegerContent />
       </QueryClientProvider>
     </WagmiProvider>
   );

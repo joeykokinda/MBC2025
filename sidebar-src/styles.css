@@ -468,6 +468,18 @@ body {
   overflow: hidden;
 }
 
+.simple-login-screen.compact {
+  flex: none;
+  align-self: stretch;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  min-height: auto;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--c-radius);
+  box-shadow: var(--c-shadow);
+}
+
 /* Animated Background Elements - Abstract Shapes */
 .animated-bg-element {
   position: absolute;

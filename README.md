@@ -80,5 +80,3 @@ The extension uses a luxury gold-themed design with:
 - **Spacing**: Consistent 4px/8px/16px/24px grid
 - **Shadows**: Subtle elevation with gold glows
 - **Animations**: Smooth cubic-bezier transitions with lazy loading
-
-test

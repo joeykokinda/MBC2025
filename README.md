@@ -235,3 +235,11 @@ Stay updated with the latest **Jaeger** news and updates:
 - **Albert Wu**: [@Hauntpex](https://x.com/Hauntpex)
 - **Eli Dubizh**: [@EliDubizh](https://x.com/EliDubizh)
 - **Garv Tayade**: [@0xgt_27](https://x.com/0xgt_27)
+
+## License
+
+**All Rights Reserved** - This software is proprietary and confidential.
+
+Unauthorized copying, distribution, or use of this software is strictly prohibited. See [LICENSE](LICENSE) file for full details.
+
+Copyright (c) 2025 Joey Kokinda, Albert Wu, Eli Dubizh, Garv Tayade

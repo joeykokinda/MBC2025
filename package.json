@@ -6,7 +6,8 @@
     "dev": "vite build --watch --mode development",
     "build": "vite build",
     "preview": "vite preview",
-    "generate-icons": "node generate-icons.js"
+    "generate-icons": "node generate-icons.js",
+    "setup-builder": "node setup-builder.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.11",

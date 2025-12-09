@@ -7,45 +7,46 @@
 // Global toggle state
 window.polymarketVisible = localStorage.getItem('polymarketVisible') !== 'false';
 window.polymarketDegenMode = localStorage.getItem('polymarketDegenMode') === 'true';
+window.polymarketCardCounter = 10000;
 
-/**
- * Creates the Polymarket market card UI
- */
+const BUILDER_CODE = '0x64896354abcb1a591c20f7bafbd894e24ba82ddf';
+
+function addBuilderParam(url) {
+  if (!url || url === '#' || !BUILDER_CODE || BUILDER_CODE === 'YOUR_BUILDER_ADDRESS_HERE') {
+    return url;
+  }
+  
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}builder=${encodeURIComponent(BUILDER_CODE)}`;
+}
+
 function buildPolymarketUrl(market = {}, event = null, isMultiOption = false) {
   const conditionId = market.conditionId || market.condition_id || '';
   const marketId = market.id || '';
   const marketSlug = market.slug || '';
   const eventSlug = event?.slug || market.events?.[0]?.slug || event?.ticker || '';
 
+  let url = '';
+
   if (isMultiOption && eventSlug && marketId) {
-    return `https://polymarket.com/event/${eventSlug}?tid=${marketId}`;
+    url = `https://polymarket.com/event/${eventSlug}?tid=${marketId}`;
+  } else if (eventSlug && marketSlug && marketId) {
+    url = `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
+  } else if (eventSlug && conditionId) {
+    url = `https://polymarket.com/event/${eventSlug}?_c=${conditionId}`;
+  } else if (eventSlug && marketId) {
+    url = `https://polymarket.com/event/${eventSlug}?tid=${marketId}`;
+  } else if (marketSlug && marketId) {
+    url = `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
+  } else if (eventSlug) {
+    url = `https://polymarket.com/event/${eventSlug}`;
+  } else if (conditionId) {
+    url = `https://polymarket.com/?_c=${conditionId}`;
+  } else {
+    return '#';
   }
 
-  if (eventSlug && marketSlug && marketId) {
-    return `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
-  }
-
-  if (eventSlug && conditionId) {
-    return `https://polymarket.com/event/${eventSlug}?_c=${conditionId}`;
-  }
-
-  if (eventSlug && marketId) {
-    return `https://polymarket.com/event/${eventSlug}?tid=${marketId}`;
-  }
-
-  if (marketSlug && marketId) {
-    return `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
-  }
-
-  if (eventSlug) {
-    return `https://polymarket.com/event/${eventSlug}`;
-  }
-
-  if (conditionId) {
-    return `https://polymarket.com/?_c=${conditionId}`;
-  }
-
-  return '#';
+  return addBuilderParam(url);
 }
 
 window.createMarketCard = function(marketData) {

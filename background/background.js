@@ -2,11 +2,22 @@
 const GAMMA_API_URL = 'https://gamma-api.polymarket.com/markets';
 const GAMMA_SEARCH_URL = 'https://gamma-api.polymarket.com/public-search';
 
+const BUILDER_CODE = '0x64896354abcb1a591c20f7bafbd894e24ba82ddf';
+
+function addBuilderParam(url) {
+  if (!url || url === '#' || !BUILDER_CODE || BUILDER_CODE === 'YOUR_BUILDER_ADDRESS_HERE') {
+    return url;
+  }
+  
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}builder=${encodeURIComponent(BUILDER_CODE)}`;
+}
+
 const HARDCODED_MARKETS = {
   'mbc': {
     id: 'mbc-2025-research-competition-winner',
     question: 'MBC 2025: Research Competition Winner',
-    url: 'https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638',
+    url: addBuilderParam('https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638'),
     volume: 3574,
     options: [
       { name: '$Hype (University of Alabama)', price: '0.35' },
@@ -19,7 +30,7 @@ const HARDCODED_MARKETS = {
   'midwest blockchain': {
     id: 'mbc-2025-research-competition-winner',
     question: 'MBC 2025: Research Competition Winner',
-    url: 'https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638',
+    url: addBuilderParam('https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638'),
     volume: 3574,
     options: [
       { name: '$Hype (University of Alabama)', price: '0.35' },
@@ -32,7 +43,7 @@ const HARDCODED_MARKETS = {
   'midwest blockchain conference': {
     id: 'mbc-2025-research-competition-winner',
     question: 'MBC 2025: Research Competition Winner',
-    url: 'https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638',
+    url: addBuilderParam('https://polymarket.com/event/mbc-2025-research-competition-winner?tid=1764922526638'),
     volume: 3574,
     options: [
       { name: '$Hype (University of Alabama)', price: '0.35' },
@@ -162,32 +173,23 @@ function buildPolymarketUrl(market = {}, event = null) {
   const marketSlug = market.slug || '';
   const eventSlug = event?.slug || market.events?.[0]?.slug || event?.ticker || '';
 
-  // Priority 1: Full URL with event slug, market slug, and market ID
+  let url = '';
+
   if (eventSlug && marketSlug && marketId) {
-    return `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
+    url = `https://polymarket.com/event/${eventSlug}/${marketSlug}?tid=${marketId}`;
+  } else if (eventSlug && conditionId) {
+    url = `https://polymarket.com/event/${eventSlug}?_c=${conditionId}`;
+  } else if (marketSlug && marketId) {
+    url = `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
+  } else if (eventSlug) {
+    url = `https://polymarket.com/event/${eventSlug}`;
+  } else if (conditionId) {
+    url = `https://polymarket.com/?_c=${conditionId}`;
+  } else {
+    return '#';
   }
 
-  // Priority 2: Event slug with condition ID
-  if (eventSlug && conditionId) {
-    return `https://polymarket.com/event/${eventSlug}?_c=${conditionId}`;
-  }
-
-  // Priority 3: Market slug with market ID
-  if (marketSlug && marketId) {
-    return `https://polymarket.com/event/${marketSlug}?tid=${marketId}`;
-  }
-
-  // Priority 4: Event slug only
-  if (eventSlug) {
-    return `https://polymarket.com/event/${eventSlug}`;
-  }
-
-  // Priority 5: Condition ID only
-  if (conditionId) {
-    return `https://polymarket.com/?_c=${conditionId}`;
-  }
-
-  return '#';
+  return addBuilderParam(url);
 }
 
 function parseOutcomePrices(market = {}) {

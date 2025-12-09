@@ -2,6 +2,7 @@
   "name": "polyfinder",
   "version": "1.0.0",
   "type": "module",
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "vite build --watch --mode development",
     "build": "vite build",
